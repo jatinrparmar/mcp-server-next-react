@@ -1,0 +1,229 @@
+{
+  "version": "2025.1",
+  "framework": "nextjs",
+  "appRouterOnly": true,
+  "noPagesRouter": true,
+  "preferServerComponents": true,
+  "useClientDirectiveOnlyWhenNeeded": true,
+  
+  "routing": {
+    "preferAppRouter": true,
+    "useFileBasedRouting": true,
+    "parallelRoutes": true,
+    "interceptingRoutes": true,
+    "routeGroups": true
+  },
+
+  "dataFetching": {
+    "prefer": ["fetch", "serverActions", "unstable_cache"],
+    "avoid": ["getServerSideProps", "getStaticProps", "getInitialProps"],
+    "caching": {
+      "useRequestMemoization": true,
+      "revalidateStrategies": ["time-based", "on-demand", "tag-based"]
+    }
+  },
+
+  "components": {
+    "defaultToServerComponents": true,
+    "clientComponents": {
+      "onlyWhenNeeded": ["interactivity", "browserAPIs", "stateHooks", "effectHooks"],
+      "markExplicitly": true,
+      "minimizeBundle": true
+    },
+    "composition": {
+      "preferComposition": true,
+      "avoidPropDrilling": true,
+      "useContext": "sparingly"
+    }
+  },
+
+  "performance": {
+    "useDynamicImport": true,
+    "avoidUseEffectForData": true,
+    "imageOptimization": {
+      "useNextImage": true,
+      "lazyLoading": true,
+      "responsiveImages": true,
+      "formats": ["webp", "avif"]
+    },
+    "fontOptimization": {
+      "useNextFont": true,
+      "subsetFonts": true,
+      "displaySwap": true
+    },
+    "bundleOptimization": {
+      "codesplitting": true,
+      "treeShaking": true,
+      "minifyOutput": true
+    },
+    "streaming": {
+      "useStreamingSSR": true,
+      "suspenseBoundaries": true,
+      "loadingUI": true
+    }
+  },
+
+  "security": {
+    "noEnvLeakage": true,
+    "serverActionsValidation": true,
+    "csrfProtection": true,
+    "sanitizeInputs": true,
+    "useContentSecurityPolicy": true,
+    "secrets": {
+      "useEnvFiles": true,
+      "neverCommit": true,
+      "prefixPublicVars": "NEXT_PUBLIC_"
+    }
+  },
+
+  "seo": {
+    "metadataAPI": true,
+    "generateMetadata": true,
+    "structuredData": true,
+    "sitemap": true,
+    "robots": true,
+    "openGraph": true,
+    "twitter": true
+  },
+
+  "accessibility": {
+    "semanticHTML": true,
+    "ariaLabels": true,
+    "keyboardNavigation": true,
+    "focusManagement": true,
+    "colorContrast": true,
+    "altText": true
+  },
+
+  "testing": {
+    "unitTests": true,
+    "integrationTests": true,
+    "e2eTests": true,
+    "tools": ["jest", "vitest", "playwright", "cypress"]
+  },
+
+  "typescript": {
+    "strictMode": true,
+    "noImplicitAny": true,
+    "typeImports": true,
+    "useGeneratedTypes": true
+  },
+
+  "styling": {
+    "prefer": ["tailwindCSS", "cssModules"],
+    "avoid": ["inline-styles", "global-css"],
+    "cssInJS": {
+      "warning": "Can cause issues with streaming SSR",
+      "alternatives": ["tailwind", "css-modules"]
+    }
+  },
+
+  "stateManagement": {
+    "localState": ["useState", "useReducer"],
+    "serverState": ["server-components", "server-actions"],
+    "globalState": ["context", "zustand", "jotai"],
+    "avoid": ["redux-without-reason", "unnecessary-context"]
+  },
+
+  "errorHandling": {
+    "useErrorBoundaries": true,
+    "errorJS": true,
+    "globalErrorJS": true,
+    "notFoundJS": true,
+    "loadingJS": true
+  },
+
+  "deployment": {
+    "vercel": {
+      "optimal": true,
+      "edgeFunctions": true,
+      "edgeMiddleware": true
+    },
+    "selfHosted": {
+      "standalone": true,
+      "docker": true,
+      "outputStandalone": true
+    }
+  },
+
+  "bestPractices": [
+    {
+      "rule": "use-server-components-by-default",
+      "description": "Default to Server Components unless you need interactivity",
+      "severity": "error"
+    },
+    {
+      "rule": "client-directive-explicit",
+      "description": "Only use 'use client' when necessary (hooks, events, browser APIs)",
+      "severity": "error"
+    },
+    {
+      "rule": "no-pages-router",
+      "description": "Use App Router exclusively for new projects",
+      "severity": "warning"
+    },
+    {
+      "rule": "async-server-components",
+      "description": "Server Components can be async - fetch data directly",
+      "severity": "info"
+    },
+    {
+      "rule": "avoid-use-effect-data-fetching",
+      "description": "Don't use useEffect for data fetching - use Server Components or SWR",
+      "severity": "warning"
+    },
+    {
+      "rule": "next-image-required",
+      "description": "Use next/image for all images",
+      "severity": "error"
+    },
+    {
+      "rule": "next-font-required",
+      "description": "Use next/font for font optimization",
+      "severity": "warning"
+    },
+    {
+      "rule": "metadata-api",
+      "description": "Use Metadata API instead of Head component",
+      "severity": "error"
+    },
+    {
+      "rule": "server-actions-validation",
+      "description": "Always validate server action inputs with zod or similar",
+      "severity": "error"
+    },
+    {
+      "rule": "no-env-client-exposure",
+      "description": "Never expose secrets to client - use server actions",
+      "severity": "error"
+    }
+  ],
+
+  "antiPatterns": [
+    {
+      "pattern": "client-component-overuse",
+      "description": "Making entire pages client components unnecessarily",
+      "fix": "Move client logic to leaf components"
+    },
+    {
+      "pattern": "prop-drilling",
+      "description": "Passing props through multiple layers",
+      "fix": "Use composition, context, or server components"
+    },
+    {
+      "pattern": "useEffect-data-fetching",
+      "description": "Fetching data in useEffect on mount",
+      "fix": "Use server components or proper data fetching libraries"
+    },
+    {
+      "pattern": "blocking-data-requests",
+      "description": "Sequential waterfall requests",
+      "fix": "Use Promise.all or parallel data fetching"
+    },
+    {
+      "pattern": "heavy-client-bundles",
+      "description": "Importing large libraries in client components",
+      "fix": "Use dynamic imports or move to server components"
+    }
+  ]
+}

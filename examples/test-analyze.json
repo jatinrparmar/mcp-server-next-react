@@ -1,0 +1,8 @@
+{
+  "description": "Test analyze-code tool",
+  "tool": "analyze-code",
+  "params": {
+    "code": "export default function UserProfile() {\n  const [data, setData] = useState(null);\n  \n  useEffect(() => {\n    fetch('/api/user').then(r => r.json()).then(setData);\n  }, []);\n  \n  return <img src='/photo.jpg' />;\n}",
+    "filePath": "components/UserProfile.tsx"
+  }
+}

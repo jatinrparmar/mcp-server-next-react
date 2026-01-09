@@ -1,0 +1,38 @@
+{
+  "name": "nextjs-dev-assistant",
+  "version": "1.0.0",
+  "description": "Next.js and React development assistant with code analysis, optimization, and best practices",
+  "capabilities": {
+    "tools": [
+      {
+        "name": "analyze-code",
+        "description": "Analyze React/Next.js code for best practices and issues"
+      },
+      {
+        "name": "review-code",
+        "description": "Comprehensive code review with quality metrics"
+      },
+      {
+        "name": "optimize-code",
+        "description": "Get optimization suggestions for performance and accessibility"
+      },
+      {
+        "name": "generate-component",
+        "description": "Generate Next.js components following best practices"
+      },
+      {
+        "name": "refactor-code",
+        "description": "Refactor code to follow Next.js 15+ patterns"
+      },
+      {
+        "name": "get-best-practices",
+        "description": "Get Next.js 15+ best practices guide"
+      },
+      {
+        "name": "check-migration-readiness",
+        "description": "Check Pages Router to App Router migration readiness"
+      }
+    ]
+  },
+  "transport": "stdio"
+}

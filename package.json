@@ -1,0 +1,38 @@
+{
+  "name": "mcp-server-next-react",
+  "version": "1.0.0",
+  "description": "MCP Server for Next.js and React development - provides tools for code analysis, optimization, review, and best practices guidance",
+  "main": "build/index.js",
+  "type": "module",
+  "bin": {
+    "mcp-server-next-react": "./build/index.js"
+  },
+  "scripts": {
+    "build": "tsc && chmod +x build/index.js && npm run copy-config",
+    "copy-config": "mkdir -p build/config build/rules && cp src/config/*.json build/config/ && cp src/rules/*.json build/rules/",
+    "prepare": "npm run build",
+    "dev": "tsc --watch",
+    "test": "node scripts/test-local.js",
+    "inspector": "npx @modelcontextprotocol/inspector node build/index.js",
+    "start": "node build/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "nextjs",
+    "react",
+    "code-analysis",
+    "best-practices",
+    "optimization"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.2",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "typescript": "^5.9.3"
+  }
+}

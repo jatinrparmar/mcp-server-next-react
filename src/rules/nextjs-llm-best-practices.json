@@ -1,0 +1,121 @@
+{
+  "meta": {
+    "framework": "Next.js",
+    "version": "2025",
+    "router": "app",
+    "intendedFor": ["LLMs", "MCP", "GitHub Copilot"]
+  },
+  "rules": [
+    {
+      "id": "next-app-router-only",
+      "title": "Use App Router Only",
+      "intent": "Ensure modern Next.js architecture using the App Router.",
+      "scope": "project",
+      "severity": "error",
+      "detection": {
+        "fileGlobs": ["pages/**/*"]
+      },
+      "recommendation": "Remove the pages/ directory and migrate all routes to the app/ directory.",
+      "references": ["https://nextjs.org/docs/app"]
+    },
+    {
+      "id": "prefer-server-components",
+      "title": "Prefer Server Components",
+      "intent": "Minimize client-side JavaScript and improve performance.",
+      "scope": "component",
+      "severity": "warning",
+      "detection": {
+        "patterns": ["\"use client\""]
+      },
+      "recommendation": "Remove the \"use client\" directive unless browser-only APIs or interactivity are required."
+    },
+    {
+      "id": "no-data-fetching-in-useeffect",
+      "title": "Avoid Data Fetching in useEffect",
+      "intent": "Encourage server-side data fetching using Server Components or Server Actions.",
+      "scope": "component",
+      "severity": "error",
+      "detection": {
+        "astHints": ["useEffect", "fetch"]
+      },
+      "recommendation": "Move data fetching to a Server Component or use a Server Action."
+    },
+    {
+      "id": "use-server-actions-for-mutations",
+      "title": "Use Server Actions for Mutations",
+      "intent": "Ensure secure and scalable data mutations.",
+      "scope": "function",
+      "severity": "error",
+      "detection": {
+        "patterns": ["fetch\\(.*POST", "axios.post"]
+      },
+      "recommendation": "Replace client-side mutation calls with validated Server Actions."
+    },
+    {
+      "id": "validate-server-action-inputs",
+      "title": "Validate Server Action Inputs",
+      "intent": "Prevent malformed or malicious input reaching backend logic.",
+      "scope": "function",
+      "severity": "error",
+      "detection": {
+        "patterns": ["\"use server\""]
+      },
+      "recommendation": "Use schema validation (e.g., Zod) inside Server Actions."
+    },
+    {
+      "id": "no-env-access-in-client",
+      "title": "No Environment Variable Access in Client Components",
+      "intent": "Prevent secret leakage to the browser.",
+      "scope": "component",
+      "severity": "error",
+      "detection": {
+        "patterns": ["process.env"]
+      },
+      "recommendation": "Only access environment variables in Server Components or Server Actions."
+    },
+    {
+      "id": "use-suspense-boundaries",
+      "title": "Use Suspense for Async UI",
+      "intent": "Enable streaming and better loading states.",
+      "scope": "component",
+      "severity": "warning",
+      "detection": {
+        "astHints": ["await", "async"]
+      },
+      "recommendation": "Wrap async components in <Suspense> boundaries."
+    },
+    {
+      "id": "use-next-image",
+      "title": "Use next/image for Images",
+      "intent": "Optimize image loading and performance.",
+      "scope": "component",
+      "severity": "info",
+      "detection": {
+        "patterns": ["<img"]
+      },
+      "recommendation": "Replace <img> tags with the next/image component."
+    },
+    {
+      "id": "use-next-font",
+      "title": "Use next/font for Fonts",
+      "intent": "Ensure optimal font loading and avoid layout shifts.",
+      "scope": "project",
+      "severity": "info",
+      "detection": {
+        "patterns": ["@font-face", "google-fonts"]
+      },
+      "recommendation": "Use the next/font module for all font loading."
+    },
+    {
+      "id": "no-client-importing-server-only",
+      "title": "Client Components Must Not Import Server-Only Code",
+      "intent": "Prevent runtime and bundling errors.",
+      "scope": "component",
+      "severity": "error",
+      "detection": {
+        "patterns": ["fs", "path", "server-only"]
+      },
+      "recommendation": "Move server-only imports into Server Components or Server Actions."
+    }
+  ]
+}

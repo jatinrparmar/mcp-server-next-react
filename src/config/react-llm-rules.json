@@ -1,0 +1,303 @@
+{
+  "version": "2025.1",
+  "framework": "react",
+  "preferFunctionalComponents": true,
+  "useHooksInsteadOfClasses": true,
+  
+  "routing": {
+    "libraries": ["react-router", "wouter", "reach-router"],
+    "preferReactRouter": true,
+    "useDeclarativeRouting": true,
+    "lazyLoadRoutes": true
+  },
+
+  "dataFetching": {
+    "prefer": ["fetch", "axios", "tanstack-query", "swr"],
+    "avoid": ["direct-fetch-in-useEffect-without-cleanup"],
+    "caching": {
+      "useQueryLibraries": true,
+      "recommendedLibraries": ["@tanstack/react-query", "swr", "rtk-query"]
+    }
+  },
+
+  "stateManagement": {
+    "local": ["useState", "useReducer"],
+    "global": {
+      "options": ["context-api", "zustand", "redux-toolkit", "jotai", "recoil"],
+      "prefer": "context-api-for-simple",
+      "avoidPropDrilling": true
+    },
+    "serverState": {
+      "prefer": ["@tanstack/react-query", "swr"],
+      "separateFromClientState": true
+    }
+  },
+
+  "components": {
+    "preferFunctionalComponents": true,
+    "composition": {
+      "preferComposition": true,
+      "avoidPropDrilling": true,
+      "useCompoundComponents": true,
+      "useRenderProps": "when-appropriate"
+    },
+    "patterns": {
+      "customHooks": "extract-reusable-logic",
+      "hoc": "use-sparingly",
+      "renderProps": "for-flexibility"
+    }
+  },
+
+  "performance": {
+    "useMemo": "for-expensive-calculations",
+    "useCallback": "for-child-optimization",
+    "reactMemo": "for-expensive-renders",
+    "lazyLoading": {
+      "useReactLazy": true,
+      "suspense": true,
+      "codesplitting": true
+    },
+    "imageOptimization": {
+      "lazyLoading": true,
+      "responsiveImages": true,
+      "formats": ["webp", "avif"],
+      "usePictureElement": true
+    },
+    "avoidInlineObjects": true,
+    "avoidInlineFunctions": "in-props"
+  },
+
+  "hooks": {
+    "rulesOfHooks": {
+      "callAtTopLevel": true,
+      "noConditionalHooks": true,
+      "noHooksInLoops": true
+    },
+    "customHooks": {
+      "naming": "use-prefix",
+      "extractReusableLogic": true,
+      "singleResponsibility": true
+    },
+    "useEffect": {
+      "specifyDependencies": true,
+      "cleanupSideEffects": true,
+      "avoidForDataFetching": "prefer-query-libraries",
+      "separateConcerns": "multiple-useEffect"
+    }
+  },
+
+  "security": {
+    "xss": {
+      "avoidDangerouslySetInnerHTML": true,
+      "sanitizeUserInput": true,
+      "useDOMPurify": "when-needed"
+    },
+    "environmentVariables": {
+      "prefix": "REACT_APP_",
+      "noSecretsInClient": true,
+      "validateEnvVars": true
+    },
+    "dependencies": {
+      "keepUpdated": true,
+      "auditRegularly": true,
+      "avoidUnmaintained": true
+    }
+  },
+
+  "accessibility": {
+    "semanticHTML": true,
+    "ariaLabels": "when-needed",
+    "keyboardNavigation": true,
+    "focusManagement": true,
+    "altTextForImages": true,
+    "formLabels": true,
+    "colorContrast": "WCAG-AA",
+    "screenReaderTesting": true
+  },
+
+  "testing": {
+    "prefer": ["vitest", "jest", "react-testing-library"],
+    "avoidEnzyme": true,
+    "testUserBehavior": "not-implementation",
+    "coverage": {
+      "recommended": 80,
+      "critical": ["authentication", "payment", "data-validation"]
+    }
+  },
+
+  "styling": {
+    "options": [
+      "css-modules",
+      "styled-components",
+      "emotion",
+      "tailwind",
+      "sass"
+    ],
+    "avoidInlineStyles": "except-dynamic",
+    "useCSSVariables": "for-theming",
+    "mobileFirst": true,
+    "responsiveDesign": true
+  },
+
+  "bundling": {
+    "vite": {
+      "preferVite": "for-new-projects",
+      "chunking": true,
+      "treeshaking": true
+    },
+    "webpack": {
+      "optimization": true,
+      "splitChunks": true,
+      "minification": true
+    }
+  },
+
+  "bestPractices": [
+    {
+      "id": "use-functional-components",
+      "title": "Prefer Functional Components",
+      "description": "Use functional components with hooks instead of class components",
+      "severity": "high"
+    },
+    {
+      "id": "proper-key-usage",
+      "title": "Use Stable Keys in Lists",
+      "description": "Use stable, unique keys for list items. Avoid using index as key",
+      "severity": "high"
+    },
+    {
+      "id": "avoid-direct-state-mutation",
+      "title": "Never Mutate State Directly",
+      "description": "Always use setState or state setter functions. Never mutate state objects directly",
+      "severity": "high"
+    },
+    {
+      "id": "cleanup-effects",
+      "title": "Cleanup Side Effects",
+      "description": "Always cleanup side effects in useEffect return function (subscriptions, timers, etc.)",
+      "severity": "high"
+    },
+    {
+      "id": "proper-dependency-array",
+      "title": "Specify Complete Dependency Arrays",
+      "description": "Include all dependencies in useEffect, useMemo, and useCallback dependency arrays",
+      "severity": "high"
+    },
+    {
+      "id": "extract-custom-hooks",
+      "title": "Extract Reusable Logic into Custom Hooks",
+      "description": "Create custom hooks for reusable stateful logic",
+      "severity": "medium"
+    },
+    {
+      "id": "use-fragments",
+      "title": "Use Fragments to Avoid Extra DOM Nodes",
+      "description": "Use <> or <Fragment> instead of unnecessary div wrappers",
+      "severity": "low"
+    },
+    {
+      "id": "lazy-load-routes",
+      "title": "Lazy Load Route Components",
+      "description": "Use React.lazy() and Suspense for route-based code splitting",
+      "severity": "medium"
+    },
+    {
+      "id": "memoize-expensive-calculations",
+      "title": "Memoize Expensive Calculations",
+      "description": "Use useMemo for expensive computations to avoid unnecessary recalculations",
+      "severity": "medium"
+    },
+    {
+      "id": "use-query-libraries",
+      "title": "Use Query Libraries for Server State",
+      "description": "Use React Query or SWR instead of managing server state in useEffect",
+      "severity": "high"
+    }
+  ],
+
+  "antiPatterns": [
+    {
+      "id": "index-as-key",
+      "pattern": "key={index}",
+      "message": "Using array index as key",
+      "severity": "high",
+      "fix": "Use unique, stable identifiers"
+    },
+    {
+      "id": "direct-state-mutation",
+      "pattern": "state.property = value",
+      "message": "Direct state mutation detected",
+      "severity": "high",
+      "fix": "Use setState or state setter functions"
+    },
+    {
+      "id": "missing-cleanup",
+      "pattern": "useEffect.*addEventListener.*(?!return)",
+      "message": "Effect with subscription but no cleanup",
+      "severity": "high",
+      "fix": "Return cleanup function from useEffect"
+    },
+    {
+      "id": "fetch-in-useEffect",
+      "pattern": "useEffect.*fetch\\(",
+      "message": "Data fetching in useEffect without proper error handling",
+      "severity": "medium",
+      "fix": "Use React Query or SWR, or implement proper error handling and cleanup"
+    },
+    {
+      "id": "class-component",
+      "pattern": "class.*extends.*React\\.Component",
+      "message": "Using class component",
+      "severity": "medium",
+      "fix": "Convert to functional component with hooks"
+    },
+    {
+      "id": "inline-object-in-prop",
+      "pattern": "style=\\{\\{",
+      "message": "Inline object in prop (causes re-renders)",
+      "severity": "low",
+      "fix": "Move object outside component or use useMemo"
+    },
+    {
+      "id": "missing-alt-text",
+      "pattern": "<img(?![^>]*alt=)",
+      "message": "Image without alt text",
+      "severity": "medium",
+      "fix": "Add alt attribute for accessibility"
+    },
+    {
+      "id": "dangerously-set-inner-html",
+      "pattern": "dangerouslySetInnerHTML",
+      "message": "Using dangerouslySetInnerHTML (XSS risk)",
+      "severity": "high",
+      "fix": "Sanitize content or use safer alternatives"
+    }
+  ],
+
+  "codeSmells": [
+    {
+      "id": "large-component",
+      "threshold": 300,
+      "message": "Component exceeds 300 lines",
+      "suggestion": "Break into smaller components"
+    },
+    {
+      "id": "many-props",
+      "threshold": 8,
+      "message": "Component has more than 8 props",
+      "suggestion": "Consider using composition or grouping props"
+    },
+    {
+      "id": "deep-nesting",
+      "threshold": 4,
+      "message": "JSX nesting exceeds 4 levels",
+      "suggestion": "Extract nested components"
+    },
+    {
+      "id": "many-useEffect",
+      "threshold": 5,
+      "message": "More than 5 useEffect hooks in component",
+      "suggestion": "Consider splitting into multiple components or custom hooks"
+    }
+  ]
+}

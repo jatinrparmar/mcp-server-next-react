@@ -1,0 +1,10 @@
+{
+  "description": "Test generate-component tool",
+  "tool": "generate-component",
+  "params": {
+    "name": "ProductList",
+    "type": "server-component",
+    "features": ["data-fetching"],
+    "styling": "tailwind"
+  }
+}
