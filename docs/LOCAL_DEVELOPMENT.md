@@ -242,14 +242,16 @@ mcp-server-next-react/
 ├── src/
 │   ├── index.ts                    # Main entry point
 │   ├── config/
-│   │   └── next-llm-rules.json    # Configuration & rules
+│   │   ├── next-llm-rules.json    # Next.js configuration & rules
+│   │   └── react-llm-rules.json   # React configuration & rules
 │   ├── core/
 │   │   ├── analyzer.ts            # Code analysis logic
 │   │   ├── optimizer.ts           # Optimization logic
 │   │   └── reviewer.ts            # Code review logic
 │   ├── rules/
 │   │   ├── loadRules.ts           # Rule loader
-│   │   └── nextjs-llm-best-practices.json
+│   │   ├── nextjs-llm-best-practices.json  # Next.js best practices
+│   │   └── react-llm-best-practices.json   # React best practices
 │   ├── tools/
 │   │   └── index.ts               # MCP tool definitions
 │   └── types/

@@ -2,27 +2,32 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { CodeAnalyzer } from '../core/analyzer.js';
 import { CodeReviewer } from '../core/reviewer.js';
 import { CodeOptimizer } from '../core/optimizer.js';
 import { analyzeProject, checkMigrationReadiness, checkProjectMigrationReadiness, findRepeatedCode, findRepeatedCodeInProject, generateComponent, optimizeProject, refactorCode, reviewProject } from '../common/helper.js';
 import { projectDetector } from '../common/project-detector.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export function registerTools(server: McpServer): void {
   const analyzer = new CodeAnalyzer();
   const reviewer = new CodeReviewer();
   const optimizer = new CodeOptimizer();
-
+  
   // Tool 1: Analyze Code
   server.registerTool(
-    'mycustom-mcp-analyze-code',
+    'analyze-code',
     {
+      title: 'Analyze Code using custom MCP tool',
       description: 'Analyze React/Next.js code for best practices, patterns, and issues. Automatically detects project type (React or Next.js) and applies appropriate rules. Works on selected file or entire project. Checks against framework-specific best practices including hooks, components, routing, and security.',
       inputSchema: z.object({
-        filePath: z.string().optional().describe('File path to analyze (e.g., src/components/page.tsx). If not provided, scans entire project'),
-        includeTests: z.boolean().optional().describe('Include test files in analysis (default: false)')
-      })
+        filePath: z.string().optional().describe('📁 Enter the full path to the file you want to analyze (e.g., /workspace/src/components/Button.tsx). Leave empty to analyze the entire project automatically.'),
+        includeTests: z.boolean().optional().describe('🧪 Would you like to include test files (*.test.*, *.spec.*) in the analysis? Enter true to include tests, or leave empty for default (false).')
+      }),
+      _meta: { category: 'code-analysis', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ filePath, includeTests = false }: { filePath?: string; includeTests?: boolean }) => {
       try {
@@ -60,12 +65,14 @@ export function registerTools(server: McpServer): void {
 
   // Tool 2: Review Code
   server.registerTool(
-    'mycustom-mcp-review-code',
+    'review-code',
     {
+      title: 'Review Code with Quality Metrics and Best Practices using custom MCP tool',
       description: 'Perform comprehensive code review including quality metrics (maintainability, complexity, testability, readability), architecture analysis, and best practice checks. Works on selected file or entire project.',
       inputSchema: z.object({
-        filePath: z.string().optional().describe('File path to review (e.g., src/components/page.tsx). If not provided, reviews entire project')
-      })
+        filePath: z.string().optional().describe('📄 Which file would you like to review? Provide the full path (e.g., /workspace/src/app/page.tsx). Leave empty to review your entire project with comprehensive quality metrics.')
+      }),
+      _meta: { category: 'code-review', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ filePath }: { filePath?: string }) => {
       try {
@@ -103,12 +110,14 @@ export function registerTools(server: McpServer): void {
 
   // Tool 3: Optimize Code
   server.registerTool(
-    'mycustom-mcp-optimize-code',
+    'optimize-code',
     {
+      title: 'Optimize Code for Performance, Bundle Size, SEO, and Accessibility using custom MCP tool',
       description: 'Get optimization suggestions for performance, bundle size, SEO, and accessibility. Works on selected file or entire project. Includes implementation examples and estimated impact.',
       inputSchema: z.object({
-        filePath: z.string().optional().describe('File path to optimize (e.g., src/app/page.tsx). If not provided, optimizes entire project')
-      })
+        filePath: z.string().optional().describe('⚡ Enter the file path you want to optimize for performance, bundle size, and SEO (e.g., /workspace/src/app/layout.tsx). Leave empty to get optimization suggestions for the entire project.')
+      }),
+      _meta: { category: 'code-optimization', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ filePath }: { filePath?: string }) => {
       try {
@@ -146,15 +155,17 @@ export function registerTools(server: McpServer): void {
 
   // Tool 4: Generate Component
   server.registerTool(
-    'mycustom-mcp-generate-component',
+    'generate-component',
     {
+      title: 'Generate Component using custom MCP tool',
       description: 'Generate a React or Next.js component following best practices. Automatically detects project type and generates appropriate code. Supports functional components, pages, layouts, and more.',
       inputSchema: z.object({
-        name: z.string().describe('Component name (e.g., UserProfile)'),
-        type: z.enum(['server-component', 'client-component', 'layout', 'page', 'api-route', 'server-action']).describe('Type of component to generate'),
-        features: z.array(z.string()).optional().describe('Features to include (e.g., ["form", "data-fetching", "loading"])'),
-        styling: z.enum(['tailwind', 'css-modules', 'none']).optional().describe('Styling approach')
-      })
+        name: z.string().describe('🏷️  What should this component be called? Use PascalCase (e.g., UserProfile, ProductCard, DashboardLayout)'),
+        type: z.enum(['server-component', 'client-component', 'layout', 'page', 'api-route', 'server-action']).describe('🔧 What type of component do you need? Choose: server-component (default, for data fetching), client-component (for interactivity), layout (wrapper), page (route), api-route (API endpoint), or server-action (form handler)'),
+        features: z.array(z.string()).optional().describe('✨ Which features should be included? Enter as array: ["form", "data-fetching", "loading", "error-boundary", "suspense"]. Leave empty for a basic component.'),
+        styling: z.enum(['tailwind', 'css-modules', 'none']).optional().describe('🎨 Choose styling method: tailwind (default, utility-first), css-modules (scoped CSS), or none (no styling)')
+      }),
+      _meta: { category: 'code-generation', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ name, type, features = [], styling = 'tailwind' }: { name: string; type: string; features?: string[]; styling?: string }) => {
       try {
@@ -184,13 +195,15 @@ export function registerTools(server: McpServer): void {
 
   // Tool 5: Refactor Code
   server.registerTool(
-    'mycustom-mcp-refactor-code',
+    'refactor-code',
     {
+      title: 'Refactor Code to follow Next.js 15+ Patterns using custom MCP tool',
       description: 'Refactor code to follow Next.js 15+ patterns. Works on selected file. Can convert Pages Router to App Router, class components to functional, and more.',
       inputSchema: z.object({
-        filePath: z.string().describe('File path to refactor (e.g., pages/index.tsx)'),
-        pattern: z.enum(['pages-to-app-router', 'class-to-functional', 'prop-drilling-to-context', 'client-to-server']).describe('Refactoring pattern to apply')
-      })
+        filePath: z.string().describe('📝 Which file needs refactoring? Provide the full path (e.g., /workspace/pages/index.tsx or /workspace/src/components/OldComponent.tsx)'),
+        pattern: z.enum(['pages-to-app-router', 'class-to-functional', 'prop-drilling-to-context', 'client-to-server']).describe('🔄 Select the refactoring pattern: pages-to-app-router (migrate Next.js Pages to App Router), class-to-functional (convert class components to hooks), prop-drilling-to-context (eliminate prop drilling with Context API), client-to-server (move logic to server)')
+      }),
+      _meta: { category: 'code-refactoring', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ filePath, pattern }: { filePath: string; pattern: string }) => {
       try {
@@ -221,31 +234,49 @@ export function registerTools(server: McpServer): void {
 
   // Tool 6: Get Best Practices
   server.registerTool(
-    'mycustom-mcp-get-best-practices',
+    'get-best-practices',
     {
+      title: 'Get Best Practices Guide using custom MCP tool',
       description: 'Get React or Next.js best practices guide. Automatically detects project type and returns appropriate guidelines for routing, data fetching, performance, security, etc.',
       inputSchema: z.object({
-        topic: z.enum(['routing', 'data-fetching', 'server-components', 'client-components', 'performance', 'security', 'seo', 'accessibility', 'testing', 'deployment']).optional().describe('Specific topic (if not provided, returns all practices)')
-      })
+        topic: z.enum(['routing', 'data-fetching', 'server-components', 'client-components', 'performance', 'security', 'seo', 'accessibility', 'testing', 'deployment', 'components', 'hooks', 'state-management']).optional().describe('📚 What topic are you interested in? Choose one: routing, data-fetching, server-components, client-components, performance, security, seo, accessibility, testing, deployment, components, hooks, or state-management. Leave empty to get ALL best practices for your framework.')
+      }),
+      _meta: { category: 'best-practices', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ topic }: { topic?: string }) => {
       try {
         // Detect project framework
         const projectInfo = projectDetector.detectFramework();
         const isReact = projectInfo.framework === 'react';
+        const framework = isReact ? 'React' : 'Next.js';
         
         // Load appropriate rules
         const rulesFileName = isReact ? 'react-llm-rules.json' : 'next-llm-rules.json';
         const rulesPath = path.join(__dirname, '../config', rulesFileName);
+                
+        if (!fs.existsSync(rulesPath)) {
+          throw new Error(`Rules file not found: ${rulesPath}`);
+        }
+        
         const rulesContent = fs.readFileSync(rulesPath, 'utf-8');
         const rules = JSON.parse(rulesContent);
 
-        let response = '';
+        let response = `# ${framework} Best Practices\n\n`;
         
         if (topic) {
-          response = JSON.stringify(rules[topic] || rules, null, 2);
+          // Convert kebab-case to camelCase for key lookup
+          const topicKey = topic.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+          
+          if (rules[topicKey]) {
+            response += `## ${topic.charAt(0).toUpperCase() + topic.slice(1).replace(/-/g, ' ')}\n\n`;
+            response += JSON.stringify(rules[topicKey], null, 2);
+          } else {
+            response += `Topic "${topic}" not found in ${framework} rules.\n\n`;
+            response += `Available topics: ${Object.keys(rules).join(', ')}\n\n`;
+            response += `Full rules:\n${JSON.stringify(rules, null, 2)}`;
+          }
         } else {
-          response = JSON.stringify(rules, null, 2);
+          response += JSON.stringify(rules, null, 2);
         }
         
         return {
@@ -261,7 +292,7 @@ export function registerTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Error getting best practices: ${error instanceof Error ? error.message : 'Unknown error'}`
+              text: `Error getting best practices: ${error instanceof Error ? error.message : 'Unknown error'}\nStack: ${error instanceof Error ? error.stack : ''}`
             }
           ],
           isError: true
@@ -272,12 +303,14 @@ export function registerTools(server: McpServer): void {
 
   // Tool 7: Check Migration Readiness
   server.registerTool(
-    'mycustom-mcp-check-migration-readiness',
+    'check-migration-readiness',
     {
+      title: 'Check Migration Readiness from Pages Router to App Router using custom MCP tool',
       description: 'Check if a Pages Router page is ready to migrate to App Router. Works on selected file or entire pages directory. Identifies blockers and provides migration steps.',
       inputSchema: z.object({
-        filePath: z.string().optional().describe('File path to check (e.g., pages/index.tsx). If not provided, checks entire pages directory')
-      })
+        filePath: z.string().optional().describe('🔍 Which Pages Router file do you want to check? Enter path (e.g., /workspace/pages/index.tsx or /workspace/pages/blog/[slug].tsx). Leave empty to check ALL files in the pages/ directory for migration readiness.')
+      }),
+      _meta: { category: 'code-migration', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ filePath }: { filePath?: string }) => {
       try {
@@ -315,14 +348,16 @@ export function registerTools(server: McpServer): void {
 
   // Tool 8: Find Repeated Code
   server.registerTool(
-    'mycustom-mcp-find-repeated-code',
+    'find-repeated-code',
     {
+      title: 'Find Repeated Code Patterns using custom MCP tool',
       description: 'Identifies repeated code patterns that can be extracted into reusable components or utility functions. Works on selected file or entire project. Detects duplicate JSX blocks, logic patterns, and suggests refactoring opportunities.',
       inputSchema: z.object({
-        filePath: z.string().optional().describe('File path to analyze (e.g., src/components/page.tsx). If not provided, analyzes entire project'),
-        minOccurrences: z.number().optional().describe('Minimum number of repetitions to report (default: 2)'),
-        includeSmallPatterns: z.boolean().optional().describe('Include small patterns (less than 3 lines) (default: false)')
-      })
+        filePath: z.string().optional().describe('🔎 Which file should I scan for duplicate code? Provide the path (e.g., /workspace/src/components/Dashboard.tsx). Leave empty to find repeated patterns across your entire project.'),
+        minOccurrences: z.number().optional().describe('🔢 How many times must code be repeated to report it? Enter a number (e.g., 2 for duplicates, 3 for triplicates). Default is 2 if left empty.'),
+        includeSmallPatterns: z.boolean().optional().describe('🔬 Should I include small code patterns (less than 3 lines)? Enter true to catch even tiny duplications, or leave empty for default (false) to focus on larger patterns.')
+      }),
+      _meta: { category: 'code-analysis', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ filePath, minOccurrences = 2, includeSmallPatterns = false }: { filePath?: string; minOccurrences?: number; includeSmallPatterns?: boolean }) => {
       try {

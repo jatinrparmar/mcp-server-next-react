@@ -16,10 +16,15 @@ This guide explains how to create and configure your own custom rule sets for th
 
 ## Overview
 
-The MCP Next.js Development Assistant uses JSON-based rule files to configure its behavior. There are two types of rules:
+The MCP Next.js & React Development Assistant uses JSON-based rule files to configure its behavior. There are two types of rules for each framework:
 
-- **[next-llm-rules.json](../src/config/next-llm-rules.json)**: The active configuration file used by the server
-- **[nextjs-llm-best-practices.json](../src/rules/nextjs-llm-best-practices.json)**: A reference/documentation file for LLMs
+### Active Configuration Files (Used by Analyzers)
+- **[next-llm-rules.json](../src/config/next-llm-rules.json)**: Active configuration for Next.js projects
+- **[react-llm-rules.json](../src/config/react-llm-rules.json)**: Active configuration for React projects
+
+### Reference/Documentation Files (For LLMs & AI Tools)
+- **[nextjs-llm-best-practices.json](../src/rules/nextjs-llm-best-practices.json)**: Structured Next.js best practices with detection patterns
+- **[react-llm-best-practices.json](../src/rules/react-llm-best-practices.json)**: Structured React best practices with detection patterns
 
 You can customize these files to enforce your team's specific coding standards and best practices.
 
@@ -243,9 +248,14 @@ Before modifying rules, determine:
 - Which patterns you want to enforce vs. discourage
 - Severity levels for different violations
 
-### Step 2: Modify [next-llm-rules.json](../src/config/next-llm-rules.json)
+### Step 2: Modify Active Configuration Files
 
-Edit the active configuration file to reflect your team's standards:
+Edit the active configuration file based on your project type:
+
+#### For Next.js Projects: [next-llm-rules.json](../src/config/next-llm-rules.json)
+#### For React Projects: [react-llm-rules.json](../src/config/react-llm-rules.json)
+
+Example for Next.js:
 
 ```json
 {
@@ -368,7 +378,7 @@ Keep semantic versioning for rule changes:
 
 ### 4. **Reference External Guidelines**
 
-In the LLM-friendly file, add references:
+In the LLM-friendly best practices files (`rules/nextjs-llm-best-practices.json` or `rules/react-llm-best-practices.json`), add references:
 
 ```json
 {
@@ -578,7 +588,9 @@ After deployment:
 ### Rules Not Applied
 
 1. Check file syntax is valid JSON
-2. Verify the `next-llm-rules.json` path is correct
+2. Verify the active configuration file path is correct:
+   - For Next.js: `src/config/next-llm-rules.json`
+   - For React: `src/config/react-llm-rules.json`
 3. Run `npm run build` after changes
 4. Check server logs for errors
 
