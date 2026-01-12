@@ -284,14 +284,16 @@ src/
 ├── index.ts              # Main MCP server entry point
 ├── server.ts             # Server initialization (legacy)
 ├── config/
-│   └── next-llm-rules.json      # Configuration and rules
+│   ├── next-llm-rules.json      # Next.js configuration and rules
+│   └── react-llm-rules.json     # React configuration and rules
 ├── core/
 │   ├── analyzer.ts       # Code analysis engine
 │   ├── optimizer.ts      # Optimization suggestions engine
 │   └── reviewer.ts       # Code review engine
 ├── rules/
 │   ├── loadRules.ts      # Rule loader utility
-│   └── nextjs-llm-best-practices.json  # Structured best practices
+│   ├── nextjs-llm-best-practices.json  # Next.js structured best practices
+│   └── react-llm-best-practices.json   # React structured best practices
 ├── tools/
 │   └── index.ts          # MCP tool definitions and handlers
 └── types/
@@ -349,11 +351,15 @@ node build/index.js
 
 ## 📝 Rules Configuration
 
-The server uses two rule files:
+The server uses rule files for both React and Next.js projects:
 
-1. **`config/next-llm-rules.json`**: Complete configuration including routing, data fetching, components, performance, security, SEO, accessibility, and more.
+### Active Configuration Files (Used by Code Analyzers)
+1. **`config/next-llm-rules.json`**: Next.js configuration including routing, data fetching, Server Components, performance, security, SEO, accessibility, and more.
+2. **`config/react-llm-rules.json`**: React configuration including components, hooks, state management, performance, security, and best practices.
 
-2. **`rules/nextjs-llm-best-practices.json`**: Structured rules in LLM-friendly format with detection patterns and recommendations.
+### Reference Files (For LLMs & AI Tools)
+3. **`rules/nextjs-llm-best-practices.json`**: Structured Next.js rules with detection patterns, severity levels, and recommendations.
+4. **`rules/react-llm-best-practices.json`**: Structured React rules with detection patterns, severity levels, and recommendations.
 
 You can customize these files to add your own organization's specific rules and patterns.
 
@@ -362,8 +368,8 @@ You can customize these files to add your own organization's specific rules and 
 For a comprehensive guide, see **[docs/CUSTOM_RULES_GUIDE.md](docs/CUSTOM_RULES_GUIDE.md)**. Below is a concise overview to get started.
 
 #### File Structure
-- `config/next-llm-rules.json`: Active rules consumed by the analyzer/optimizer/reviewer
-- `rules/nextjs-llm-best-practices.json`: Reference rules in LLM-friendly format (intents, scopes, references)
+- `config/*-llm-rules.json`: Active rules consumed by the analyzer/optimizer/reviewer
+- `rules/*-llm-best-practices.json`: Reference rules in LLM-friendly format (intents, scopes, detection patterns, recommendations)
 
 #### Core Categories
 - **Routing**: App Router, file-based routing, parallel/intercepting routes, route groups

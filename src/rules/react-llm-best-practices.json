@@ -1,0 +1,241 @@
+{
+  "meta": {
+    "framework": "React",
+    "version": "2025",
+    "intendedFor": ["LLMs", "MCP", "GitHub Copilot"]
+  },
+  "rules": [
+    {
+      "id": "react-functional-components-only",
+      "title": "Use Functional Components Only",
+      "intent": "Modern React development uses functional components with hooks instead of class components.",
+      "scope": "component",
+      "severity": "error",
+      "detection": {
+        "patterns": ["class.*extends.*React\\.Component", "class.*extends.*Component"]
+      },
+      "recommendation": "Convert class components to functional components using hooks (useState, useEffect, etc.).",
+      "references": ["https://react.dev/reference/react"]
+    },
+    {
+      "id": "react-hooks-at-top-level",
+      "title": "Call Hooks at Top Level",
+      "intent": "Hooks must be called at the top level of the component, not inside loops, conditions, or nested functions.",
+      "scope": "component",
+      "severity": "error",
+      "detection": {
+        "patterns": ["if\\(.*\\).*useState", "for\\(.*\\).*useState", "useState.*if", "useEffect.*if"]
+      },
+      "recommendation": "Move hooks outside of conditionals, loops, and nested functions. Call them directly in the component body."
+    },
+    {
+      "id": "react-useeffect-cleanup",
+      "title": "Cleanup in useEffect",
+      "intent": "useEffect must return a cleanup function to prevent memory leaks and side effects.",
+      "scope": "function",
+      "severity": "warning",
+      "detection": {
+        "astHints": ["useEffect", "addEventListener", "subscribe", "setTimeout", "setInterval"]
+      },
+      "recommendation": "Return a cleanup function from useEffect that removes event listeners, clears timers, or unsubscribes."
+    },
+    {
+      "id": "react-useeffect-dependencies",
+      "title": "Specify useEffect Dependencies",
+      "intent": "useEffect must have a dependency array to control when it runs.",
+      "scope": "function",
+      "severity": "error",
+      "detection": {
+        "patterns": ["useEffect\\(.*\\)(?!.*\\[)"]
+      },
+      "recommendation": "Add a dependency array as the second argument to useEffect. Use an empty array [] for effects that run once."
+    },
+    {
+      "id": "react-no-inline-objects-in-props",
+      "title": "Avoid Inline Objects in Props",
+      "intent": "Inline objects cause unnecessary re-renders of child components.",
+      "scope": "component",
+      "severity": "warning",
+      "detection": {
+        "patterns": ["<.*\\{\\s*\\{[^}]+\\}\\s*\\}"]
+      },
+      "recommendation": "Define objects outside the JSX or use useMemo to memoize the object."
+    },
+    {
+      "id": "react-no-inline-functions-in-props",
+      "title": "Avoid Inline Functions in Props",
+      "intent": "Inline function definitions cause child components to re-render unnecessarily.",
+      "scope": "component",
+      "severity": "warning",
+      "detection": {
+        "patterns": ["=\\{\\s*\\(.*\\)\\s*=>", "onClick=\\{\\(.*\\)\\s*=>"]
+      },
+      "recommendation": "Extract functions or use useCallback to memoize callbacks passed as props."
+    },
+    {
+      "id": "react-avoid-prop-drilling",
+      "title": "Avoid Prop Drilling",
+      "intent": "Passing props through multiple levels creates tight coupling and makes refactoring difficult.",
+      "scope": "component",
+      "severity": "warning",
+      "detection": {
+        "astHints": ["props", "spread-props"]
+      },
+      "recommendation": "Use Context API, state management library (Zustand, Redux), or component composition to avoid prop drilling."
+    },
+    {
+      "id": "react-extract-custom-hooks",
+      "title": "Extract Custom Hooks for Reusable Logic",
+      "intent": "Custom hooks extract reusable stateful logic and make components simpler.",
+      "scope": "component",
+      "severity": "info",
+      "detection": {
+        "patterns": ["useState.*useState.*useState", "useEffect.*useEffect.*useEffect"]
+      },
+      "recommendation": "Extract complex logic into a custom hook with a 'use' prefix (e.g., useForm, useFetch)."
+    },
+    {
+      "id": "react-use-memo-for-expensive-calculations",
+      "title": "Use useMemo for Expensive Calculations",
+      "intent": "useMemo caches expensive computations and prevents unnecessary recalculations.",
+      "scope": "component",
+      "severity": "warning",
+      "detection": {
+        "astHints": ["forEach", "filter", "map", "reduce", "sort"]
+      },
+      "recommendation": "Wrap expensive calculations in useMemo with appropriate dependencies."
+    },
+    {
+      "id": "react-use-callback-for-optimized-children",
+      "title": "Use useCallback for Child Optimization",
+      "intent": "useCallback memoizes function references to prevent child re-renders when combined with React.memo.",
+      "scope": "function",
+      "severity": "info",
+      "detection": {
+        "patterns": ["React\\.memo", "memo\\("]
+      },
+      "recommendation": "Wrap callback functions passed to memoized children with useCallback."
+    },
+    {
+      "id": "react-use-react-memo",
+      "title": "Memoize Expensive Components",
+      "intent": "React.memo prevents re-renders of components that receive the same props.",
+      "scope": "component",
+      "severity": "info",
+      "detection": {
+        "astHints": ["render-function", "deeply-nested-component"]
+      },
+      "recommendation": "Wrap expensive components with React.memo when they receive stable props."
+    },
+    {
+      "id": "react-lazy-load-with-suspense",
+      "title": "Use React.lazy and Suspense for Code Splitting",
+      "intent": "Code splitting reduces bundle size and improves initial load time.",
+      "scope": "component",
+      "severity": "info",
+      "detection": {
+        "patterns": ["import.*from.*\\.js", "import.*from.*\\.tsx"]
+      },
+      "recommendation": "Use React.lazy() for route-based or heavy components and wrap with <Suspense>."
+    },
+    {
+      "id": "react-avoid-dangerously-set-inner-html",
+      "title": "Avoid dangerouslySetInnerHTML",
+      "intent": "dangerouslySetInnerHTML is a security risk and should be avoided.",
+      "scope": "component",
+      "severity": "error",
+      "detection": {
+        "patterns": ["dangerouslySetInnerHTML"]
+      },
+      "recommendation": "Find alternative approaches or sanitize HTML with a library like DOMPurify before using dangerouslySetInnerHTML."
+    },
+    {
+      "id": "react-sanitize-user-input",
+      "title": "Sanitize User Input",
+      "intent": "Prevent XSS attacks by sanitizing user input before rendering.",
+      "scope": "component",
+      "severity": "error",
+      "detection": {
+        "patterns": ["value.*input", "value.*textarea"]
+      },
+      "recommendation": "Validate and sanitize all user input using libraries like DOMPurify or sanitize-html."
+    },
+    {
+      "id": "react-env-prefix-validation",
+      "title": "Use REACT_APP_ Prefix for Environment Variables",
+      "intent": "Only variables prefixed with REACT_APP_ are exposed to the client in Create React App.",
+      "scope": "component",
+      "severity": "warning",
+      "detection": {
+        "patterns": ["process\\.env\\.(?!REACT_APP_)"]
+      },
+      "recommendation": "Prefix environment variables with REACT_APP_ or use a backend service to access private variables."
+    },
+    {
+      "id": "react-no-secrets-in-client",
+      "title": "Never Store Secrets in Client Code",
+      "intent": "API keys, tokens, and secrets must never be stored in client-side code.",
+      "scope": "component",
+      "severity": "error",
+      "detection": {
+        "patterns": ["api[_-]?key", "secret", "token"]
+      },
+      "recommendation": "Store sensitive data in environment variables on the server and access via backend APIs."
+    },
+    {
+      "id": "react-use-keys-in-lists",
+      "title": "Use Keys in Lists",
+      "intent": "Keys help React identify which items have changed, improving performance and preventing bugs.",
+      "scope": "component",
+      "severity": "error",
+      "detection": {
+        "patterns": ["\\.map\\(.*=>.*<", "key=\\{index\\}"]
+      },
+      "recommendation": "Use unique, stable identifiers (IDs) as keys in list items. Never use array indices as keys."
+    },
+    {
+      "id": "react-prefer-composition",
+      "title": "Prefer Component Composition Over Inheritance",
+      "intent": "React emphasizes composition patterns over inheritance for better code organization.",
+      "scope": "component",
+      "severity": "warning",
+      "detection": {
+        "patterns": ["extends", "HOC.*props"]
+      },
+      "recommendation": "Use component composition, render props, or custom hooks instead of higher-order components or inheritance."
+    },
+    {
+      "id": "react-use-context-for-global-state",
+      "title": "Use Context for Global State",
+      "intent": "Context API is the built-in way to share state across deeply nested components.",
+      "scope": "project",
+      "severity": "info",
+      "detection": {
+        "patterns": ["prop-drilling", "multiple-levels-of-props"]
+      },
+      "recommendation": "Use React Context API or a state management library (Zustand, Redux) for global state."
+    },
+    {
+      "id": "react-use-query-for-server-state",
+      "title": "Use TanStack Query for Server State",
+      "intent": "TanStack Query (React Query) is the best way to manage server state with caching and synchronization.",
+      "scope": "component",
+      "severity": "info",
+      "detection": {
+        "astHints": ["useEffect", "fetch", "axios"]
+      },
+      "recommendation": "Use @tanstack/react-query or SWR for fetching, caching, and syncing server data."
+    },
+    {
+      "id": "react-custom-hook-naming",
+      "title": "Name Custom Hooks with 'use' Prefix",
+      "intent": "Custom hooks must be named with 'use' prefix so React can apply the rules of hooks.",
+      "scope": "function",
+      "severity": "error",
+      "detection": {
+        "patterns": ["function [a-z][a-zA-Z]*\\(.*\\).*useState", "function [a-z][a-zA-Z]*\\(.*\\).*useEffect"]
+      },
+      "recommendation": "Rename custom hook functions to start with 'use' (e.g., useFetch, useFormValidation)."
+    }
+  ]
+}
