@@ -1,7 +1,7 @@
 {
   "meta": {
     "framework": "Next.js",
-    "version": "2025",
+    "version": "2025.1",
     "router": "app",
     "intendedFor": ["LLMs", "MCP", "GitHub Copilot"]
   },
@@ -116,6 +116,153 @@
         "patterns": ["fs", "path", "server-only"]
       },
       "recommendation": "Move server-only imports into Server Components or Server Actions."
+    },
+    {
+      "id": "next-seo-metadata",
+      "title": "Use Metadata API for SEO",
+      "intent": "Leverage Next.js Metadata API for proper SEO optimization.",
+      "scope": "file",
+      "severity": "warning",
+      "detection": {
+        "patterns": ["Head", "meta"]
+      },
+      "recommendation": "Use the Metadata API instead of Head component. Export metadata object from layout or page files."
+    },
+    {
+      "id": "next-generate-metadata",
+      "title": "Generate Dynamic Metadata",
+      "intent": "Generate metadata dynamically for better SEO.",
+      "scope": "function",
+      "severity": "info",
+      "recommendation": "Use generateMetadata function to create dynamic metadata based on page params."
+    },
+    {
+      "id": "next-structured-data",
+      "title": "Include Structured Data",
+      "intent": "Add JSON-LD structured data for search engines.",
+      "scope": "page",
+      "severity": "info",
+      "recommendation": "Include structured data (JSON-LD) in pages for better search engine understanding."
+    },
+    {
+      "id": "next-sitemap-robots",
+      "title": "Configure Sitemap and Robots",
+      "intent": "Enable search engine crawling and indexing.",
+      "scope": "config",
+      "severity": "warning",
+      "recommendation": "Create sitemap.xml and robots.txt files or use next-sitemap package."
+    },
+    {
+      "id": "next-typescript-strict",
+      "title": "Use TypeScript Strict Mode",
+      "intent": "Enable TypeScript strict mode for type safety.",
+      "scope": "config",
+      "severity": "warning",
+      "recommendation": "Enable strict, noImplicitAny, and other strict options in tsconfig.json."
+    },
+    {
+      "id": "next-error-handling",
+      "title": "Implement Error Handling",
+      "intent": "Use error.tsx for error boundaries and global error handling.",
+      "scope": "file",
+      "severity": "warning",
+      "recommendation": "Create error.tsx and global-error.tsx files to handle errors gracefully."
+    },
+    {
+      "id": "next-not-found-handling",
+      "title": "Handle Not Found Pages",
+      "intent": "Implement not-found.tsx for 404 pages.",
+      "scope": "file",
+      "severity": "info",
+      "recommendation": "Create not-found.tsx files at appropriate levels."
+    },
+    {
+      "id": "next-loading-ui",
+      "title": "Implement Loading States",
+      "intent": "Use loading.tsx for streaming UI.",
+      "scope": "file",
+      "severity": "info",
+      "recommendation": "Create loading.tsx files to show loading skeletons while data is being fetched."
+    },
+    {
+      "id": "next-middleware-usage",
+      "title": "Use Middleware for Auth and Routing",
+      "intent": "Implement middleware for authentication and routing logic.",
+      "scope": "file",
+      "severity": "warning",
+      "recommendation": "Create middleware.ts to handle authentication, redirects, and request processing."
+    },
+    {
+      "id": "next-revalidation-strategy",
+      "title": "Choose Appropriate Revalidation Strategy",
+      "intent": "Use time-based, on-demand, or tag-based revalidation.",
+      "scope": "function",
+      "severity": "warning",
+      "recommendation": "Use revalidatePath, revalidateTag, or set next.revalidate in fetch options."
+    },
+    {
+      "id": "next-edge-functions",
+      "title": "Consider Edge Functions for Performance",
+      "intent": "Use Edge Functions for low-latency operations.",
+      "scope": "file",
+      "severity": "info",
+      "recommendation": "Use edge runtime for middleware and API routes that benefit from edge execution."
+    },
+    {
+      "id": "next-dynamic-imports",
+      "title": "Use dynamic() for Code Splitting",
+      "intent": "Split code dynamically to reduce bundle size.",
+      "scope": "component",
+      "severity": "warning",
+      "recommendation": "Use next/dynamic for large components that don't need immediate rendering."
+    },
+    {
+      "id": "next-css-modules",
+      "title": "Prefer CSS Modules or Tailwind",
+      "intent": "Use scoped styling to avoid CSS conflicts.",
+      "scope": "style",
+      "severity": "info",
+      "recommendation": "Use CSS Modules or Tailwind CSS instead of global CSS or CSS-in-JS that conflicts with SSR."
+    },
+    {
+      "id": "next-parallel-routes",
+      "title": "Use Parallel Routes",
+      "intent": "Render multiple segments simultaneously.",
+      "scope": "architecture",
+      "severity": "info",
+      "recommendation": "Use parallel routes (@folder notation) for independent routes."
+    },
+    {
+      "id": "next-intercepting-routes",
+      "title": "Use Intercepting Routes",
+      "intent": "Intercept routes for modal and interception patterns.",
+      "scope": "architecture",
+      "severity": "info",
+      "recommendation": "Use intercepting routes for advanced patterns like modals and interceptions."
+    },
+    {
+      "id": "next-route-groups",
+      "title": "Use Route Groups for Organization",
+      "intent": "Organize routes logically without affecting URL structure.",
+      "scope": "architecture",
+      "severity": "info",
+      "recommendation": "Use route groups (parentheses notation) to organize related routes."
+    },
+    {
+      "id": "next-api-routes-safety",
+      "title": "Secure API Routes",
+      "intent": "Implement proper authentication and validation in API routes.",
+      "scope": "function",
+      "severity": "error",
+      "recommendation": "Validate requests, authenticate users, and implement proper error handling in API routes."
+    },
+    {
+      "id": "next-deployment-readiness",
+      "title": "Ensure Deployment Readiness",
+      "intent": "Configure for optimal deployment.",
+      "scope": "config",
+      "severity": "warning",
+      "recommendation": "Set output: 'standalone' for Docker, configure environment variables, and optimize build settings."
     }
   ]
 }

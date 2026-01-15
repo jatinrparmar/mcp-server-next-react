@@ -1,0 +1,171 @@
+{
+  "meta": {
+    "framework": "React",
+    "version": "2025",
+    "type": "security",
+    "intendedFor": ["LLMs", "MCP", "GitHub Copilot"],
+    "description": "Comprehensive security rules for React applications"
+  },
+  "securityRules": [
+    {
+      "id": "xss-prevention",
+      "title": "Prevent XSS Vulnerabilities",
+      "intent": "Ensure dynamic content is properly sanitized and escaped to prevent XSS attacks.",
+      "severity": "critical",
+      "recommendation": "Avoid using dangerouslySetInnerHTML. Use libraries like DOMPurify for sanitization. React escapes content by default.",
+      "references": [
+        "https://react.dev/reference/react-dom/dangerouslySetInnerHTML",
+        "https://owasp.org/www-community/attacks/xss/"
+      ],
+      "owasp": "A07:2021 - Cross-Site Scripting (XSS)"
+    },
+    {
+      "id": "no-hardcoded-secrets",
+      "title": "No Hardcoded Secrets",
+      "intent": "Prevent hardcoded API keys, tokens, and passwords in source code.",
+      "severity": "critical",
+      "recommendation": "Store all secrets in environment variables. Never commit secrets to version control.",
+      "references": [
+        "https://owasp.org/www-community/vulnerabilities/Sensitive_Data_Exposure",
+        "https://github.com/gremlin/api-security/blob/master/Hardcoded_Secrets.md"
+      ],
+      "owasp": "A02:2021 - Cryptographic Failures"
+    },
+    {
+      "id": "dependency-vulnerabilities",
+      "title": "Check for Vulnerable Dependencies",
+      "intent": "Ensure no known vulnerable packages are installed.",
+      "severity": "high",
+      "recommendation": "Regularly run 'npm audit' or 'yarn audit' and update vulnerable dependencies. Use dependabot for automated updates.",
+      "references": [
+        "https://docs.npmjs.com/cli/v8/commands/npm-audit",
+        "https://docs.github.com/en/code-security/dependabot"
+      ],
+      "owasp": "A05:2021 - Security Misconfiguration"
+    },
+    {
+      "id": "secure-api-calls",
+      "title": "Secure API Communication",
+      "intent": "Ensure API calls use HTTPS and proper authentication.",
+      "severity": "high",
+      "recommendation": "Always use HTTPS for API calls. Include proper authentication headers and validate SSL certificates.",
+      "references": [
+        "https://owasp.org/www-community/attacks/Insecure_Transport"
+      ],
+      "owasp": "A02:2021 - Cryptographic Failures"
+    },
+    {
+      "id": "no-eval",
+      "title": "Avoid eval() and Dynamic Code Execution",
+      "intent": "Prevent use of eval() which can execute arbitrary code.",
+      "severity": "critical",
+      "recommendation": "Never use eval() or Function() constructor. Use safer alternatives like JSON.parse or data-driven approaches.",
+      "references": [
+        "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval"
+      ],
+      "owasp": "A03:2021 - Injection"
+    },
+    {
+      "id": "no-console-sensitive-data",
+      "title": "No Sensitive Data in Console",
+      "intent": "Prevent logging of sensitive information.",
+      "severity": "medium",
+      "recommendation": "Remove logging of passwords, tokens, and other sensitive data in production. Use appropriate log levels.",
+      "references": ["https://owasp.org/www-community/Log_Injection"],
+      "owasp": "A06:2021 - Vulnerable and Outdated Components"
+    },
+    {
+      "id": "secure-localStorage",
+      "title": "Don't Store Sensitive Data in localStorage",
+      "intent": "Prevent storing sensitive data like tokens in localStorage (vulnerable to XSS).",
+      "severity": "high",
+      "recommendation": "Use secure HTTP-only cookies for sensitive data like authentication tokens. localStorage is vulnerable to XSS attacks.",
+      "references": [
+        "https://owasp.org/www-community/vulnerabilities/Sensitive_Data_Exposure",
+        "https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html"
+      ],
+      "owasp": "A02:2021 - Cryptographic Failures"
+    },
+    {
+      "id": "input-validation",
+      "title": "Validate and Sanitize User Input",
+      "intent": "Ensure all user inputs are validated and sanitized.",
+      "severity": "high",
+      "recommendation": "Always validate and sanitize user input on both client and server. Use libraries like Zod or Yup for schema validation.",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://owasp.org/www-community/attacks/injection"
+      ],
+      "owasp": "A03:2021 - Injection"
+    },
+    {
+      "id": "csp-compliance",
+      "title": "Content Security Policy Compliance",
+      "intent": "Ensure code complies with CSP headers.",
+      "severity": "medium",
+      "recommendation": "Avoid inline event handlers and styles. Use React event handlers and CSS-in-JS or external stylesheets for CSP compliance.",
+      "references": ["https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP"],
+      "owasp": "A05:2021 - Security Misconfiguration"
+    },
+    {
+      "id": "third-party-risk",
+      "title": "Assess Third-Party Dependencies",
+      "intent": "Evaluate and monitor third-party packages for security risks.",
+      "severity": "medium",
+      "recommendation": "Review dependencies for security, maintenance status, and popularity. Use tools like Snyk to scan for vulnerabilities.",
+      "references": [
+        "https://www.npmjs.com/package/snyk",
+        "https://docs.github.com/en/code-security/supply-chain-security"
+      ],
+      "owasp": "A06:2021 - Vulnerable and Outdated Components"
+    },
+    {
+      "id": "react2shell",
+      "title": "Prevent React2Shell Command Injection",
+      "intent": "Detect cases where user input flows into shell or OS command execution APIs.",
+      "severity": "critical",
+      "recommendation": "Never pass user-controlled input directly to shell execution APIs. Use allowlists, argument arrays, and proper input validation.",
+      "references": [
+        "https://owasp.org/www-community/attacks/Command_Injection",
+        "https://nodejs.org/api/child_process.html"
+      ],
+      "owasp": "A03:2021 - Injection"
+    },
+    {
+      "id": "ssrf-prevention",
+      "title": "Prevent Server-Side Request Forgery (SSRF)",
+      "intent": "Detect potential SSRF vulnerabilities where user input controls server-side HTTP requests.",
+      "severity": "critical",
+      "recommendation": "Validate and sanitize all user inputs used in server-side requests. Implement allowlists for acceptable domains and URLs.",
+      "references": [
+        "https://owasp.org/www-community/attacks/Server_Side_Request_Forgery",
+        "https://nodejs.org/api/http.html"
+      ],
+      "owasp": "A04:2021 - Insecure Design"
+    },
+    {
+      "id": "graphql-injection-prevention",
+      "title": "Prevent GraphQL Injection",
+      "intent": "Detect potential GraphQL injection vulnerabilities where user input is directly used in GraphQL queries.",
+      "severity": "high",
+      "recommendation": "Always validate and sanitize user inputs used in GraphQL operations. Use parameterized queries and schema validation libraries.",
+      "references": [
+        "https://owasp.org/www-community/attacks/GraphQL_Injection",
+        "https://graphql.org/learn/validation/"
+      ],
+      "owasp": "A03:2021 - Injection"
+    },
+    {
+      "id": "ssr-xss-prevention",
+      "title": "Prevent SSR XSS Vulnerabilities",
+      "intent": "Detect potential Cross-Site Scripting (XSS) vulnerabilities in Server-Side Rendering (SSR) contexts.",
+      "severity": "critical",
+      "recommendation": "Always sanitize and escape user inputs before rendering them in SSR contexts. Use libraries like DOMPurify for sanitization.",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://expressjs.com/en/4x/api.html#res.render"
+      ],
+      "owasp": "A07:2021 - Cross-Site Scripting (XSS)"
+    }
+  ]
+}
