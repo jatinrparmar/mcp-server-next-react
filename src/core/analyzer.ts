@@ -3,6 +3,8 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { AnalysisResult, Issue, Suggestion, BestPracticesConfig } from '../types/schema.js';
 import { projectDetector, FrameworkType } from '../common/project-detector.js';
+import { SecurityAnalyzer } from './securityAnalyzer.js';
+import { AccessibilityAnalyzer } from './accessibilityAnalyzer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,9 +14,13 @@ export class CodeAnalyzer {
   private bestPractices!: any[];
   private antiPatterns!: any[];
   private framework: FrameworkType = 'unknown';
+  private readonly securityAnalyzer: SecurityAnalyzer;
+  private readonly accessibilityAnalyzer: AccessibilityAnalyzer;
 
   constructor() {
     this.loadRules();
+    this.securityAnalyzer = new SecurityAnalyzer();
+    this.accessibilityAnalyzer = new AccessibilityAnalyzer();
   }
 
   private loadRules(framework?: FrameworkType): void {
@@ -23,15 +29,15 @@ export class CodeAnalyzer {
       const projectInfo = projectDetector.detectFramework();
       framework = projectInfo.framework;
     }
-    
+
     this.framework = framework;
-    
+
     // Load appropriate rules based on framework
     const rulesFileName = framework === 'react' ? 'react-llm-rules.json' : 'next-llm-rules.json';
     const rulesPath = path.join(__dirname, '../config', rulesFileName);
     const rulesContent = fs.readFileSync(rulesPath, 'utf-8');
     const config = JSON.parse(rulesContent);
-    
+
     this.rules = config;
     this.bestPractices = config.bestPractices || [];
     this.antiPatterns = config.antiPatterns || [];
@@ -59,7 +65,8 @@ export class CodeAnalyzer {
     }
 
     // Common checks for both frameworks
-    this.checkAccessibility(code, issues);
+    const a11yResult = await this.accessibilityAnalyzer.analyzeCodeAccessibility(code, filePath);
+    issues.push(...a11yResult.issues);
     this.checkPerformance(code, suggestions);
     this.checkAntiPatterns(code, issues, suggestions);
 
@@ -83,8 +90,11 @@ export class CodeAnalyzer {
     this.checkImageUsage(code, issues);
     this.checkFontUsage(code, issues);
     this.checkMetadata(code, filePath, issues);
-    this.checkServerActions(code, issues);
-    this.checkEnvironmentVariables(code, issues);
+    this.securityAnalyzer.analyzeCodeSecurity(code, filePath).then(securityResult => {
+      securityResult.issues.forEach(issue => issues.push(issue));
+    });
+    this.checkAntiPatterns(code, issues, suggestions);
+    
   }
 
   private checkReactPatterns(code: string, filePath: string, isReactFile: boolean, issues: Issue[], suggestions: Suggestion[]): void {
@@ -120,7 +130,7 @@ export class CodeAnalyzer {
     // Check if hooks are called at top level
     const hookCallPattern = /\b(use[A-Z]\w*)\s*\(/g;
     const lines = code.split('\n');
-    
+
     lines.forEach((line, index) => {
       // Check for hooks in conditionals or loops
       if (/\b(if|while|for)\s*\(/.test(line) && hookCallPattern.test(line)) {
@@ -137,12 +147,12 @@ export class CodeAnalyzer {
     // Check for missing cleanup in useEffect
     const useEffectPattern = /useEffect\s*\(\s*\(\s*\)\s*=>\s*{([^}]+)}/g;
     const matches = code.matchAll(useEffectPattern);
-    
+
     for (const match of matches) {
       const effectBody = match[1];
       const hasSubscription = /addEventListener|setInterval|setTimeout|subscribe/.test(effectBody);
       const hasCleanup = /return\s+\(\s*\)\s*=>|return\s+function/.test(match[0]);
-      
+
       if (hasSubscription && !hasCleanup) {
         issues.push({
           type: 'error',
@@ -159,7 +169,7 @@ export class CodeAnalyzer {
     if (/useEffect\([^)]*\bfetch\b/.test(code)) {
       const hasTryCatch = /try\s*{[^}]*catch/.test(code);
       const hasErrorState = /useState.*error/i.test(code);
-      
+
       if (!hasTryCatch && !hasErrorState) {
         issues.push({
           type: 'warning',
@@ -220,11 +230,11 @@ export class CodeAnalyzer {
     // Check for exposed secrets in React
     const envPattern = /process\.env\.([A-Z_]+)|import\.meta\.env\.([A-Z_]+)/g;
     const matches = code.matchAll(envPattern);
-    
+
     for (const match of matches) {
       const varName = match[1] || match[2];
-      if (!varName.startsWith('REACT_APP_') && !varName.startsWith('VITE_') && 
-          /(API_KEY|SECRET|PASSWORD|TOKEN)/.test(varName)) {
+      if (!varName.startsWith('REACT_APP_') && !varName.startsWith('VITE_') &&
+        /(API_KEY|SECRET|PASSWORD|TOKEN)/.test(varName)) {
         issues.push({
           type: 'error',
           category: 'security',
@@ -350,7 +360,7 @@ export class CodeAnalyzer {
 
   private checkMetadata(code: string, filePath: string, issues: Issue[]): void {
     const isLayoutOrPage = /\/(layout|page)\.(tsx|jsx)$/.test(filePath);
-    
+
     if (isLayoutOrPage && /<Head>/.test(code)) {
       issues.push({
         type: 'error',
@@ -358,46 +368,6 @@ export class CodeAnalyzer {
         message: 'Using Head component in App Router',
         fix: 'Use Metadata API: export const metadata = { ... }'
       });
-    }
-  }
-
-  private checkServerActions(code: string, issues: Issue[]): void {
-    const hasServerAction = code.includes("'use server'") || code.includes('"use server"');
-    
-    if (hasServerAction) {
-      // Check for input validation
-      const hasValidation = /zod|yup|joi|validate/.test(code);
-      if (!hasValidation) {
-        issues.push({
-          type: 'error',
-          category: 'security',
-          message: 'Server Action without input validation',
-          fix: 'Use Zod or similar library to validate inputs',
-          code: "const schema = z.object({ ... });\nconst validated = schema.parse(data);"
-        });
-      }
-    }
-  }
-
-  private checkEnvironmentVariables(code: string, issues: Issue[]): void {
-    // Check for exposed secrets
-    const envPattern = /process\.env\.([A-Z_]+)/g;
-    const matches = code.matchAll(envPattern);
-    
-    for (const match of matches) {
-      const varName = match[1];
-      if (!varName.startsWith('NEXT_PUBLIC_') && /(API_KEY|SECRET|PASSWORD|TOKEN)/.test(varName)) {
-        const isInClientComponent = code.includes("'use client'");
-        if (isInClientComponent) {
-          issues.push({
-            type: 'error',
-            category: 'security',
-            message: `Secret environment variable ${varName} exposed to client`,
-            fix: 'Move secret logic to Server Component or Server Action',
-            code: `process.env.${varName}`
-          });
-        }
-      }
     }
   }
 
@@ -431,27 +401,6 @@ export class CodeAnalyzer {
     }
   }
 
-  private checkAccessibility(code: string, issues: Issue[]): void {
-    // Check for img without alt
-    if (/<img\s(?![^>]*\balt=)/.test(code)) {
-      issues.push({
-        type: 'warning',
-        category: 'accessibility',
-        message: 'Image without alt attribute',
-        fix: 'Add descriptive alt text to all images'
-      });
-    }
-
-    // Check for buttons without accessible labels
-    if (/<button[^>]*>(\s*<[^>]*>)*\s*<\/button>/.test(code)) {
-      issues.push({
-        type: 'info',
-        category: 'accessibility',
-        message: 'Button might lack accessible label',
-        fix: 'Ensure buttons have text or aria-label'
-      });
-    }
-  }
 
   private checkPerformance(code: string, suggestions: Suggestion[]): void {
     // Check for missing dynamic imports
@@ -490,5 +439,40 @@ export class CodeAnalyzer {
     }
 
     return summary;
+  }
+
+  // Standalone file-level accessibility check API
+  public async checkAccessibility(code: string, filePath: string) {
+    const result = await this.accessibilityAnalyzer.analyzeCodeAccessibility(code, filePath);
+    return {
+      file: result.file,
+      issues: result.issues,
+      issueCount: result.totalViolations,
+      summary: result.summary
+    };
+  }
+
+  // Project-level accessibility scan API
+  public async checkAccessibilityInProject() {
+    const result = await this.accessibilityAnalyzer.analyzeProjectAccessibility();
+    return {
+      projectRoot: process.cwd(),
+      totalFilesScanned: result.totalFilesScanned,
+      filesWithIssues: result.filesWithIssues,
+      results: result.results,
+      summary: result.summary
+    };
+  }
+
+   // Standalone file-level security check API using SecurityAnalyzer
+  public async checkSecurity(code: string, filePath: string) {
+    const result = await this.securityAnalyzer.analyzeCodeSecurity(code, filePath);
+    return result;
+  }
+
+  // Project level security check using SecurityAnalyzer
+  public async checkSecurityInProject() {
+    const result = await this.securityAnalyzer.analyzeProjectSecurity();
+    return result;
   }
 }

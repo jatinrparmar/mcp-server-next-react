@@ -16,7 +16,7 @@ export function registerTools(server: McpServer): void {
   const analyzer = new CodeAnalyzer();
   const reviewer = new CodeReviewer();
   const optimizer = new CodeOptimizer();
-  
+
   // Tool 1: Analyze Code
   server.registerTool(
     'analyze-code',
@@ -40,7 +40,7 @@ export function registerTools(server: McpServer): void {
         }
         const code = fs.readFileSync(filePath, 'utf-8');
         const result = await analyzer.analyzeCode(code, filePath);
-        
+
         return {
           content: [
             {
@@ -85,7 +85,7 @@ export function registerTools(server: McpServer): void {
         }
         const code = fs.readFileSync(filePath, 'utf-8');
         const result = await reviewer.reviewCode(code, filePath);
-        
+
         return {
           content: [
             {
@@ -130,7 +130,7 @@ export function registerTools(server: McpServer): void {
         }
         const code = fs.readFileSync(filePath, 'utf-8');
         const result = await optimizer.optimizeCode(code, filePath);
-        
+
         return {
           content: [
             {
@@ -170,7 +170,7 @@ export function registerTools(server: McpServer): void {
     async ({ name, type, features = [], styling = 'tailwind' }: { name: string; type: string; features?: string[]; styling?: string }) => {
       try {
         const component = generateComponent(name, type, features, styling);
-        
+
         return {
           content: [
             {
@@ -209,7 +209,7 @@ export function registerTools(server: McpServer): void {
       try {
         const code = fs.readFileSync(filePath, 'utf-8');
         const refactored = refactorCode(code, pattern, filePath);
-        
+
         return {
           content: [
             {
@@ -249,24 +249,24 @@ export function registerTools(server: McpServer): void {
         const projectInfo = projectDetector.detectFramework();
         const isReact = projectInfo.framework === 'react';
         const framework = isReact ? 'React' : 'Next.js';
-        
+
         // Load appropriate rules
         const rulesFileName = isReact ? 'react-llm-rules.json' : 'next-llm-rules.json';
         const rulesPath = path.join(__dirname, '../config', rulesFileName);
-                
+
         if (!fs.existsSync(rulesPath)) {
           throw new Error(`Rules file not found: ${rulesPath}`);
         }
-        
+
         const rulesContent = fs.readFileSync(rulesPath, 'utf-8');
         const rules = JSON.parse(rulesContent);
 
         let response = `# ${framework} Best Practices\n\n`;
-        
+
         if (topic) {
           // Convert kebab-case to camelCase for key lookup
           const topicKey = topic.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
-          
+
           if (rules[topicKey]) {
             response += `## ${topic.charAt(0).toUpperCase() + topic.slice(1).replace(/-/g, ' ')}\n\n`;
             response += JSON.stringify(rules[topicKey], null, 2);
@@ -278,7 +278,7 @@ export function registerTools(server: McpServer): void {
         } else {
           response += JSON.stringify(rules, null, 2);
         }
-        
+
         return {
           content: [
             {
@@ -323,7 +323,7 @@ export function registerTools(server: McpServer): void {
         }
         const code = fs.readFileSync(filePath, 'utf-8');
         const analysis = checkMigrationReadiness(code, filePath);
-        
+
         return {
           content: [
             {
@@ -370,7 +370,7 @@ export function registerTools(server: McpServer): void {
         }
         const code = fs.readFileSync(filePath, 'utf-8');
         const result = findRepeatedCode(code, filePath, minOccurrences, includeSmallPatterns);
-        
+
         return {
           content: [
             {
@@ -385,6 +385,201 @@ export function registerTools(server: McpServer): void {
             {
               type: 'text',
               text: `Error finding repeated code: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
+          ],
+          isError: true
+        };
+      }
+    }
+  );
+
+  // Tool 9: Check Accessibility
+  server.registerTool(
+    'check-accessibility',
+    {
+      title: 'Check Accessibility Compliance using custom MCP tool',
+      description: 'Analyze React/Next.js code for accessibility compliance with WCAG guidelines. Identifies issues like missing alt text, poor color contrast, and improper ARIA usage. Works on selected file or entire project.',
+      inputSchema: z.object({
+        filePath: z.string().optional().describe('♿ Which file would you like to check for accessibility issues? Provide the full path (e.g., /workspace/src/app/page.tsx). Leave empty to check your entire project for accessibility compliance.')
+      }),
+      _meta: { category: 'accessibility-check', framework: 'react-nextjs', toolVersion: '1.0.0' }
+    },
+    async ({ filePath }: { filePath?: string }) => {
+      try {
+        if (!filePath) {
+          // Check entire project
+          const projectResult = await analyzer.checkAccessibilityInProject();
+          return {
+            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }]
+          };
+        }
+        const code = fs.readFileSync(filePath, 'utf-8');
+        const result = analyzer.checkAccessibility(code, filePath);
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2)
+            }
+          ]
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error checking accessibility: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
+          ],
+          isError: true
+        };
+      }
+    }
+  );
+
+  // Tool 10: Check Security
+  server.registerTool(
+    'check-security',
+    {
+      title: 'Check Security Vulnerabilities using custom MCP tool',
+      description: 'Analyze React/Next.js code for common security vulnerabilities such as XSS, CSRF, and injection attacks using config-driven security rules. Provides remediation suggestions. Works on selected file or entire project.',
+      inputSchema: z.object({
+        filePath: z.string().optional().describe('🔒 Which file would you like to check for security vulnerabilities? Provide the full path (e.g., /workspace/src/app/page.tsx). Leave empty to check your entire project for security issues.')
+      }),
+      _meta: { category: 'security-check', framework: 'react-nextjs', toolVersion: '2.0.0' }
+    },
+    async ({ filePath }: { filePath?: string }) => {
+      try {
+        if (!filePath) {
+          // Check entire project
+          const projectResult = await analyzer.checkSecurityInProject();
+          return {
+            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }]
+          };
+        }
+        const code = fs.readFileSync(filePath, 'utf-8');
+        const result = await analyzer.checkSecurity(code, filePath);
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2)
+            }
+          ]
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error checking security: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
+          ],
+          isError: true
+        };
+      }
+    }
+  );
+
+  // Tool 11: Manage Security Rules
+  server.registerTool(
+    'manage-security-rules',
+    {
+      title: 'Manage Security Rules Configuration',
+      description: 'View, enable, or disable security rules for your project. Get detailed information about all available security checks and configure which ones are active. This allows you to customize security analysis based on your project needs.',
+      inputSchema: z.object({
+        action: z.enum(['list', 'get-config', 'enable', 'disable']).describe('🔧 Action to perform: "list" to see all rules, "get-config" for full configuration, "enable" or "disable" to toggle a specific rule.'),
+        ruleId: z.string().optional().describe('📋 Rule ID (required when action is "enable" or "disable"). Example: "no-env-variable-exposure"')
+      }),
+      annotations: {
+        title: 'Manage Security Rules Configuration',
+        readOnlyHint: true,
+      },
+      _meta: { category: 'security-config', framework: 'react-nextjs', toolVersion: '1.0.0' }
+    },
+    async ({ action, ruleId }: { action: 'list' | 'get-config' | 'enable' | 'disable'; ruleId?: string }) => {
+      try {
+        const securityAnalyzer = new (await import('../core/securityAnalyzer.js')).SecurityAnalyzer();
+
+        if (action === 'list') {
+          const rules = securityAnalyzer.getEnabledRules();
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({
+                  totalRules: rules.length,
+                  rules: rules.map(r => ({
+                    id: r.id,
+                    title: r.title,
+                    severity: r.severity,
+                    enabled: r.enabled,
+                    intent: r.intent
+                  }))
+                }, null, 2)
+              }
+            ]
+          };
+        } else if (action === 'get-config') {
+          const config = securityAnalyzer.getRulesConfig();
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(config, null, 2)
+              }
+            ]
+          };
+        } else if (action === 'enable' || action === 'disable') {
+          if (!ruleId) {
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: 'Error: ruleId is required for enable/disable actions'
+                }
+              ],
+              isError: true
+            };
+          }
+
+          const enabled = action === 'enable';
+          const success = securityAnalyzer.updateRuleStatus(ruleId, enabled);
+
+          if (success) {
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify({
+                    success: true,
+                    message: `Rule "${ruleId}" has been ${enabled ? 'enabled' : 'disabled'}`
+                  }, null, 2)
+                }
+              ]
+            };
+          } else {
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: `Error: Rule "${ruleId}" not found`
+                }
+              ],
+              isError: true
+            };
+          }
+        }
+
+        throw new Error('Invalid action');
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error managing security rules: ${error instanceof Error ? error.message : 'Unknown error'}`
             }
           ],
           isError: true
