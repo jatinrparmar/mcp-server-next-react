@@ -133,3 +133,109 @@ export interface SDLCAnalysis {
   overallMaturity: 'low' | 'medium' | 'high';
   recommendations: string[];
 }
+
+// Security-related types
+export interface SecurityRule {
+  id: string;
+  title: string;
+  intent: string;
+  scope: 'code' | 'component' | 'function' | 'config' | 'project';
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  enabled: boolean;
+  detection?: {
+    patterns?: string[];
+    fileGlobs?: string[];
+    fileExtensions?: string[];
+    requirePatterns?: string[];
+    requireAbsence?: string[];
+    excludePatterns?: string[];
+    checkPatterns?: string[];
+    astHints?: string[];
+  };
+  recommendation: string;
+  references?: string[];
+  codeExample?: {
+    bad: string;
+    good: string;
+  };
+}
+
+export interface SecurityConfig {
+  meta: {
+    framework: 'React' | 'Next.js';
+    version: string;
+    type: 'security';
+    intendedFor: string[];
+  };
+  securityRules: SecurityRule[];
+}
+
+export interface SecurityCheckResult {
+  file: string;
+  framework: string;
+  issues: Issue[];
+  ruleResults: Array<{
+    rule: SecurityRule;
+    violations: Array<{
+      line?: number;
+      column?: number;
+      message: string;
+      code: string;
+    }>;
+  }>;
+  securityScore: number;
+  totalViolations: number;
+  summary: string;
+}
+
+// Accessibility-related types
+export interface AccessibilityRule {
+  id: string;
+  title: string;
+  intent: string;
+  scope: 'code' | 'component' | 'function' | 'config' | 'project';
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  enabled: boolean;
+  wcag?: string;
+  standard?: string;
+  detection?: {
+    patterns?: string[];
+    fileGlobs?: string[];
+    fileExtensions?: string[];
+    requirePatterns?: string[];
+    requireAbsence?: string[];
+    excludePatterns?: string[];
+    checkPatterns?: string[];
+    astHints?: string[];
+  };
+  recommendation: string;
+  references?: string[];
+  examples?: {
+    bad: string[];
+    good: string[];
+  };
+  exampleCodeSnippets?: {
+    bad: string;
+    good: string;
+  };
+  confidence?: 'high' | 'medium' | 'low';
+  falsePositives?: 'low' | 'medium' | 'high';
+  performanceImpact?: 'low' | 'medium' | 'high';
+  detectionComplexity?: 'low' | 'medium' | 'high';
+  easeOfRemediation?: 'high' | 'medium' | 'low';
+  remediationExplanation?: string;
+  relatedRules?: string[];
+  examplesOfExploits?: string[];
+  owasp?: string;
+}
+
+export interface AccessibilityConfig {
+  meta: {
+    framework: 'React' | 'React-Next' | 'Next.js';
+    version: string;
+    type: 'accessibility';
+    intendedFor: string[];
+    standard: string;
+  };
+  accessibilityRules: AccessibilityRule[];
+}

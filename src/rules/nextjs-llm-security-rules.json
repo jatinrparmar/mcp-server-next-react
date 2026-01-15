@@ -1,0 +1,150 @@
+{
+  "meta": {
+    "framework": "Next.js",
+    "version": "2025",
+    "type": "security",
+    "intendedFor": ["LLMs", "MCP", "GitHub Copilot"],
+    "description": "Comprehensive security rules for Next.js applications"
+  },
+  "securityRules": [
+    {
+      "id": "no-env-variable-exposure",
+      "title": "Prevent Environment Variable Exposure",
+      "intent": "Ensure sensitive environment variables are not exposed to the client side.",
+      "severity": "critical",
+      "recommendation": "Only use environment variables prefixed with NEXT_PUBLIC_ on the client side. For sensitive data, use server-only modules or server actions.",
+      "references": [
+        "https://nextjs.org/docs/app/building-your-application/configuring/environment-variables"
+      ],
+      "owasp": "A02:2021 - Cryptographic Failures"
+    },
+    {
+      "id": "server-action-validation",
+      "title": "Validate Server Actions Input",
+      "intent": "Ensure server actions validate all user inputs to prevent injection attacks.",
+      "severity": "critical",
+      "recommendation": "Always validate and sanitize inputs in server actions using libraries like Zod, Yup, or Joi. Never trust client-side input.",
+      "references": [
+        "https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations#validation",
+        "https://owasp.org/www-community/attacks/injection"
+      ],
+      "owasp": "A03:2021 - Injection"
+    },
+    {
+      "id": "no-hardcoded-secrets",
+      "title": "No Hardcoded Secrets",
+      "intent": "Prevent hardcoded API keys, tokens, and passwords in source code.",
+      "severity": "critical",
+      "recommendation": "Store all secrets in environment variables or a secure secrets management system. Never commit secrets to version control.",
+      "references": [
+        "https://owasp.org/www-community/vulnerabilities/Sensitive_Data_Exposure",
+        "https://github.com/gremlin/api-security/blob/master/Hardcoded_Secrets.md"
+      ],
+      "owasp": "A02:2021 - Cryptographic Failures"
+    },
+    {
+      "id": "xss-prevention",
+      "title": "Prevent XSS Vulnerabilities",
+      "intent": "Ensure dynamic content is properly sanitized and escaped to prevent XSS attacks.",
+      "severity": "high",
+      "recommendation": "Avoid using dangerouslySetInnerHTML. Use libraries like DOMPurify for sanitization. React escapes content by default.",
+      "references": [
+        "https://react.dev/reference/react-dom/dangerouslySetInnerHTML",
+        "https://owasp.org/www-community/attacks/xss/"
+      ],
+      "owasp": "A07:2021 - Cross-Site Scripting (XSS)"
+    },
+    {
+      "id": "sql-injection-prevention",
+      "title": "Prevent SQL Injection",
+      "intent": "Use parameterized queries or ORM to prevent SQL injection attacks.",
+      "severity": "critical",
+      "recommendation": "Always use parameterized queries, prepared statements, or an ORM like Prisma. Never concatenate strings for SQL queries.",
+      "references": [
+        "https://owasp.org/www-community/attacks/SQL_Injection",
+        "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"
+      ],
+      "owasp": "A03:2021 - Injection"
+    },
+    {
+      "id": "csp-headers",
+      "title": "Configure Content Security Policy Headers",
+      "intent": "Ensure CSP headers are configured to prevent injection attacks.",
+      "severity": "high",
+      "recommendation": "Configure CSP headers in next.config.js or middleware to restrict resource loading. This mitigates XSS attacks.",
+      "references": [
+        "https://nextjs.org/docs/advanced-features/security-headers",
+        "https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP"
+      ],
+      "owasp": "A05:2021 - Security Misconfiguration"
+    },
+    {
+      "id": "csrf-protection",
+      "title": "CSRF Token Protection",
+      "intent": "Implement CSRF token validation for state-changing operations.",
+      "severity": "high",
+      "recommendation": "Use CSRF tokens in forms and validate them in server actions. Next.js provides built-in CSRF protection.",
+      "references": [
+        "https://owasp.org/www-community/attacks/csrf",
+        "https://nextjs.org/docs/app/building-your-application/security/securing-pages-and-apis"
+      ],
+      "owasp": "A08:2021 - Software and Data Integrity Failures"
+    },
+    {
+      "id": "secure-headers",
+      "title": "Implement Security Headers",
+      "intent": "Ensure all recommended security headers are configured.",
+      "severity": "high",
+      "recommendation": "Configure security headers including X-Content-Type-Options, X-Frame-Options, and Strict-Transport-Security.",
+      "references": [
+        "https://nextjs.org/docs/advanced-features/security-headers",
+        "https://owasp.org/www-project-secure-headers/"
+      ],
+      "owasp": "A05:2021 - Security Misconfiguration"
+    },
+    {
+      "id": "auth-validation",
+      "title": "Validate Authentication and Authorization",
+      "intent": "Ensure proper authentication and authorization checks on protected resources.",
+      "severity": "critical",
+      "recommendation": "Always validate user sessions and check permissions before accessing protected resources. Use middleware for route protection.",
+      "references": [
+        "https://owasp.org/www-community/attacks/Broken_Authentication"
+      ],
+      "owasp": "A01:2021 - Broken Access Control"
+    },
+    {
+      "id": "dependency-vulnerabilities",
+      "title": "Check for Vulnerable Dependencies",
+      "intent": "Ensure no known vulnerable packages are installed.",
+      "severity": "high",
+      "recommendation": "Regularly run 'npm audit' or 'yarn audit' and update vulnerable dependencies. Use dependabot for automated updates.",
+      "references": [
+        "https://docs.npmjs.com/cli/v8/commands/npm-audit",
+        "https://docs.github.com/en/code-security/dependabot"
+      ],
+      "owasp": "A06:2021 - Vulnerable and Outdated Components"
+    },
+    {
+      "id": "no-console-sensitive-data",
+      "title": "No Sensitive Data in Console",
+      "intent": "Prevent logging of sensitive information.",
+      "severity": "medium",
+      "recommendation": "Remove logging of passwords, tokens, and other sensitive data. Use appropriate log levels and secure logging services.",
+      "references": ["https://owasp.org/www-community/Log_Injection"],
+      "owasp": "A09:2021 - Security Logging and Monitoring Failures"
+    },
+    {
+      "id": "react2shell-command-injection",
+      "title": "Prevent React2Shell Command Injection",
+      "intent": "Detect cases where user input in Next.js flows into OS or shell execution APIs.",
+      "severity": "critical",
+      "recommendation": "Never pass user-controlled input directly to shell execution APIs. Use strict allowlists, argument arrays, and validated input.",
+      "references": [
+        "https://owasp.org/www-community/attacks/Command_Injection",
+        "https://nodejs.org/api/child_process.html"
+      ],
+      "owasp": "A03:2021 - Injection"
+    }
+  ]
+}

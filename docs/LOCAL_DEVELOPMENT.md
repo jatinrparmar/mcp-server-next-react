@@ -78,6 +78,22 @@ Then:
 2. Select a tool from the list
 3. Fill in parameters
 4. Click "Call Tool"
+
+### Example: Check Accessibility
+
+Use the MCP Inspector to run the accessibility audit:
+
+1. Select the `check-accessibility` tool
+2. Provide `filePath` or leave empty to scan the whole project
+3. Review the results for issues like:
+  - `<img>` without `alt`
+  - Next.js `<Image />` missing `alt`
+  - Clickable `<div>` without keyboard support
+  - Inputs/textarea missing labels
+  - Anchor tags without `href`
+  - Misused ARIA roles
+
+You can iteratively fix issues and re-run the tool to verify improvements.
 5. View the response
 
 ### Method 2: Manual JSON-RPC Testing

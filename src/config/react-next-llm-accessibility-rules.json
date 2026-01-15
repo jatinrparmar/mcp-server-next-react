@@ -1,0 +1,380 @@
+{
+  "meta": {
+    "framework": "React-Next",
+    "version": "2025",
+    "type": "accessibility",
+    "intendedFor": ["LLMs", "MCP", "GitHub Copilot"],
+    "standard": "WCAG 2.2"
+  },
+  "accessibilityRules": [
+    {
+      "id": "img-alt-text",
+      "title": "Images Must Have Alt Text",
+      "intent": "Ensure all images are accessible to screen readers.",
+      "scope": "component",
+      "severity": "critical",
+      "enabled": true,
+      "detection": {
+        "patterns": ["<img(?![^>]*alt=)", "<Image(?![^>]*alt=)"]
+      },
+      "recommendation": "Always provide meaningful alt text. Use alt=\"\" for decorative images.",
+      "wcag": "1.1.1",
+      "confidence": "high",
+      "falsePositives": "low",
+      "owasp": "A6:2021 - Security Misconfiguration",
+      "references": [
+        "https://www.w3.org/WAI/tutorials/images/decision-tree/",
+        "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Alt_text"
+      ],
+      "examples": {
+        "bad": [
+          "<img src=\"image.jpg\" />",
+          "<Image src=\"image.jpg\" />"
+        ],
+        "good": [
+          "<img src=\"image.jpg\" alt=\"Description of image\" />",
+          "<Image src=\"image.jpg\" alt=\"Description of image\" />",
+          "<img src=\"decorative.jpg\" alt=\"\" />"
+        ]
+      },
+      "relatedRules": ["aria-required-attributes"],
+      "performanceImpact": "low",
+      "detectionComplexity": "low",
+      "easeOfRemediation": "high",
+      "remediationExplanation": "Add appropriate alt attributes to all image elements.",
+      "exampleCodeSnippets": {
+        "bad": "<img src=\"image.jpg\" />",
+        "good": "<img src=\"image.jpg\" alt=\"A descriptive text about the image.\" />"
+      },
+      "examplesOfExploits": [
+        "Screen readers cannot interpret images without alt text, leading to a poor user experience for visually impaired users."
+      ],
+      "relatedVulnerabilities": [
+        "Accessibility violations can lead to legal repercussions under laws such as the ADA."
+      ],
+      "detectionLimitations": "May not detect dynamically added images without alt text.",
+      "additionalNotes": "Consider using tools like axe or Lighthouse for comprehensive accessibility audits."
+    },
+    {
+      "id": "button-accessibility",
+      "title": "Interactive Elements Must Be Keyboard Accessible",
+      "intent": "Ensure clickable elements are accessible via keyboard.",
+      "scope": "component",
+      "severity": "critical",
+      "enabled": true,
+      "detection": {
+        "patterns": ["onClick"],
+        "requirePatterns": ["onKeyDown|onKeyUp|onKeyPress|button"]
+      },
+      "recommendation": "Use semantic <button> elements or add keyboard handlers.",
+      "wcag": "2.1.1",
+      "confidence": "high",
+      "falsePositives": "low",
+      "owasp": "A6:2021 - Security Misconfiguration",
+      "references": [
+        "https://www.w3.org/WAI/tutorials/forms/keyboard/",
+        "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_buttons"
+      ],
+      "examples": {
+        "bad": [
+          "<div onClick={handleClick}>Click me</div>"
+        ],
+        "good": [
+          "<button onClick={handleClick}>Click me</button>",
+          "<div onClick={handleClick} onKeyDown={handleKeyDown} tabIndex={0}>Click me</div>"
+        ]
+      },
+      "relatedRules": ["focus-visible"],
+      "performanceImpact": "low",
+      "detectionComplexity": "medium",
+      "easeOfRemediation": "high",
+      "remediationExplanation": "Replace non-semantic clickable elements with <button> or add keyboard event handlers.",
+      "exampleCodeSnippets": {
+        "bad": "<div onClick={handleClick}>Click me</div>",
+        "good": "<button onClick={handleClick}>Click me</button>"
+      },
+      "examplesOfExploits": [
+        "Users relying on keyboard navigation may be unable to interact with non-accessible clickable elements."
+      ],
+      "relatedVulnerabilities": [
+        "Accessibility violations can lead to legal repercussions under laws such as the ADA."
+      ],
+      "detectionLimitations": "May not detect all custom interactive elements.",
+      "additionalNotes": "Consider using tools like axe or Lighthouse for comprehensive accessibility audits."
+    },
+    {
+      "id": "aria-required-attributes",
+      "title": "ARIA Roles Must Have Required Attributes",
+      "intent": "Prevent invalid ARIA usage.",
+      "scope": "component",
+      "severity": "high",
+      "enabled": true,
+      "detection": {
+        "patterns": ["role=\"(dialog|checkbox|menu)\""],
+        "requirePatterns": ["aria-"]
+      },
+      "recommendation": "Follow ARIA Authoring Practices for required attributes.",
+      "wcag": "4.1.2",
+      "confidence": "medium",
+      "falsePositives": "medium",
+      "owasp": "A6:2021 - Security Misconfiguration",
+      "references": [
+        "https://www.w3.org/TR/wai-aria-1.1/#roles",
+        "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles"
+      ],
+      "examples": {
+        "bad": [
+          "<div role=\"dialog\"></div>"
+        ],
+        "good": [
+          "<div role=\"dialog\" aria-labelledby=\"dialogTitle\"></div>"
+        ]
+      },
+      "relatedRules": ["img-alt-text"],
+      "performanceImpact": "low",
+      "detectionComplexity": "medium",
+      "easeOfRemediation": "medium",
+      "remediationExplanation": "Add required ARIA attributes to elements with ARIA roles.",
+      "exampleCodeSnippets": {
+        "bad": "<div role=\"dialog\"></div>",
+        "good": "<div role=\"dialog\" aria-labelledby=\"dialogTitle\"></div>"
+      },
+      "examplesOfExploits": [
+        "Screen readers may misinterpret elements with incomplete ARIA roles, leading to confusion."
+      ],
+      "relatedVulnerabilities": [
+        "Accessibility violations can lead to legal repercussions under laws such as the ADA."
+      ],
+      "detectionLimitations": "May not cover all ARIA roles and their required attributes.",
+      "additionalNotes": "Refer to the ARIA specification for comprehensive role and attribute mappings."
+    },
+    {
+      "id": "label-input-association",
+      "title": "Form Inputs Must Have Labels",
+      "intent": "Ensure form fields are accessible.",
+      "scope": "component",
+      "severity": "critical",
+      "enabled": true,
+      "detection": {
+        "patterns": ["<input", "<select", "<textarea"],
+        "requirePatterns": ["<label", "aria-label", "aria-labelledby"]
+      },
+      "wcag": "1.3.1",
+      "recommendation": "Use <label> elements or ARIA attributes to associate labels with inputs.",
+      "confidence": "high",
+      "falsePositives": "low",
+      "owasp": "A6:2021 - Security Misconfiguration",
+      "references": [
+        "https://www.w3.org/WAI/tutorials/forms/labels/",
+        "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Forms/Labeling_form_elements"
+      ],
+      "examples": {
+        "bad": [
+          "<input type=\"text\" />"
+        ],
+        "good": [
+          "<label htmlFor=\"name\">Name</label><input type=\"text\" id=\"name\" />",
+          "<input type=\"text\" aria-label=\"Name\" />"
+        ]
+      },
+      "relatedRules": ["img-alt-text"],
+      "performanceImpact": "low",
+      "detectionComplexity": "low",
+      "easeOfRemediation": "high",
+      "remediationExplanation": "Add labels to all form inputs using <label> or ARIA attributes.",
+      "exampleCodeSnippets": {
+        "bad": "<input type=\"text\" />",
+        "good": "<label htmlFor=\"name\">Name</label><input type=\"text\" id=\"name\" />"
+      },
+      "examplesOfExploits": [
+        "Users of assistive technologies may struggle to understand the purpose of unlabeled form fields."
+      ],
+      "relatedVulnerabilities": [
+        "Accessibility violations can lead to legal repercussions under laws such as the ADA."
+      ],
+      "detectionLimitations": "May not detect dynamically generated form fields.",
+      "additionalNotes": "Consider using tools like axe or Lighthouse for comprehensive accessibility audits."
+    },
+    {
+      "id": "heading-order",
+      "title": "Correct Heading Hierarchy",
+      "intent": "Ensure headings follow logical order.",
+      "scope": "component",
+      "severity": "medium",
+      "enabled": true,
+      "detection": {
+        "patterns": ["<h[1-6]"]
+      },
+      "wcag": "1.3.1",
+      "recommendation": "Use headings in a nested manner without skipping levels.",
+      "confidence": "medium",
+      "falsePositives": "medium",
+      "owasp": "A6:2021 - Security Misconfiguration",
+      "references": [
+        "https://www.w3.org/WAI/tutorials/page-structure/headings/",
+        "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_headings_and_document_structure"
+      ],
+      "examples": {
+        "bad": [
+          "<h1>Main Title</h1><h3>Subsection</h3>"
+        ],
+        "good": [
+          "<h1>Main Title</h1><h2>Section</h2><h3>Subsection</h3>"
+        ]
+      },
+      "relatedRules": ["page-title"],
+      "performanceImpact": "low",
+      "detectionComplexity": "medium",
+      "easeOfRemediation": "medium",
+      "remediationExplanation": "Adjust heading levels to follow a logical order without skipping levels.",
+      "exampleCodeSnippets": {
+        "bad": "<h1>Main Title</h1><h3>Subsection</h3>",
+        "good": "<h1>Main Title</h1><h2>Section</h2><h3>Subsection</h3>"
+      },
+      "examplesOfExploits": [
+        "Improper heading structure can confuse users of assistive technologies, making navigation difficult."
+      ],
+      "relatedVulnerabilities": [
+        "Accessibility violations can lead to legal repercussions under laws such as the ADA."
+      ],
+      "detectionLimitations": "May not account for dynamically generated headings.",
+      "additionalNotes": "Refer to best practices for document structure and heading usage."
+    },
+    {
+      "id": "focus-visible",
+      "title": "Visible Focus Indicator",
+      "intent": "Ensure keyboard users can see focus.",
+      "scope": "style",
+      "severity": "high",
+      "enabled": true,
+      "detection": {
+        "patterns": ["outline:\\s*none"]
+      },
+      "wcag": "2.4.7",
+      "recommendation": "Do not remove focus indicators; customize them if necessary.",
+      "confidence": "high",
+      "falsePositives": "low",
+      "owasp": "A6:2021 - Security Misconfiguration",
+      "references": [
+        "https://www.w3.org/WAI/WCAG21/Techniques/css/C22.html",
+        "https://developer.mozilla.org/en-US/docs/Web/CSS/:focus-visible"
+      ],
+      "examples": {
+        "bad": [
+          "button:focus { outline: none; }"
+        ],
+        "good": [
+          "button:focus { outline: 2px solid blue; }"
+        ]
+      },
+      "relatedRules": ["button-accessibility"],
+      "performanceImpact": "low",
+      "detectionComplexity": "low",
+      "easeOfRemediation": "high",
+      "remediationExplanation": "Ensure focus indicators are visible and distinct for keyboard navigation.",
+      "exampleCodeSnippets": {
+        "bad": "button:focus { outline: none; }",
+        "good": "button:focus { outline: 2px solid blue; }"
+      },
+      "examplesOfExploits": [
+        "Users relying on keyboard navigation may lose track of their position without visible focus indicators."
+      ],
+      "relatedVulnerabilities": [
+        "Accessibility violations can lead to legal repercussions under laws such as the ADA."
+      ],
+      "detectionLimitations": "May not detect custom focus styles that are not fully removed.",
+      "additionalNotes": "Consider using tools like axe or Lighthouse for comprehensive accessibility audits."
+    },
+    {
+      "id": "aria-hidden-focus",
+      "title": "No Focusable Elements Inside aria-hidden",
+      "intent": "Prevent hidden interactive elements.",
+      "scope": "component",
+      "severity": "high",
+      "enabled": true,
+      "detection": {
+        "patterns": ["aria-hidden=\"true\""],
+        "excludePatterns": ["tabIndex={-1}"]
+      },
+      "wcag": "4.1.2",
+      "recommendation": "Avoid placing focusable elements inside aria-hidden containers.",
+      "confidence": "high",
+      "falsePositives": "low",
+      "owasp": "A6:2021 - Security Misconfiguration",
+      "references": [
+        "https://www.w3.org/TR/wai-aria-1.1/#aria-hidden",
+        "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-hidden"
+      ],
+      "examples": {
+        "bad": [
+          "<div aria-hidden=\"true\"><button>Click me</button></div>"
+        ],
+        "good": [
+          "<div aria-hidden=\"true\"><span>Not focusable</span></div>"
+        ]
+      },
+      "relatedRules": ["button-accessibility"],
+      "performanceImpact": "low",
+      "detectionComplexity": "medium",
+      "easeOfRemediation": "medium",
+      "remediationExplanation": "Remove focusable elements from within aria-hidden containers.",
+      "exampleCodeSnippets": {
+        "bad": "<div aria-hidden=\"true\"><button>Click me</button></div>",
+        "good": "<div aria-hidden=\"true\"><span>Not focusable</span></div>"
+      },
+      "examplesOfExploits": [
+        "Screen readers may still access focusable elements within aria-hidden containers, causing confusion."
+      ],
+      "relatedVulnerabilities": [
+        "Accessibility violations can lead to legal repercussions under laws such as the ADA."
+      ],
+      "detectionLimitations": "May not detect dynamically added focusable elements.",
+      "additionalNotes": "Refer to ARIA best practices for managing hidden content."
+    },
+    {
+      "id": "page-title",
+      "title": "Page Must Have Accessible Title",
+      "intent": "Ensure pages have descriptive titles.",
+      "scope": "page",
+      "severity": "medium",
+      "enabled": true,
+      "detection": {
+        "requirePatterns": ["<title>", "metadata.title"]
+      },
+      "wcag": "2.4.2",
+      "recommendation": "Provide a unique and descriptive title for each page.",
+      "confidence": "high",
+      "falsePositives": "low",
+      "owasp": "A6:2021 - Security Misconfiguration",
+      "references": [
+        "https://www.w3.org/WAI/tutorials/page-structure/title/",
+        "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/title"
+      ],
+      "examples": {
+        "bad": [
+          "<title></title>"
+        ],
+        "good": [
+          "<title>Home - My Website</title>"
+        ]
+      },
+      "relatedRules": ["heading-order"],
+      "performanceImpact": "low",
+      "detectionComplexity": "low",
+      "easeOfRemediation": "high",
+      "remediationExplanation": "Add a descriptive title element to each page.",
+      "exampleCodeSnippets": {
+        "bad": "<title></title>",
+        "good": "<title>Home - My Website</title>"
+      },
+      "examplesOfExploits": [
+        "Users may have difficulty identifying pages in browser tabs or bookmarks without descriptive titles."
+      ],
+      "relatedVulnerabilities": [ 
+        "Accessibility violations can lead to legal repercussions under laws such as the ADA."
+      ],
+      "detectionLimitations": "May not detect titles set dynamically via JavaScript.",
+      "additionalNotes": "Consider using tools like axe or Lighthouse for comprehensive accessibility audits."
+    }
+  ]
+}
