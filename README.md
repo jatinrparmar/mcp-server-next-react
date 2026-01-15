@@ -163,6 +163,24 @@ Checks if Pages Router code is ready to migrate to App Router.
 
 **Returns:** Migration readiness analysis with blockers, warnings, and steps
 
+### 8. `find-repeated-code`
+Identifies repeated code patterns that can be extracted into reusable components or utility functions.
+
+**Parameters:**
+- `filePath` (string, optional): File path to analyze (e.g., src/components/Dashboard.tsx). If not provided, analyzes entire project
+- `minOccurrences` (number, optional): Minimum number of repetitions to report (default: 2)
+- `includeSmallPatterns` (boolean, optional): Include small patterns (less than 3 lines) (default: false)
+
+**Returns:** Found patterns with occurrences, line hints, and refactoring suggestions
+
+### 9. `check-accessibility`
+Analyzes React/Next.js code for accessibility compliance (WCAG heuristics). Detects missing alt text, improper ARIA usage, clickable non-interactive elements, inputs without labels, and more. Works on a single file or the entire project.
+
+**Parameters:**
+- `filePath` (string, optional): File path to check (e.g., src/app/page.tsx). If not provided, checks the entire project
+
+**Returns:** Accessibility findings with type (error/warning/info), message, and suggested fixes
+
 ## 📦 Installation
 
 ### For MCP Clients (e.g., Claude Desktop, Cline)
@@ -333,7 +351,22 @@ src/
 - ✅ Structured data (JSON-LD)
 - ✅ Open Graph tags
 
+## � Documentation
+
+Comprehensive guides for using and customizing the MCP server:
+- **[Config-Driven Architecture](docs/CONFIG_DRIVEN_ARCHITECTURE.md)** - How all analyzers (Code, Security, Accessibility) are config-driven with 107+ rules- **[Rules & Configuration Documentation](docs/RULES_DOCUMENTATION.md)** - Complete reference of all 107+ rules organized by category
+- **[Custom Rules Guide](docs/CUSTOM_RULES_GUIDE.md)** - How to create and customize your own rule sets
+- **[Security Rules Guide](docs/SECURITY_RULES_GUIDE.md)** - Detailed security rule configurations and best practices
+- **[Configuration Examples](docs/CONFIGURATION_EXAMPLES.md)** - Real-world configuration examples
+- **[Framework Detection](docs/FRAMEWORK_DETECTION.md)** - How the server detects React vs Next.js
+- **[Local Development](docs/LOCAL_DEVELOPMENT.md)** - Development and testing guide
+- **[Architecture](docs/ARCHITECTURE.md)** - System architecture overview
+- **[Copilot Setup](docs/COPILOT_SETUP.md)** - Setup instructions for GitHub Copilot
+
+---
+
 ## 🔧 Development
+
 
 ### Build
 ```bash
@@ -349,61 +382,112 @@ npm run build
 node build/index.js
 ```
 
-## 📝 Rules Configuration
+## � Rules & Configuration
 
-The server uses rule files for both React and Next.js projects:
+The server uses comprehensive rule files to analyze and guide development for both React and Next.js projects. Rules are organized into multiple types:
 
-### Active Configuration Files (Used by Code Analyzers)
-1. **`config/next-llm-rules.json`**: Next.js configuration including routing, data fetching, Server Components, performance, security, SEO, accessibility, and more.
-2. **`config/react-llm-rules.json`**: React configuration including components, hooks, state management, performance, security, and best practices.
+### 1. **Configuration Files** (Active Rules - Used by Analyzers)
+Located in `src/config/`:
+- **`next-llm-rules.json`**: Core Next.js configuration with settings for routing, data fetching, components, performance, security, SEO, accessibility, testing, TypeScript, styling, state management, error handling, and deployment
+- **`react-llm-rules.json`**: Core React configuration with settings for routing, data fetching, state management, components, performance, hooks, security, accessibility, testing, styling, and bundling
 
-### Reference Files (For LLMs & AI Tools)
-3. **`rules/nextjs-llm-best-practices.json`**: Structured Next.js rules with detection patterns, severity levels, and recommendations.
-4. **`rules/react-llm-best-practices.json`**: Structured React rules with detection patterns, severity levels, and recommendations.
+### 2. **Best Practices Rules** (Reference Rules - For LLMs & AI Tools)
+Located in `src/rules/`:
+- **`nextjs-llm-best-practices.json`**: Structured Next.js best practices with 28+ rules covering App Router, Server Components, data fetching, SEO, TypeScript, error handling, and deployment
+- **`react-llm-best-practices.json`**: Structured React best practices with 36+ rules covering hooks, components, routing, data fetching, state management, styling, accessibility, testing, and performance
 
-You can customize these files to add your own organization's specific rules and patterns.
+### 3. **Security Rules** (Specialized Security Checks)
+Located in `src/config/` and `src/rules/`:
+- **`nextjs-llm-security-rules.json`**: 12 critical/high-severity security rules including environment variable exposure, server action validation, hardcoded secrets, XSS prevention, SQL injection, CSRF protection, and more
+- **`react-llm-security-rules.json`**: 15 security rules covering XSS prevention, secrets management, dependency vulnerabilities, API security, and injection prevention
 
-### Custom Rules Configuration (Overview)
+### 4. **Accessibility Rules** (WCAG 2.2 Compliance)
+Located in `src/config/` and `src/rules/`:
+- **`react-next-llm-accessibility-rules.json`**: 16 accessibility rules covering images, keyboard navigation, ARIA, forms, headings, focus management, video/audio captions, and motion preferences
 
-For a comprehensive guide, see **[docs/CUSTOM_RULES_GUIDE.md](docs/CUSTOM_RULES_GUIDE.md)**. Below is a concise overview to get started.
+---
 
-#### File Structure
-- `config/*-llm-rules.json`: Active rules consumed by the analyzer/optimizer/reviewer
-- `rules/*-llm-best-practices.json`: Reference rules in LLM-friendly format (intents, scopes, detection patterns, recommendations)
+## 📚 Rule Categories & Examples
 
-#### Core Categories
-- **Routing**: App Router, file-based routing, parallel/intercepting routes, route groups
-- **Data Fetching**: Prefer `fetch`, Server Actions; avoid legacy `getServerSideProps`/`getStaticProps`
-- **Components**: Default to Server Components; client components only when needed
-- **Performance**: Dynamic imports, next/image, next/font, bundle optimization
-- **Security**: No env leakage, input validation, CSP, secret management
-- **SEO & Accessibility**: Metadata API, JSON-LD, Open Graph; semantic HTML, ARIA, alt text
-- **Testing & Types**: Unit/integration/e2e; strict TypeScript settings
+### Next.js Best Practices (Key Rules)
+1. **`next-app-router-only`** - Use App Router exclusively
+2. **`prefer-server-components`** - Default to Server Components
+3. **`no-data-fetching-in-useeffect`** - Move data fetching to Server Components
+4. **`use-server-actions-for-mutations`** - Use Server Actions for form submissions
+5. **`validate-server-action-inputs`** - Validate all server action inputs with Zod/Yup
+6. **`no-env-access-in-client`** - Never access non-NEXT_PUBLIC_ env vars in client
+7. **`use-suspense-boundaries`** - Wrap async components with Suspense
+8. **`use-next-image`** - Use Next.js Image component for optimization
+9. **`use-next-font`** - Use next/font for font loading
+10. **`next-seo-metadata`** - Use Metadata API for SEO
+11. **`next-error-handling`** - Implement error.tsx for error boundaries
+12. **`next-revalidation-strategy`** - Choose appropriate revalidation strategy
 
-#### Best Practices & Anti-Patterns
-- `bestPractices`: Rules with `rule`, `description`, `severity` (error/warning/info)
-- `antiPatterns`: Items with `pattern`, `description`, `fix` to guide remediation
+### React Best Practices (Key Rules)
+1. **`react-functional-components-only`** - Use functional components with hooks
+2. **`react-hooks-at-top-level`** - Call hooks at top level only
+3. **`react-useeffect-cleanup`** - Return cleanup function from useEffect
+4. **`react-useeffect-dependencies`** - Specify dependency array for useEffect
+5. **`react-avoid-prop-drilling`** - Use Context/state management to avoid prop drilling
+6. **`react-use-query-for-server-state`** - Use TanStack Query/SWR for server state
+7. **`react-routing-libraries`** - Use React Router v6+ or similar
+8. **`react-data-fetching-best-practices`** - Avoid fetching in useEffect
+9. **`react-state-management`** - Choose appropriate state management approach
+10. **`react-styling-approach`** - Use consistent styling (Tailwind/CSS Modules/etc)
+11. **`react-testing-strategy`** - Implement comprehensive testing with RTL
 
-#### Create Your Own Rules (Quick Steps)
-1. Identify requirements (what to enforce vs discourage; severity levels)
-2. Edit `config/next-llm-rules.json` to add/adjust categories and `bestPractices`
-3. Add `antiPatterns` to flag common issues and suggested fixes
-4. Rebuild to apply: 
-  ```bash
-  npm run build
-  ```
+### Security Rules (Critical Severity)
+1. **`no-hardcoded-secrets`** - No API keys, tokens, or passwords in code
+2. **`server-action-validation`** (Next.js) - Validate all server action inputs
+3. **`no-env-variable-exposure`** (Next.js) - Don't expose secrets to client
+4. **`xss-prevention`** - Avoid dangerouslySetInnerHTML and unsafe HTML
+5. **`sql-injection-prevention`** (Next.js) - Use parameterized queries/ORM
+6. **`react2shell`** - Never pass user input to shell execution APIs
+7. **`ssrf-prevention`** - Validate URLs in server-side requests
+8. **`auth-validation`** (Next.js) - Validate authentication on protected resources
 
-#### Examples
-- **Lightweight**: Permissive rules focusing on App Router only
-- **Security-Focused**: Strict validation, secret handling, CSP
-- **Performance-Optimized**: Enforce next/image, dynamic imports, parallel fetching
+### Accessibility Rules (WCAG 2.2)
+1. **`img-alt-text`** - All images must have meaningful alt text
+2. **`button-accessibility`** - Interactive elements must be keyboard accessible
+3. **`label-input-association`** - Form inputs must have associated labels
+4. **`heading-order`** - Use proper heading hierarchy
+5. **`focus-visible`** - Maintain visible focus indicators
+6. **`color-contrast`** - Maintain sufficient color contrast ratios
+7. **`page-title`** - Every page must have a descriptive title
 
-#### Troubleshooting
-- Rules not applied: check JSON syntax, correct path, rebuild
-- False positives: tune severity, add exceptions, refine categories
-- Conflicts: review intent, precedence, adjust flags, document exceptions
+---
 
-For full examples and detailed JSON snippets, see **[docs/CUSTOM_RULES_GUIDE.md](docs/CUSTOM_RULES_GUIDE.md)**.
+## 🔧 Customizing Rules
+
+For detailed instructions on customizing rules, see **[docs/CUSTOM_RULES_GUIDE.md](docs/CUSTOM_RULES_GUIDE.md)**.
+
+### Quick Customization Steps
+1. Edit `src/config/next-llm-rules.json` or `src/config/react-llm-rules.json`
+2. Update corresponding `src/rules/*-best-practices.json` files for documentation
+3. Rebuild the project:
+```bash
+npm run build
+```
+4. Changes take effect immediately on next analysis
+
+### Common Customizations
+- **Enforce stricter security**: Enable all security rules, increase severity levels
+- **Performance-focused**: Add bundling optimization rules, enable dynamic import checks
+- **Accessibility-first**: Enable all accessibility rules, increase severity to "error"
+- **Lightweight setup**: Disable non-critical rules, focus on best practices only
+
+---
+
+## 📊 Available Rules Summary
+
+| Type | React | Next.js | Total |
+|------|-------|---------|-------|
+| Best Practices | 36+ rules | 28+ rules | 64+ |
+| Security | 15 rules | 12 rules | 27 |
+| Accessibility | 16 rules | 16 rules | 16 |
+| **Total** | **67+ rules** | **56+ rules** | **107+ rules** |
+
+
 
 ## 🤝 Contributing
 
