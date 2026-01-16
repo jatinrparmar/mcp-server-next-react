@@ -25,7 +25,7 @@ export class CodeOptimizer {
     this.framework = framework;
     
     // Load appropriate rules based on framework
-    const rulesFileName = framework === 'react' ? 'react-llm-rules.json' : 'next-llm-rules.json';
+    const rulesFileName = framework === 'react' ? 'react-llm-best-practices.json' : 'nextjs-llm-best-practices.json';
     const rulesPath = path.join(__dirname, '../config', rulesFileName);
     const rulesContent = fs.readFileSync(rulesPath, 'utf-8');
     this.rules = JSON.parse(rulesContent);

@@ -1,16 +1,19 @@
 {
-  "version": "2025.1",
-  "framework": "react",
+  "meta": {
+    "framework": "React",
+    "version": "2025.1",
+    "type": "best-practices",
+    "intendedFor": ["MCP", "config-driven-analysis"],
+    "description": "Configuration file for MCP server to analyze React applications."
+  },
   "preferFunctionalComponents": true,
   "useHooksInsteadOfClasses": true,
-  
   "routing": {
     "libraries": ["react-router", "wouter", "reach-router"],
     "preferReactRouter": true,
     "useDeclarativeRouting": true,
     "lazyLoadRoutes": true
   },
-
   "dataFetching": {
     "prefer": ["fetch", "axios", "tanstack-query", "swr"],
     "avoid": ["direct-fetch-in-useEffect-without-cleanup"],
@@ -19,7 +22,6 @@
       "recommendedLibraries": ["@tanstack/react-query", "swr", "rtk-query"]
     }
   },
-
   "stateManagement": {
     "local": ["useState", "useReducer"],
     "global": {
@@ -32,7 +34,6 @@
       "separateFromClientState": true
     }
   },
-
   "components": {
     "preferFunctionalComponents": true,
     "composition": {
@@ -47,7 +48,6 @@
       "renderProps": "for-flexibility"
     }
   },
-
   "performance": {
     "useMemo": "for-expensive-calculations",
     "useCallback": "for-child-optimization",
@@ -66,7 +66,6 @@
     "avoidInlineObjects": true,
     "avoidInlineFunctions": "in-props"
   },
-
   "hooks": {
     "rulesOfHooks": {
       "callAtTopLevel": true,
@@ -85,7 +84,6 @@
       "separateConcerns": "multiple-useEffect"
     }
   },
-
   "security": {
     "xss": {
       "avoidDangerouslySetInnerHTML": true,
@@ -103,7 +101,6 @@
       "avoidUnmaintained": true
     }
   },
-
   "accessibility": {
     "semanticHTML": true,
     "ariaLabels": "when-needed",
@@ -114,7 +111,6 @@
     "colorContrast": "WCAG-AA",
     "screenReaderTesting": true
   },
-
   "testing": {
     "prefer": ["vitest", "jest", "react-testing-library"],
     "avoidEnzyme": true,
@@ -124,7 +120,6 @@
       "critical": ["authentication", "payment", "data-validation"]
     }
   },
-
   "styling": {
     "options": [
       "css-modules",
@@ -138,7 +133,6 @@
     "mobileFirst": true,
     "responsiveDesign": true
   },
-
   "bundling": {
     "vite": {
       "preferVite": "for-new-projects",
@@ -151,7 +145,6 @@
       "minification": true
     }
   },
-
   "bestPractices": [
     {
       "id": "use-functional-components",
@@ -214,7 +207,6 @@
       "severity": "high"
     }
   ],
-
   "antiPatterns": [
     {
       "id": "index-as-key",
@@ -273,7 +265,6 @@
       "fix": "Sanitize content or use safer alternatives"
     }
   ],
-
   "codeSmells": [
     {
       "id": "large-component",

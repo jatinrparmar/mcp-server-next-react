@@ -1,9 +1,10 @@
 {
   "meta": {
     "framework": "React",
-    "version": "2025",
+    "version": "2025.1",
     "type": "security",
-    "intendedFor": ["LLMs", "MCP", "GitHub Copilot"]
+    "intendedFor": ["MCP", "config-driven-analysis"],
+    "description": "Configuration file for MCP server security analysis of React applications"
   },
   "securityRules": [
     {

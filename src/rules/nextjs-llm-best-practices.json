@@ -2,8 +2,10 @@
   "meta": {
     "framework": "Next.js",
     "version": "2025.1",
+    "type": "best-practices",
     "router": "app",
-    "intendedFor": ["LLMs", "MCP", "GitHub Copilot"]
+    "intendedFor": ["LLMs", "GitHub Copilot", "documentation-reference"],
+    "description": "Comprehensive best practices guide for LLMs to reference when working with Next.js applications"
   },
   "rules": [
     {

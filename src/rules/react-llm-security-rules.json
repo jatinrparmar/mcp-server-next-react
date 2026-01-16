@@ -1,10 +1,10 @@
 {
   "meta": {
     "framework": "React",
-    "version": "2025",
+    "version": "2025.1",
     "type": "security",
-    "intendedFor": ["LLMs", "MCP", "GitHub Copilot"],
-    "description": "Comprehensive security rules for React applications"
+    "intendedFor": ["LLMs", "GitHub Copilot", "documentation-reference"],
+    "description": "Comprehensive security rules guide for LLMs to reference when securing React applications"
   },
   "securityRules": [
     {

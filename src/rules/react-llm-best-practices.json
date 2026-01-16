@@ -2,7 +2,9 @@
   "meta": {
     "framework": "React",
     "version": "2025.1",
-    "intendedFor": ["LLMs", "MCP", "GitHub Copilot"]
+    "type": "best-practices",
+    "intendedFor": ["LLMs", "GitHub Copilot", "documentation-reference"],
+    "description": "Comprehensive best practices guide for LLMs to reference when working with React applications"
   },
   "rules": [
     {
