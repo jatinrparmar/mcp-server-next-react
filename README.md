@@ -181,6 +181,23 @@ Analyzes React/Next.js code for accessibility compliance (WCAG heuristics). Dete
 
 **Returns:** Accessibility findings with type (error/warning/info), message, and suggested fixes
 
+### 10. `check-security`
+Analyzes React/Next.js code for common security vulnerabilities (XSS, CSRF, injection, secret exposure) using config-driven rules. Works on a single file or the entire project.
+
+**Parameters:**
+- `filePath` (string, optional): File path to check (e.g., src/app/page.tsx). If not provided, checks the entire project
+
+**Returns:** Security findings with severity, message, rule id, and suggested remediation
+
+### 11. `manage-security-rules`
+View, enable, or disable security rules used by the analyzer.
+
+**Parameters:**
+- `action` (enum): `list`, `get-config`, `enable`, `disable`
+- `ruleId` (string, optional): Required when action is `enable` or `disable` (e.g., "no-env-variable-exposure")
+
+**Returns:** Current rule set or confirmation of the enable/disable action
+
 ## 📦 Installation
 
 ### For MCP Clients (e.g., Claude Desktop, Cline)
@@ -302,16 +319,22 @@ src/
 ├── index.ts              # Main MCP server entry point
 ├── server.ts             # Server initialization (legacy)
 ├── config/
-│   ├── next-llm-rules.json      # Next.js configuration and rules
-│   └── react-llm-rules.json     # React configuration and rules
+│   ├── nextjs-llm-best-practices.json   # Next.js MCP configuration (active rules)
+│   ├── nextjs-llm-security-rules.json   # Next.js security configuration
+│   ├── react-llm-best-practices.json    # React MCP configuration (active rules)
+│   ├── react-llm-security-rules.json    # React security configuration
+│   └── react-next-llm-accessibility-rules.json # Shared accessibility configuration
 ├── core/
 │   ├── analyzer.ts       # Code analysis engine
 │   ├── optimizer.ts      # Optimization suggestions engine
 │   └── reviewer.ts       # Code review engine
 ├── rules/
 │   ├── loadRules.ts      # Rule loader utility
-│   ├── nextjs-llm-best-practices.json  # Next.js structured best practices
-│   └── react-llm-best-practices.json   # React structured best practices
+│   ├── nextjs-llm-best-practices.json  # Next.js best practices (LLM reference)
+│   ├── nextjs-llm-security-rules.json  # Next.js security rules (LLM reference)
+│   ├── react-llm-best-practices.json   # React best practices (LLM reference)
+│   ├── react-llm-security-rules.json   # React security rules (LLM reference)
+│   └── react-next-llm-accessibility-rules.json # Shared accessibility rules (LLM reference)
 ├── tools/
 │   └── index.ts          # MCP tool definitions and handlers
 └── types/
@@ -388,13 +411,16 @@ The server uses comprehensive rule files to analyze and guide development for bo
 
 ### 1. **Configuration Files** (Active Rules - Used by Analyzers)
 Located in `src/config/`:
-- **`next-llm-rules.json`**: Core Next.js configuration with settings for routing, data fetching, components, performance, security, SEO, accessibility, testing, TypeScript, styling, state management, error handling, and deployment
-- **`react-llm-rules.json`**: Core React configuration with settings for routing, data fetching, state management, components, performance, hooks, security, accessibility, testing, styling, and bundling
+- **`nextjs-llm-best-practices.json`**: Core Next.js configuration with settings for routing, data fetching, components, performance, security, SEO, accessibility, testing, TypeScript, styling, state management, error handling, and deployment
+- **`nextjs-llm-security-rules.json`**: Next.js security configuration (XSS, CSRF, env exposure, server action validation, SQL injection, CSP)
+- **`react-llm-best-practices.json`**: Core React configuration with settings for routing, data fetching, state management, components, performance, hooks, security, accessibility, testing, styling, and bundling
+- **`react-llm-security-rules.json`**: React security configuration (XSS, secrets, dependency audit, API security, eval/Function prevention)
+- **`react-next-llm-accessibility-rules.json`**: Shared React/Next.js accessibility configuration (WCAG 2.2)
 
 ### 2. **Best Practices Rules** (Reference Rules - For LLMs & AI Tools)
 Located in `src/rules/`:
-- **`nextjs-llm-best-practices.json`**: Structured Next.js best practices with 28+ rules covering App Router, Server Components, data fetching, SEO, TypeScript, error handling, and deployment
-- **`react-llm-best-practices.json`**: Structured React best practices with 36+ rules covering hooks, components, routing, data fetching, state management, styling, accessibility, testing, and performance
+- **`nextjs-llm-best-practices.json`**: Structured Next.js best practices (App Router, Server Components, data fetching, SEO, TS, error handling, deployment)
+- **`react-llm-best-practices.json`**: Structured React best practices (hooks, components, routing, data fetching, state management, styling, accessibility, testing, performance)
 
 ### 3. **Security Rules** (Specialized Security Checks)
 Located in `src/config/` and `src/rules/`:
@@ -462,8 +488,8 @@ Located in `src/config/` and `src/rules/`:
 For detailed instructions on customizing rules, see **[docs/CUSTOM_RULES_GUIDE.md](docs/CUSTOM_RULES_GUIDE.md)**.
 
 ### Quick Customization Steps
-1. Edit `src/config/next-llm-rules.json` or `src/config/react-llm-rules.json`
-2. Update corresponding `src/rules/*-best-practices.json` files for documentation
+1. Edit the config files in `src/config/` (e.g., `nextjs-llm-best-practices.json`, `nextjs-llm-security-rules.json`, `react-llm-best-practices.json`, `react-llm-security-rules.json`, `react-next-llm-accessibility-rules.json`)
+2. Update corresponding `src/rules/*.json` files for LLM-facing documentation
 3. Rebuild the project:
 ```bash
 npm run build
@@ -493,7 +519,7 @@ npm run build
 
 Contributions are welcome! The rule system is designed to be extensible:
 
-1. Add new rules to `config/next-llm-rules.json`
+1. Add new rules to `config/*.json` (e.g., `nextjs-llm-best-practices.json`, `nextjs-llm-security-rules.json`, `react-llm-best-practices.json`, `react-llm-security-rules.json`, `react-next-llm-accessibility-rules.json`)
 2. Implement detection logic in the appropriate core module
 3. Add tool handlers in `tools/index.ts` if needed
 
