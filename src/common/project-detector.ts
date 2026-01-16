@@ -137,9 +137,9 @@ export class ProjectDetector {
     const baseDir = path.join(__dirname, '../config');
     
     if (framework === 'nextjs') {
-      return path.join(baseDir, 'next-llm-rules.json');
+      return path.join(baseDir, 'nextjs-llm-best-practices.json');
     } else {
-      return path.join(baseDir, 'react-llm-rules.json');
+      return path.join(baseDir, 'react-llm-best-practices.json');
     }
   }
 

@@ -27,6 +27,13 @@ export function registerTools(server: McpServer): void {
         filePath: z.string().optional().describe('📁 Enter the full path to the file you want to analyze (e.g., /workspace/src/components/Button.tsx). Leave empty to analyze the entire project automatically.'),
         includeTests: z.boolean().optional().describe('🧪 Would you like to include test files (*.test.*, *.spec.*) in the analysis? Enter true to include tests, or leave empty for default (false).')
       }),
+      annotations: {
+        title: 'Analyze Code using custom MCP tool',
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true
+      },
       _meta: { category: 'code-analysis', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ filePath, includeTests = false }: { filePath?: string; includeTests?: boolean }) => {
@@ -72,6 +79,13 @@ export function registerTools(server: McpServer): void {
       inputSchema: z.object({
         filePath: z.string().optional().describe('📄 Which file would you like to review? Provide the full path (e.g., /workspace/src/app/page.tsx). Leave empty to review your entire project with comprehensive quality metrics.')
       }),
+      annotations: {
+        title: 'Review Code with Quality Metrics and Best Practices using custom MCP tool',
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true
+      },
       _meta: { category: 'code-review', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ filePath }: { filePath?: string }) => {
@@ -117,6 +131,13 @@ export function registerTools(server: McpServer): void {
       inputSchema: z.object({
         filePath: z.string().optional().describe('⚡ Enter the file path you want to optimize for performance, bundle size, and SEO (e.g., /workspace/src/app/layout.tsx). Leave empty to get optimization suggestions for the entire project.')
       }),
+      annotations: {
+        title: 'Optimize Code for Performance, Bundle Size, SEO, and Accessibility using custom MCP tool',
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true
+      },
       _meta: { category: 'code-optimization', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ filePath }: { filePath?: string }) => {
@@ -165,6 +186,13 @@ export function registerTools(server: McpServer): void {
         features: z.array(z.string()).optional().describe('✨ Which features should be included? Enter as array: ["form", "data-fetching", "loading", "error-boundary", "suspense"]. Leave empty for a basic component.'),
         styling: z.enum(['tailwind', 'css-modules', 'none']).optional().describe('🎨 Choose styling method: tailwind (default, utility-first), css-modules (scoped CSS), or none (no styling)')
       }),
+      annotations: {
+        title: 'Generate Component using custom MCP tool',
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true
+      },
       _meta: { category: 'code-generation', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ name, type, features = [], styling = 'tailwind' }: { name: string; type: string; features?: string[]; styling?: string }) => {
@@ -203,6 +231,13 @@ export function registerTools(server: McpServer): void {
         filePath: z.string().describe('📝 Which file needs refactoring? Provide the full path (e.g., /workspace/pages/index.tsx or /workspace/src/components/OldComponent.tsx)'),
         pattern: z.enum(['pages-to-app-router', 'class-to-functional', 'prop-drilling-to-context', 'client-to-server']).describe('🔄 Select the refactoring pattern: pages-to-app-router (migrate Next.js Pages to App Router), class-to-functional (convert class components to hooks), prop-drilling-to-context (eliminate prop drilling with Context API), client-to-server (move logic to server)')
       }),
+      annotations: {
+        title: 'Refactor Code to follow Next.js 15+ Patterns using custom MCP tool',
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true
+      },
       _meta: { category: 'code-refactoring', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ filePath, pattern }: { filePath: string; pattern: string }) => {
@@ -241,6 +276,13 @@ export function registerTools(server: McpServer): void {
       inputSchema: z.object({
         topic: z.enum(['routing', 'data-fetching', 'server-components', 'client-components', 'performance', 'security', 'seo', 'accessibility', 'testing', 'deployment', 'components', 'hooks', 'state-management']).optional().describe('📚 What topic are you interested in? Choose one: routing, data-fetching, server-components, client-components, performance, security, seo, accessibility, testing, deployment, components, hooks, or state-management. Leave empty to get ALL best practices for your framework.')
       }),
+      annotations: {
+        title: 'Get Best Practices Guide using custom MCP tool',
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true
+      },
       _meta: { category: 'best-practices', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ topic }: { topic?: string }) => {
@@ -251,7 +293,7 @@ export function registerTools(server: McpServer): void {
         const framework = isReact ? 'React' : 'Next.js';
 
         // Load appropriate rules
-        const rulesFileName = isReact ? 'react-llm-rules.json' : 'next-llm-rules.json';
+        const rulesFileName = isReact ? 'react-llm-best-practices.json' : 'nextjs-llm-best-practices.json';
         const rulesPath = path.join(__dirname, '../config', rulesFileName);
 
         if (!fs.existsSync(rulesPath)) {
@@ -310,6 +352,13 @@ export function registerTools(server: McpServer): void {
       inputSchema: z.object({
         filePath: z.string().optional().describe('🔍 Which Pages Router file do you want to check? Enter path (e.g., /workspace/pages/index.tsx or /workspace/pages/blog/[slug].tsx). Leave empty to check ALL files in the pages/ directory for migration readiness.')
       }),
+      annotations: {
+        title: 'Check Migration Readiness from Pages Router to App Router using custom MCP tool',
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true
+      },
       _meta: { category: 'code-migration', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ filePath }: { filePath?: string }) => {
@@ -402,6 +451,13 @@ export function registerTools(server: McpServer): void {
       inputSchema: z.object({
         filePath: z.string().optional().describe('♿ Which file would you like to check for accessibility issues? Provide the full path (e.g., /workspace/src/app/page.tsx). Leave empty to check your entire project for accessibility compliance.')
       }),
+      annotations: {
+        title: 'Check Accessibility Compliance using custom MCP tool',
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true
+      },
       _meta: { category: 'accessibility-check', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ filePath }: { filePath?: string }) => {
@@ -447,6 +503,13 @@ export function registerTools(server: McpServer): void {
       inputSchema: z.object({
         filePath: z.string().optional().describe('🔒 Which file would you like to check for security vulnerabilities? Provide the full path (e.g., /workspace/src/app/page.tsx). Leave empty to check your entire project for security issues.')
       }),
+      annotations: {
+        title: 'Check Security Vulnerabilities using custom MCP tool',
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true
+      },
       _meta: { category: 'security-check', framework: 'react-nextjs', toolVersion: '2.0.0' }
     },
     async ({ filePath }: { filePath?: string }) => {
@@ -496,6 +559,9 @@ export function registerTools(server: McpServer): void {
       annotations: {
         title: 'Manage Security Rules Configuration',
         readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: false,
+        openWorldHint: true
       },
       _meta: { category: 'security-config', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },

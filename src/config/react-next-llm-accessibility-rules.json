@@ -1,9 +1,10 @@
 {
   "meta": {
     "framework": "React-Next",
-    "version": "2025",
+    "version": "2025.1",
     "type": "accessibility",
-    "intendedFor": ["LLMs", "MCP", "GitHub Copilot"],
+    "intendedFor": ["MCP", "config-driven-analysis"],
+    "description": "Configuration file for MCP server accessibility analysis of React and Next.js applications",
     "standard": "WCAG 2.2"
   },
   "accessibilityRules": [

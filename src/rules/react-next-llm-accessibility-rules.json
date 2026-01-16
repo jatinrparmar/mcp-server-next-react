@@ -1,11 +1,11 @@
 {
   "meta": {
     "framework": "React-Next",
-    "version": "2025",
+    "version": "2025.1",
     "type": "accessibility",
-    "intendedFor": ["LLMs", "MCP", "GitHub Copilot"],
-    "standard": "WCAG 2.2",
-    "description": "Comprehensive accessibility rules for React and Next.js applications"
+    "intendedFor": ["LLMs", "GitHub Copilot", "documentation-reference"],
+    "description": "Comprehensive accessibility rules guide for LLMs to reference when ensuring WCAG compliance in React and Next.js applications",
+    "standard": "WCAG 2.2"
   },
   "accessibilityRules": [
     {

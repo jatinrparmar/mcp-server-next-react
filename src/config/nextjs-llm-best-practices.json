@@ -1,11 +1,18 @@
 {
-  "version": "2025.1",
-  "framework": "nextjs",
-  "appRouterOnly": true,
-  "noPagesRouter": true,
-  "preferServerComponents": true,
-  "useClientDirectiveOnlyWhenNeeded": true,
-  
+  "meta": {
+    "framework": "Next.js",
+    "version": "2025.1",
+    "type": "best-practices",
+    "intendedFor": ["MCP", "config-driven-analysis"],
+    "description": "Configuration file for MCP server to analyze Next.js applications using the App Router and Server Components."
+  },
+  "settings": {
+    "framework": "Next.js",
+    "router": "app",
+    "dataFetchingStrategy": "serverComponents",
+    "preferredStyling": ["tailwindCSS", "cssModules"],
+    "typescriptStrictness": true
+  },
   "routing": {
     "preferAppRouter": true,
     "useFileBasedRouting": true,
@@ -13,7 +20,6 @@
     "interceptingRoutes": true,
     "routeGroups": true
   },
-
   "dataFetching": {
     "prefer": ["fetch", "serverActions", "unstable_cache"],
     "avoid": ["getServerSideProps", "getStaticProps", "getInitialProps"],
@@ -22,7 +28,6 @@
       "revalidateStrategies": ["time-based", "on-demand", "tag-based"]
     }
   },
-
   "components": {
     "defaultToServerComponents": true,
     "clientComponents": {
@@ -36,7 +41,6 @@
       "useContext": "sparingly"
     }
   },
-
   "performance": {
     "useDynamicImport": true,
     "avoidUseEffectForData": true,
@@ -62,7 +66,6 @@
       "loadingUI": true
     }
   },
-
   "security": {
     "noEnvLeakage": true,
     "serverActionsValidation": true,
@@ -75,7 +78,6 @@
       "prefixPublicVars": "NEXT_PUBLIC_"
     }
   },
-
   "seo": {
     "metadataAPI": true,
     "generateMetadata": true,
@@ -85,7 +87,6 @@
     "openGraph": true,
     "twitter": true
   },
-
   "accessibility": {
     "semanticHTML": true,
     "ariaLabels": true,
@@ -94,21 +95,18 @@
     "colorContrast": true,
     "altText": true
   },
-
   "testing": {
     "unitTests": true,
     "integrationTests": true,
     "e2eTests": true,
     "tools": ["jest", "vitest", "playwright", "cypress"]
   },
-
   "typescript": {
     "strictMode": true,
     "noImplicitAny": true,
     "typeImports": true,
     "useGeneratedTypes": true
   },
-
   "styling": {
     "prefer": ["tailwindCSS", "cssModules"],
     "avoid": ["inline-styles", "global-css"],
@@ -117,14 +115,12 @@
       "alternatives": ["tailwind", "css-modules"]
     }
   },
-
   "stateManagement": {
     "localState": ["useState", "useReducer"],
     "serverState": ["server-components", "server-actions"],
     "globalState": ["context", "zustand", "jotai"],
     "avoid": ["redux-without-reason", "unnecessary-context"]
   },
-
   "errorHandling": {
     "useErrorBoundaries": true,
     "errorJS": true,
@@ -132,7 +128,6 @@
     "notFoundJS": true,
     "loadingJS": true
   },
-
   "deployment": {
     "vercel": {
       "optimal": true,
@@ -145,7 +140,6 @@
       "outputStandalone": true
     }
   },
-
   "bestPractices": [
     {
       "rule": "use-server-components-by-default",
@@ -198,7 +192,6 @@
       "severity": "error"
     }
   ],
-
   "antiPatterns": [
     {
       "pattern": "client-component-overuse",
