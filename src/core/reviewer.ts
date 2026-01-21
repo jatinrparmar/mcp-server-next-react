@@ -332,6 +332,96 @@ export class CodeReviewer {
           fix: 'Add Zod validation to server actions'
         };
 
+      case 'env-validation':
+        // If env vars are used, ensure a schema library is present.
+        const usesEnv = /process\.env/.test(code);
+        const hasEnvSchema = /@t3-oss\/env-nextjs|envsafe|zod|dotenv-safe/.test(code);
+        return {
+          rule: practice.rule,
+          status: usesEnv && !hasEnvSchema ? 'warning' : 'pass',
+          message: practice.description,
+          fix: usesEnv && !hasEnvSchema ? 'Add env validation with Zod or @t3-oss/env-nextjs and separate server vs client vars' : undefined
+        };
+
+      case 'form-validation-schemas':
+        // Require schema-based validation when forms/server actions are present.
+        const hasForm = /<form|onSubmit/.test(code);
+        const hasSchemaValidation = /zod|yup|joi|@hookform\/resolvers|resolver/.test(code);
+        return {
+          rule: practice.rule,
+          status: hasForm && !hasSchemaValidation ? 'warning' : 'pass',
+          message: practice.description,
+          fix: hasForm && !hasSchemaValidation ? 'Wire forms to schema validation (e.g., react-hook-form + Zod/Yup resolver)' : undefined
+        };
+
+      case 'security-headers':
+        // Only enforce on Next.js config/middleware files.
+        const isNextConfig = /next\.config\.(js|mjs|ts)$/.test(filePath) || /middleware\.ts$/.test(filePath);
+        const hasSecurityHeaders = /Content-Security-Policy|Strict-Transport-Security|X-Frame-Options|X-Content-Type-Options/.test(code);
+        return {
+          rule: practice.rule,
+          status: isNextConfig && !hasSecurityHeaders ? 'fail' : 'pass',
+          message: practice.description,
+          fix: isNextConfig && !hasSecurityHeaders ? 'Add CSP, HSTS, X-Frame-Options, and X-Content-Type-Options in headers config' : undefined
+        };
+
+      case 'sentry-integration':
+        const hasSentry = /@sentry\/nextjs|@sentry\/react|Sentry\.init/.test(code);
+        return {
+          rule: practice.rule,
+          status: hasSentry ? 'pass' : 'warning',
+          message: practice.description,
+          fix: hasSentry ? undefined : 'Install and configure Sentry for client/server (e.g., @sentry/nextjs)'
+        };
+
+      case 'husky-precommit':
+        const isPackageJson = filePath.endsWith('package.json');
+        const hasHusky = /"husky"/.test(code);
+        const hasLintStaged = /"lint-staged"/.test(code);
+        return {
+          rule: practice.rule,
+          status: isPackageJson && (!hasHusky || !hasLintStaged) ? 'warning' : 'pass',
+          message: practice.description,
+          fix: isPackageJson && (!hasHusky || !hasLintStaged) ? 'Add Husky and lint-staged with a pre-commit hook to run lint/format/tests' : undefined
+        };
+
+      case 'avoid-localstorage':
+        const usesLocalStorage = /localStorage|sessionStorage/.test(code);
+        return {
+          rule: practice.rule,
+          status: usesLocalStorage ? 'fail' : 'pass',
+          message: practice.description,
+          fix: usesLocalStorage ? 'Move persistence to httpOnly cookies, secure storage, or server-side state' : undefined
+        };
+
+      case 'centralized-error-handling':
+        const hasApiCalls = /fetch\(|axios\(/.test(code);
+        const hasTryCatch = /try\s*\{|catch\s*\(/.test(code);
+        return {
+          rule: practice.rule,
+          status: hasApiCalls && !hasTryCatch ? 'warning' : 'pass',
+          message: practice.description,
+          fix: hasApiCalls && !hasTryCatch ? 'Wrap API calls in try/catch and route to a shared error handler/logger' : undefined
+        };
+
+      case 'react-19-features':
+        const usesNewHooks = /useOptimistic|useActionState|useFormStatus/.test(code);
+        return {
+          rule: practice.rule,
+          status: usesNewHooks ? 'pass' : 'warning',
+          message: practice.description,
+          fix: usesNewHooks ? undefined : 'Adopt React 19 hooks (useActionState, useOptimistic, useFormStatus) where they simplify code'
+        };
+
+      case 'avoid-secrets-in-code':
+        const hasPotentialSecret = /(api[_-]?key|secret|token|password)\s*[:=]/i.test(code);
+        return {
+          rule: practice.rule,
+          status: hasPotentialSecret ? 'fail' : 'pass',
+          message: practice.description,
+          fix: hasPotentialSecret ? 'Remove hardcoded secrets; load from validated env vars or secret manager' : undefined
+        };
+
       default:
         return {
           rule: practice.rule,

@@ -147,6 +147,62 @@
   },
   "bestPractices": [
     {
+      "id": "react-19-features",
+      "title": "Adopt React 19 Hooks",
+      "description": "Prefer React 19 features like useActionState, useOptimistic, and useFormStatus where they simplify UI updates",
+      "severity": "medium",
+      "rule": "react-19-features"
+    },
+    {
+      "id": "avoid-localstorage",
+      "title": "Avoid localStorage for app state or secrets",
+      "description": "Do not store app state or sensitive data in localStorage/sessionStorage",
+      "severity": "high",
+      "rule": "avoid-localstorage"
+    },
+    {
+      "id": "centralized-error-handling",
+      "title": "Centralize API error handling",
+      "description": "Wrap API calls with try/catch and funnel errors to a shared handler/logger",
+      "severity": "medium",
+      "rule": "centralized-error-handling"
+    },
+    {
+      "id": "avoid-secrets-in-code",
+      "title": "Avoid hardcoded secrets",
+      "description": "Never commit tokens, passwords, or API keys in code; use validated environment variables",
+      "severity": "critical",
+      "rule": "avoid-secrets-in-code"
+    },
+    {
+      "id": "env-validation",
+      "title": "Validate environment variables",
+      "description": "Validate env vars with Zod or similar before use; separate client-safe vs server-only",
+      "severity": "high",
+      "rule": "env-validation"
+    },
+    {
+      "id": "form-validation-schemas",
+      "title": "Use schema-based form validation",
+      "description": "Use schema validators (Zod/Yup/Joi) with react-hook-form or similar for all forms",
+      "severity": "high",
+      "rule": "form-validation-schemas"
+    },
+    {
+      "id": "sentry-integration",
+      "title": "Instrument error tracking",
+      "description": "Integrate Sentry (or equivalent) for client and server error capture",
+      "severity": "medium",
+      "rule": "sentry-integration"
+    },
+    {
+      "id": "husky-precommit",
+      "title": "Enforce pre-commit quality gates",
+      "description": "Use Husky + lint-staged to run lint/format/tests on staged files",
+      "severity": "medium",
+      "rule": "husky-precommit"
+    },
+    {
       "id": "use-functional-components",
       "title": "Prefer Functional Components",
       "description": "Use functional components with hooks instead of class components",
@@ -205,9 +261,246 @@
       "title": "Use Query Libraries for Server State",
       "description": "Use React Query or SWR instead of managing server state in useEffect",
       "severity": "high"
+    },
+    {
+      "id": "accessibility-alt-text",
+      "title": "Provide Alt Text for Images",
+      "description": "Always include meaningful alt text for images for accessibility",
+      "severity": "medium"
+    },
+    {
+      "id": "avoid-inline-styles",
+      "title": "Avoid Inline Styles",
+      "description": "Use CSS classes or styled-components instead of inline styles, except for dynamic styles",
+      "severity": "low"
+    },
+    {
+      "id": "sanitize-user-input",
+      "title": "Sanitize User Input to Prevent XSS",
+      "description": "Always sanitize user-generated content before rendering to prevent XSS attacks",
+      "severity": "critical"
+    },
+    {
+      "id": "use-environment-variables",
+      "title": "Use Environment Variables for Configuration",
+      "description": "Store configuration values in environment variables prefixed with REACT_APP_",
+      "severity": "high"
+    },
+    {
+      "id": "keep-dependencies-updated",
+      "title": "Keep Dependencies Updated",
+      "description": "Regularly update dependencies and audit for vulnerabilities",
+      "severity": "medium"
+    },
+    {
+      "id": "keyboard-navigation",
+      "title": "Ensure Keyboard Navigation Support",
+      "description": "Make sure all interactive elements are accessible via keyboard",
+      "severity": "medium"
+    },
+    {
+      "id": "test-user-behavior",
+      "title": "Test User Behavior, Not Implementation",
+      "description": "Write tests that focus on user interactions and outcomes rather than implementation details",
+      "severity": "medium"
+    },
+    {
+      "id": "responsive-design",
+      "title": "Implement Responsive Design",
+      "description": "Ensure the application is usable on various screen sizes using mobile-first design principles",
+      "severity": "medium"
+    },
+    {
+      "id": "vite-for-new-projects",
+      "title": "Use Vite for New Projects",
+      "description": "Prefer Vite as the build tool for new React projects for faster builds and better DX",
+      "severity": "low",
+      "rule": "vite-for-new-projects"
+    },
+    {
+      "id": "webpack-optimization",
+      "title": "Optimize Webpack Configuration",
+      "description": "Ensure webpack is configured for code splitting, tree shaking, and minification",
+      "severity": "medium",
+      "rule": "webpack-optimization"
+    },
+    {
+      "id": "build-cache-analysis",
+      "title": "Analyze Build Cache Usage",
+      "description": "Regularly analyze build cache usage to speed up build times",
+      "severity": "low",
+      "rule": "build-cache-analysis"
+    },
+    {
+      "id": "dependency-bundle-analysis",
+      "title": "Perform Dependency Bundle Analysis",
+      "description": "Use tools like webpack-bundle-analyzer to identify and reduce large dependencies",
+      "severity": "medium",
+      "rule": "dependency-bundle-analysis"
+    },
+    {
+      "id": "image-optimization",
+      "title": "Optimize Images for Performance",
+      "description": "Use responsive images, modern formats (WebP, AVIF), and lazy loading to improve performance",
+      "severity": "medium",
+      "rule": "image-optimization"
+    },
+    {
+      "id": "avoid-inline-functions",
+      "title": "Avoid Inline Functions in Props",
+      "description": "Define functions outside of JSX to prevent unnecessary re-renders",
+      "severity": "medium",
+      "rule": "avoid-inline-functions"
+    },
+    {
+      "id": "avoid-inline-objects",
+      "title": "Avoid Inline Objects in Props",
+      "description": "Define objects outside of JSX or use useMemo to prevent unnecessary re-renders",
+      "severity": "medium",
+      "rule": "avoid-inline-objects"
+    },
+    {
+      "id": "use-fragments",
+      "title": "Use Fragments to Avoid Extra DOM Nodes",
+      "description": "Use React Fragments instead of unnecessary div wrappers to reduce DOM size",
+      "severity": "low",
+      "rule": "use-fragments"
+    },
+    {
+      "id": "lazy-load-routes",
+      "title": "Lazy Load Route Components",
+      "description": "Implement route-based code splitting using React.lazy and Suspense",
+      "severity": "medium",
+      "rule": "lazy-load-routes"
+    },
+    {
+      "id": "memoize-expensive-calculations",
+      "title": "Memoize Expensive Calculations",
+      "description": "Use useMemo for expensive computations to optimize performance",
+      "severity": "medium",
+      "rule": "memoize-expensive-calculations"
+    },
+    {
+      "id": "use-query-libraries",
+      "title": "Use Query Libraries for Server State",
+      "description": "Manage server state with React Query or SWR instead of useEffect",
+      "severity": "high",
+      "rule": "use-query-libraries"
+    },
+    {
+      "id": "accessibility-alt-text",
+      "title": "Provide Alt Text for Images",
+      "description": "Ensure all images have meaningful alt text for accessibility",
+      "severity": "medium",
+      "rule": "accessibility-alt-text"
+    },
+    {
+      "id": "avoid-inline-styles",
+      "title": "Avoid Inline Styles",
+      "description": "Use CSS classes or styled-components instead of inline styles, except for dynamic styles",
+      "severity": "low",
+      "rule": "avoid-inline-styles"
+    },
+    {
+      "id": "sanitize-user-input",
+      "title": "Sanitize User Input to Prevent XSS",
+      "description": "Always sanitize user-generated content before rendering to prevent XSS attacks",
+      "severity": "critical",
+      "rule": "sanitize-user-input"
+    },
+    {
+      "id": "use-environment-variables",
+      "title": "Use Environment Variables for Configuration",
+      "description": "Store configuration values in environment variables prefixed with REACT_APP_",
+      "severity": "high",
+      "rule": "use-environment-variables"
+    },
+    {
+      "id": "keep-dependencies-updated",
+      "title": "Keep Dependencies Updated",
+      "description": "Regularly update dependencies and audit for vulnerabilities",
+      "severity": "medium",
+      "rule": "keep-dependencies-updated"
+    },
+    {
+      "id": "keyboard-navigation",
+      "title": "Ensure Keyboard Navigation Support",
+      "description": "Make sure all interactive elements are accessible via keyboard",
+      "severity": "medium",
+      "rule": "keyboard-navigation"
+    },
+    {
+      "id": "test-user-behavior",
+      "title": "Test User Behavior, Not Implementation",
+      "description": "Write tests that focus on user interactions and outcomes rather than implementation details",
+      "severity": "medium",
+      "rule": "test-user-behavior"
+    },
+    {
+      "id": "responsive-design",
+      "title": "Implement Responsive Design",
+      "description": "Ensure the application is usable on various screen sizes using mobile-first design principles",
+      "severity": "medium",
+      "rule": "responsive-design"
+    },
+    {
+      "id": "seo-best-practices",
+      "title": "Follow SEO Best Practices",
+      "description": "Follow SEO best practices including sitemaps, metadata, and structured data",
+      "severity": "info",
+      "rule": "seo-best-practices"
+    },
+    {
+      "id": "accessibility-audit",
+      "title": "Regularly Audit for Accessibility Issues",
+      "description": "Use tools like axe or Lighthouse to identify and fix accessibility issues",
+      "severity": "info",
+      "rule": "accessibility-audit"
+    },
+    {
+      "id": "performance-budget",
+      "title": "Set and Enforce Performance Budgets",
+      "description": "Define performance budgets for bundle size, TTFB, and LCP and monitor them",
+      "severity": "warning",
+      "rule": "performance-budget"
+    },
+    {
+      "id": "testing-coverage",
+      "title": "Maintain At Least 80% Test Coverage",
+      "description": "Ensure at least 80% test coverage with a mix of unit, integration, and e2e tests",
+      "severity": "warning",
+      "rule": "testing-coverage"
+    },
+    {
+      "id": "centralized-error-handling",
+      "title": "Centralize API Error Handling",
+      "description": "Wrap API calls with try/catch and funnel errors to a shared handler/logger",
+      "severity": "medium",
+      "rule": "centralized-error-handling"
+    },
+    {
+      "id": "avoid-secrets-in-code",
+      "title": "Avoid Hardcoded Secrets",
+      "description": "Never commit tokens, passwords, or API keys in code; use validated environment variables",
+      "severity": "critical",
+      "rule": "avoid-secrets-in-code"
+    },
+    {
+      "id": "typescript-strict-mode",
+      "title": "Enable Strict Mode in tsconfig.json",
+      "description": "Turn on strict mode in TypeScript configuration for better type safety",
+      "severity": "warning",
+      "rule": "typescript-strict-mode"
     }
   ],
   "antiPatterns": [
+    {
+      "id": "localstorage-usage",
+      "pattern": "localStorage|sessionStorage",
+      "message": "Avoid using localStorage/sessionStorage for secrets or app state",
+      "severity": "high",
+      "fix": "Use httpOnly cookies, secure storage libraries, or server-side persistence"
+    },
     {
       "id": "index-as-key",
       "pattern": "key={index}",
