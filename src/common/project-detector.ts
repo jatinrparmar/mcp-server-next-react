@@ -35,7 +35,7 @@ export class ProjectDetector {
       return this.cachedProjectInfo;
     }
 
-    const root = projectRoot || process.cwd();
+    const root = projectRoot || process.env.WORKSPACE_ROOT || process.cwd();
     
     const packageJsonPath = path.join(root, 'package.json');
     let framework: FrameworkType = 'unknown';
