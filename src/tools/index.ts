@@ -12,6 +12,18 @@ import { projectDetector } from '../common/project-detector.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// helper function to estimate usage
+const estimateUsage = (prompt: string) => {
+  const promptTokens = Math.ceil(prompt.length / 4)
+  const premiumHits = Math.max(1, Math.floor(promptTokens / 500))
+
+  return {
+    prompt_tokens: promptTokens,
+    premium_hits_used: premiumHits,
+    cost_tier: premiumHits > 2 ? "high" : "standard",
+  }
+}
+
 export function registerTools(server: McpServer): void {
   const analyzer = new CodeAnalyzer();
   const reviewer = new CodeReviewer();
@@ -42,7 +54,8 @@ export function registerTools(server: McpServer): void {
           // Scan entire project
           const projectResult = await analyzeProject(analyzer, includeTests);
           return {
-            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }]
+            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }],
+            usage: estimateUsage(JSON.stringify(projectResult))
           };
         }
         // Detect if path is a directory
@@ -50,7 +63,8 @@ export function registerTools(server: McpServer): void {
         if (stat.isDirectory()) {
           const dirResult = await analyzeDirectory(analyzer, filePath, includeTests);
           return {
-            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }]
+            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }],
+            usage: estimateUsage(JSON.stringify(dirResult))
           };
         }
         const code = fs.readFileSync(filePath, 'utf-8');
@@ -62,7 +76,8 @@ export function registerTools(server: McpServer): void {
               type: 'text',
               text: JSON.stringify(result, null, 2)
             }
-          ]
+          ],
+          usage: estimateUsage(JSON.stringify(result))
         };
       } catch (error) {
         return {
@@ -72,7 +87,8 @@ export function registerTools(server: McpServer): void {
               text: `Error analyzing code: ${error instanceof Error ? error.message : 'Unknown error'}`
             }
           ],
-          isError: true
+          isError: true,
+          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
         };
       }
     }
@@ -102,14 +118,16 @@ export function registerTools(server: McpServer): void {
           // Review entire project
           const projectResult = await reviewProject(reviewer);
           return {
-            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }]
+            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }],
+            usage: estimateUsage(JSON.stringify(projectResult))
           };
         }
         const stat = fs.statSync(filePath);
         if (stat.isDirectory()) {
           const dirResult = await reviewDirectory(reviewer, filePath);
           return {
-            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }]
+            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }],
+            usage: estimateUsage(JSON.stringify(dirResult))
           };
         }
         const code = fs.readFileSync(filePath, 'utf-8');
@@ -121,7 +139,8 @@ export function registerTools(server: McpServer): void {
               type: 'text',
               text: JSON.stringify(result, null, 2)
             }
-          ]
+          ],
+          usage: estimateUsage(JSON.stringify(result))
         };
       } catch (error) {
         return {
@@ -131,7 +150,8 @@ export function registerTools(server: McpServer): void {
               text: `Error reviewing code: ${error instanceof Error ? error.message : 'Unknown error'}`
             }
           ],
-          isError: true
+          isError: true,
+          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
         };
       }
     }
@@ -161,14 +181,16 @@ export function registerTools(server: McpServer): void {
           // Optimize entire project
           const projectResult = await optimizeProject(optimizer);
           return {
-            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }]
+            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }],
+            usage: estimateUsage(JSON.stringify(projectResult))
           };
         }
         const stat = fs.statSync(filePath);
         if (stat.isDirectory()) {
           const dirResult = await optimizeDirectory(optimizer, filePath);
           return {
-            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }]
+            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }],
+            usage: estimateUsage(JSON.stringify(dirResult))
           };
         }
         const code = fs.readFileSync(filePath, 'utf-8');
@@ -180,7 +202,8 @@ export function registerTools(server: McpServer): void {
               type: 'text',
               text: JSON.stringify(result, null, 2)
             }
-          ]
+          ],
+          usage: estimateUsage(JSON.stringify(result))
         };
       } catch (error) {
         return {
@@ -190,7 +213,8 @@ export function registerTools(server: McpServer): void {
               text: `Error optimizing code: ${error instanceof Error ? error.message : 'Unknown error'}`
             }
           ],
-          isError: true
+          isError: true,
+          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
         };
       }
     }
@@ -237,7 +261,8 @@ export function registerTools(server: McpServer): void {
               text: `Error generating component: ${error instanceof Error ? error.message : 'Unknown error'}`
             }
           ],
-          isError: true
+          isError: true,
+          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
         };
       }
     }
@@ -273,7 +298,8 @@ export function registerTools(server: McpServer): void {
               type: 'text',
               text: refactored
             }
-          ]
+          ],
+          usage: estimateUsage(refactored)
         };
       } catch (error) {
         return {
@@ -283,7 +309,8 @@ export function registerTools(server: McpServer): void {
               text: `Error refactoring code: ${error instanceof Error ? error.message : 'Unknown error'}`
             }
           ],
-          isError: true
+          isError: true,
+          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
         };
       }
     }
@@ -349,7 +376,8 @@ export function registerTools(server: McpServer): void {
               type: 'text',
               text: response
             }
-          ]
+          ],
+          usage: estimateUsage(response)
         };
       } catch (error) {
         return {
@@ -359,7 +387,8 @@ export function registerTools(server: McpServer): void {
               text: `Error getting best practices: ${error instanceof Error ? error.message : 'Unknown error'}\nStack: ${error instanceof Error ? error.stack : ''}`
             }
           ],
-          isError: true
+          isError: true,
+          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
         };
       }
     }
@@ -389,14 +418,16 @@ export function registerTools(server: McpServer): void {
           // Check entire pages directory
           const projectResult = await checkProjectMigrationReadiness();
           return {
-            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }]
+            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }],
+            usage: estimateUsage(JSON.stringify(projectResult))
           };
         }
         const stat = fs.statSync(filePath);
         if (stat.isDirectory()) {
           const dirResult = await checkDirectoryMigrationReadiness(filePath);
           return {
-            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }]
+            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }],
+            usage: estimateUsage(JSON.stringify(dirResult))
           };
         }
         const code = fs.readFileSync(filePath, 'utf-8');
@@ -408,7 +439,8 @@ export function registerTools(server: McpServer): void {
               type: 'text',
               text: JSON.stringify(analysis, null, 2)
             }
-          ]
+          ],
+          usage: estimateUsage(JSON.stringify(analysis))
         };
       } catch (error) {
         return {
@@ -418,7 +450,8 @@ export function registerTools(server: McpServer): void {
               text: `Error checking migration readiness: ${error instanceof Error ? error.message : 'Unknown error'}`
             }
           ],
-          isError: true
+          isError: true,
+          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
         };
       }
     }
@@ -443,14 +476,16 @@ export function registerTools(server: McpServer): void {
           // Find repeated code across entire project
           const projectResult = await findRepeatedCodeInProject(minOccurrences, includeSmallPatterns);
           return {
-            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }]
+            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }],
+            usage: estimateUsage(JSON.stringify(projectResult))
           };
         }
         const stat = fs.statSync(filePath);
         if (stat.isDirectory()) {
           const dirResult = await findRepeatedCodeInDirectory(filePath, minOccurrences, includeSmallPatterns);
           return {
-            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }]
+            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }],
+            usage: estimateUsage(JSON.stringify(dirResult))
           };
         }
         const code = fs.readFileSync(filePath, 'utf-8');
@@ -462,7 +497,8 @@ export function registerTools(server: McpServer): void {
               type: 'text',
               text: JSON.stringify(result, null, 2)
             }
-          ]
+          ],
+          usage: estimateUsage(JSON.stringify(result))
         };
       } catch (error) {
         return {
@@ -472,7 +508,8 @@ export function registerTools(server: McpServer): void {
               text: `Error finding repeated code: ${error instanceof Error ? error.message : 'Unknown error'}`
             }
           ],
-          isError: true
+          isError: true,
+          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
         };
       }
     }
@@ -502,14 +539,16 @@ export function registerTools(server: McpServer): void {
           // Check entire project
           const projectResult = await analyzer.checkAccessibilityInProject();
           return {
-            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }]
+            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }],
+            usage: estimateUsage(JSON.stringify(projectResult))
           };
         }
         const stat = fs.statSync(filePath);
         if (stat.isDirectory()) {
           const dirResult = await checkAccessibilityInDirectory(analyzer, filePath);
           return {
-            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }]
+            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }],
+            usage: estimateUsage(JSON.stringify(dirResult))
           };
         }
         const code = fs.readFileSync(filePath, 'utf-8');
@@ -521,7 +560,8 @@ export function registerTools(server: McpServer): void {
               type: 'text',
               text: JSON.stringify(result, null, 2)
             }
-          ]
+          ],
+          usage: estimateUsage(JSON.stringify(result))
         };
       } catch (error) {
         return {
@@ -531,7 +571,8 @@ export function registerTools(server: McpServer): void {
               text: `Error checking accessibility: ${error instanceof Error ? error.message : 'Unknown error'}`
             }
           ],
-          isError: true
+          isError: true,
+          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
         };
       }
     }
@@ -561,14 +602,16 @@ export function registerTools(server: McpServer): void {
           // Check entire project
           const projectResult = await analyzer.checkSecurityInProject();
           return {
-            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }]
+            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }],
+            usage: estimateUsage(JSON.stringify(projectResult))
           };
         }
         const stat = fs.statSync(filePath);
         if (stat.isDirectory()) {
           const dirResult = await checkSecurityInDirectory(analyzer, filePath);
           return {
-            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }]
+            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }],
+            usage: estimateUsage(JSON.stringify(dirResult))
           };
         }
         const code = fs.readFileSync(filePath, 'utf-8');
@@ -580,7 +623,8 @@ export function registerTools(server: McpServer): void {
               type: 'text',
               text: JSON.stringify(result, null, 2)
             }
-          ]
+          ],
+          usage: estimateUsage(JSON.stringify(result))
         };
       } catch (error) {
         return {
@@ -590,7 +634,8 @@ export function registerTools(server: McpServer): void {
               text: `Error checking security: ${error instanceof Error ? error.message : 'Unknown error'}`
             }
           ],
-          isError: true
+          isError: true,
+          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
         };
       }
     }
@@ -636,7 +681,17 @@ export function registerTools(server: McpServer): void {
                   }))
                 }, null, 2)
               }
-            ]
+            ],
+            usage: estimateUsage(JSON.stringify({
+              totalRules: rules.length,
+              rules: rules.map(r => ({
+                id: r.id,
+                title: r.title,
+                severity: r.severity,
+                enabled: r.enabled,
+                intent: r.intent
+              }))
+            }, null, 2))
           };
         } else if (action === 'get-config') {
           const config = securityAnalyzer.getRulesConfig();
@@ -646,7 +701,8 @@ export function registerTools(server: McpServer): void {
                 type: 'text',
                 text: JSON.stringify(config, null, 2)
               }
-            ]
+            ],
+            usage: estimateUsage(JSON.stringify(config, null, 2))
           };
         } else if (action === 'enable' || action === 'disable') {
           if (!ruleId) {
@@ -674,7 +730,11 @@ export function registerTools(server: McpServer): void {
                     message: `Rule "${ruleId}" has been ${enabled ? 'enabled' : 'disabled'}`
                   }, null, 2)
                 }
-              ]
+              ],
+              usage: estimateUsage(JSON.stringify({
+                success: true,
+                message: `Rule "${ruleId}" has been ${enabled ? 'enabled' : 'disabled'}`
+              }, null, 2))
             };
           } else {
             return {
@@ -684,7 +744,8 @@ export function registerTools(server: McpServer): void {
                   text: `Error: Rule "${ruleId}" not found`
                 }
               ],
-              isError: true
+              isError: true,
+              usage: estimateUsage(`Error: Rule "${ruleId}" not found`)
             };
           }
         }
@@ -698,7 +759,8 @@ export function registerTools(server: McpServer): void {
               text: `Error managing security rules: ${error instanceof Error ? error.message : 'Unknown error'}`
             }
           ],
-          isError: true
+          isError: true,
+          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
         };
       }
     }

@@ -32,7 +32,7 @@ process.on("unhandledRejection", (reason) => {
 async function main() {
   try {
     log.info('Initializing React & Next.js Dev Assistant MCP Server v1.0.0');
-    
+
     const server = new McpServer({
       name: "nextjs-dev-assistant",
       version: "1.0.0",
@@ -42,7 +42,7 @@ async function main() {
     server.server.setRequestHandler(ListRootsRequestSchema, async () => {
       const workspaceRoot = process.env.WORKSPACE_ROOT || process.cwd();
       log.debug('Roots requested, returning:', workspaceRoot);
-      
+
       return {
         roots: [
           {
@@ -61,13 +61,13 @@ async function main() {
     // Create transport and connect
     log.info('Creating stdio transport...');
     const transport = new StdioServerTransport();
-    
+
     log.info('Connecting server to transport...');
     await server.connect(transport);
-    
+
     log.info('✓ React & Next.js Dev Assistant MCP Server is running');
     log.info('Server is ready to accept requests via stdio');
-    
+
   } catch (error) {
     log.error('Failed to start server:', error);
     process.exit(1);

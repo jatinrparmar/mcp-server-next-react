@@ -31,6 +31,81 @@
       "recommendation": "Move hooks outside of conditionals, loops, and nested functions. Call them directly in the component body."
     },
     {
+      "id": "react-19-features",
+      "title": "Adopt React 19 Hooks",
+      "description": "Prefer React 19 features like useActionState, useOptimistic, and useFormStatus where they simplify UI updates",
+      "severity": "medium",
+      "rule": "react-19-features"
+    },
+    {
+      "id": "avoid-localstorage",
+      "title": "Avoid localStorage for app state or secrets",
+      "description": "Do not store app state or sensitive data in localStorage/sessionStorage",
+      "severity": "high",
+      "rule": "avoid-localstorage"
+    },
+    {
+      "id": "centralized-error-handling",
+      "title": "Centralize API error handling",
+      "description": "Wrap API calls with try/catch and funnel errors to a shared handler/logger",
+      "severity": "medium",
+      "rule": "centralized-error-handling"
+    },
+    {
+      "id": "avoid-secrets-in-code",
+      "title": "Avoid hardcoded secrets",
+      "description": "Never commit tokens, passwords, or API keys in code; use validated environment variables",
+      "severity": "critical",
+      "rule": "avoid-secrets-in-code"
+    },
+    {
+      "id": "env-validation",
+      "title": "Validate environment variables",
+      "intent": "Validate env vars with schemas and separate client-safe vs server-only",
+      "scope": "config",
+      "severity": "error",
+      "detection": {
+        "fileGlobs": ["env.ts", "env.js", "env.mjs", "config/env.ts"],
+        "patterns": ["zod", "@t3-oss/env-nextjs", "envsafe", "zodios"]
+      },
+      "recommendation": "Use Zod or @t3-oss/env-nextjs to validate environment variables; never expose secrets to client"
+    },
+    {
+      "id": "form-validation-schemas",
+      "title": "Use schema-based form validation",
+      "intent": "All forms should validate inputs with schemas (Zod/Yup/Joi)",
+      "scope": "component",
+      "severity": "warning",
+      "detection": {
+        "patterns": ["<form", "onSubmit"],
+        "astHints": ["zod", "yup", "joi"]
+      },
+      "recommendation": "Use react-hook-form with Zod/Yup for validation and surface errors in UI"
+    },
+    {
+      "id": "sentry-integration",
+      "title": "Instrument error tracking",
+      "intent": "Capture runtime errors with Sentry or equivalent",
+      "scope": "project",
+      "severity": "warning",
+      "detection": {
+        "patterns": ["@sentry/react", "@sentry/browser", "Sentry.init"]
+      },
+      "recommendation": "Install and configure Sentry across app entry points"
+    },
+    {
+      "id": "husky-precommit",
+      "title": "Enforce pre-commit hooks",
+      "intent": "Run lint/format/tests on staged files via Husky + lint-staged",
+      "scope": "project",
+      "severity": "info",
+      "detection": {
+        "fileGlobs": [".husky/pre-commit", "package.json"],
+        "patterns": ["husky", "lint-staged"]
+      },
+      "recommendation": "Configure Husky pre-commit hook to run lint-staged"
+    },
+    {
       "id": "react-useeffect-cleanup",
       "title": "Cleanup in useEffect",
       "intent": "useEffect must return a cleanup function to prevent memory leaks and side effects.",

@@ -9,6 +9,97 @@
   },
   "rules": [
     {
+      "id": "react-19-features",
+      "title": "Adopt React 19 Hooks",
+      "intent": "Prefer React 19 features like useActionState, useOptimistic, and useFormStatus where they simplify UI updates",
+      "scope": "component",
+      "severity": "warning",
+      "rule": "react-19-features"
+    },
+    {
+      "id": "avoid-localstorage",
+      "title": "Avoid localStorage for app state or secrets",
+      "intent": "Do not store app state or sensitive data in localStorage/sessionStorage",
+      "scope": "component",
+      "severity": "error",
+      "rule": "avoid-localstorage"
+    },
+    {
+      "id": "centralized-error-handling",
+      "title": "Centralize API error handling",
+      "intent": "Wrap API calls with try/catch and send errors to a shared handler/logger",
+      "scope": "component",
+      "severity": "warning",
+      "rule": "centralized-error-handling"
+    },
+    {
+      "id": "avoid-secrets-in-code",
+      "title": "Avoid hardcoded secrets",
+      "intent": "Never commit tokens, passwords, or API keys in code; use validated environment variables",
+      "scope": "component",
+      "severity": "error",
+      "rule": "avoid-secrets-in-code"
+    },
+    {
+      "id": "env-validation",
+      "title": "Validate environment variables",
+      "intent": "Validate env vars with a schema; keep client-safe vs server-only separated",
+      "scope": "config",
+      "severity": "error",
+      "detection": {
+        "fileGlobs": ["env.ts", "env.mjs", "env.js", "config/env.ts"],
+        "patterns": ["zod", "@t3-oss/env-nextjs"]
+      },
+      "recommendation": "Use Zod or @t3-oss/env-nextjs to validate all env vars and enforce NEXT_PUBLIC_ on client"
+    },
+    {
+      "id": "security-headers",
+      "title": "Set security headers",
+      "intent": "Enforce CSP, HSTS, X-Frame-Options, and X-Content-Type-Options",
+      "scope": "config",
+      "severity": "error",
+      "detection": {
+        "fileGlobs": ["next.config.js", "next.config.mjs", "next.config.ts", "middleware.ts"],
+        "patterns": ["Content-Security-Policy", "Strict-Transport-Security", "X-Frame-Options", "X-Content-Type-Options"]
+      },
+      "recommendation": "Add secure headers in next.config.{js,ts} or middleware.ts"
+    },
+    {
+      "id": "form-validation-schemas",
+      "title": "Use schema-based validation",
+      "intent": "Forms and server actions must validate input with schemas",
+      "scope": "function",
+      "severity": "warning",
+      "detection": {
+        "patterns": ["<form", "onSubmit", "\"use server\""],
+        "astHints": ["zod", "yup", "joi"]
+      },
+      "recommendation": "Validate inputs with Zod/Yup/Joi in forms and server actions"
+    },
+    {
+      "id": "sentry-integration",
+      "title": "Instrument error tracking",
+      "intent": "Capture client/server/edge errors with Sentry or equivalent",
+      "scope": "project",
+      "severity": "warning",
+      "detection": {
+        "patterns": ["@sentry/nextjs", "Sentry.init", "sentry.client.config", "sentry.server.config"]
+      },
+      "recommendation": "Install and configure @sentry/nextjs with client/server configs"
+    },
+    {
+      "id": "husky-precommit",
+      "title": "Enforce pre-commit hooks",
+      "intent": "Run lint/format/tests on staged files via Husky + lint-staged",
+      "scope": "project",
+      "severity": "info",
+      "detection": {
+        "fileGlobs": [".husky/pre-commit", "package.json"],
+        "patterns": ["husky", "lint-staged"]
+      },
+      "recommendation": "Configure Husky pre-commit hook to run lint-staged"
+    },
+    {
       "id": "next-app-router-only",
       "title": "Use App Router Only",
       "intent": "Ensure modern Next.js architecture using the App Router.",

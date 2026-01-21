@@ -142,6 +142,51 @@
   },
   "bestPractices": [
     {
+      "rule": "react-19-features",
+      "description": "Adopt React 19 features (useActionState, useOptimistic, useFormStatus) where they simplify UI",
+      "severity": "warning"
+    },
+    {
+      "rule": "avoid-localstorage",
+      "description": "Do not store app state or secrets in localStorage/sessionStorage",
+      "severity": "error"
+    },
+    {
+      "rule": "centralized-error-handling",
+      "description": "Wrap API calls in try/catch and route to a shared error handler/logger",
+      "severity": "warning"
+    },
+    {
+      "rule": "avoid-secrets-in-code",
+      "description": "Never hardcode tokens, passwords, or API keys; use validated env vars",
+      "severity": "error"
+    },
+    {
+      "rule": "env-validation",
+      "description": "Validate environment variables (server and client) with a schema (e.g., Zod/@t3-oss/env-nextjs)",
+      "severity": "error"
+    },
+    {
+      "rule": "security-headers",
+      "description": "Set secure HTTP headers (CSP, HSTS, X-Frame-Options, X-Content-Type-Options)",
+      "severity": "error"
+    },
+    {
+      "rule": "form-validation-schemas",
+      "description": "Use schema-based validation (Zod/Yup) for forms and server actions",
+      "severity": "warning"
+    },
+    {
+      "rule": "sentry-integration",
+      "description": "Instrument error tracking (e.g., Sentry) for client, server, and edge",
+      "severity": "warning"
+    },
+    {
+      "rule": "husky-precommit",
+      "description": "Enforce Husky + lint-staged pre-commit hooks for lint/format/tests",
+      "severity": "info"
+    },
+    {
       "rule": "use-server-components-by-default",
       "description": "Default to Server Components unless you need interactivity",
       "severity": "error"
@@ -190,9 +235,114 @@
       "rule": "no-env-client-exposure",
       "description": "Never expose secrets to client - use server actions",
       "severity": "error"
+    },
+    {
+      "rule": "typescript-strict-mode",
+      "description": "Enable strict mode in tsconfig.json",
+      "severity": "warning"
+    },
+    {
+      "rule": "sonar-integration",
+      "description": "Integrate SonarQube for continuous code quality checks",
+      "severity": "info"
+    },
+    {
+      "rule": "tailwindcss-preferred",
+      "description": "Prefer Tailwind CSS for styling over inline styles or global CSS",
+      "severity": "warning"
+    },
+    {
+      "rule": "testing-coverage",
+      "description": "Maintain at least 80% test coverage with unit, integration, and e2e tests",
+      "severity": "warning"
+    },
+    {
+      "rule": "accessibility-audit",
+      "description": "Regularly audit for accessibility issues using tools like axe or Lighthouse",
+      "severity": "info"
+    },
+    {
+      "rule": "performance-budget",
+      "description": "Set and enforce performance budgets for bundle size, TTFB, and LCP",
+      "severity": "warning"
+    },
+    {
+      "rule": "seo-best-practices",
+      "description": "Follow SEO best practices including sitemaps, metadata, and structured data",
+      "severity": "info"
+    },
+    {
+      "rule": "streaming-ssr",
+      "description": "Leverage streaming SSR and Suspense boundaries for better performance",
+      "severity": "warning"
+    },
+    {
+      "rule": "centralized-state-management",
+      "description": "Use centralized state management solutions like Zustand or Jotai when needed",
+      "severity": "info"
+    },
+    {
+      "rule": "error-boundaries",
+      "description": "Implement Error Boundaries to catch rendering errors in the component tree",
+      "severity": "warning"
+    },
+    {
+      "rule": "vercel-deployment-optimized",
+      "description": "Optimize deployment for Vercel with edge functions and middleware",
+      "severity": "info"
+    },
+    {
+      "rule": "self-hosted-standalone",
+      "description": "For self-hosted deployments, use standalone output with Docker",
+      "severity": "info"
+    },
+    {
+      "rule": "avoid-heavy-client-bundles",
+      "description": "Avoid importing large libraries in client components",
+      "severity": "warning"
+    },
+    {
+      "rule": "no-prop-drilling",
+      "description": "Avoid prop drilling by using composition or context",
+      "severity": "warning"
+    },
+    {
+      "rule": "seo-metadata",
+      "description": "Ensure all pages have proper SEO metadata",
+      "severity": "warning"
+    },
+    {
+      "rule": "accessibility-alt-text",
+      "description": "All images must have meaningful alt text",
+      "severity": "error"
+    },
+    {
+      "rule": "comprehensive-testing",
+      "description": "Implement unit, integration, and e2e tests",
+      "severity": "warning"
+    },
+    {
+      "rule": "color-contrast",
+      "description": "Ensure sufficient color contrast for accessibility",
+      "severity": "warning"
+    },
+    {
+      "rule": "keyboard-navigation",
+      "description": "Ensure full keyboard navigation support",
+      "severity": "warning"
+    },
+    {
+      "rule": "focus-management",
+      "description": "Manage focus appropriately for better accessibility",
+      "severity": "warning"
     }
   ],
   "antiPatterns": [
+    {
+      "pattern": "localStorage|sessionStorage",
+      "description": "Avoid storing application state or secrets in localStorage/sessionStorage",
+      "fix": "Use server actions, httpOnly cookies, or databases for persistence"
+    },
     {
       "pattern": "client-component-overuse",
       "description": "Making entire pages client components unnecessarily",
@@ -217,6 +367,41 @@
       "pattern": "heavy-client-bundles",
       "description": "Importing large libraries in client components",
       "fix": "Use dynamic imports or move to server components"
+    },
+    {
+      "pattern": "hardcoded-secrets",
+      "description": "Embedding secrets directly in code",
+      "fix": "Use environment variables and server actions"
+    },
+    {
+      "pattern": "global-css-overuse",
+      "description": "Relying heavily on global CSS files",
+      "fix": "Use CSS Modules or Tailwind CSS for scoped styling"
+    },
+    {
+      "pattern": "no-error-handling",
+      "description": "Lack of error handling around API calls",
+      "fix": "Implement try/catch and centralized error handling"
+    },
+    {
+      "pattern": "missing-alt-text",
+      "description": "Images without alt text",
+      "fix": "Always provide meaningful alt attributes for images"
+    },
+    {
+      "pattern": "no-accessibility-considerations",
+      "description": "Ignoring accessibility best practices",
+      "fix": "Follow WCAG guidelines and use accessibility auditing tools"
+    },
+    {
+      "pattern": "no-testing",
+      "description": "Lack of unit, integration, or e2e tests",
+      "fix": "Implement comprehensive testing strategies"
+    },
+    {
+      "pattern": "seo-neglect",
+      "description": "Ignoring SEO best practices",
+      "fix": "Implement metadata, sitemaps, and structured data"
     }
   ]
 }
