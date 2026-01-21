@@ -3,6 +3,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { registerTools } from "./tools/index.js";
+import { ListRootsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 
 // Logger utility
 const log = {
@@ -20,14 +21,12 @@ const log = {
 };
 
 // Handle uncaught errors
-process.on('uncaughtException', (error: Error) => {
-  log.error('Uncaught exception:', error);
-  process.exit(1);
+process.on("uncaughtException", (error) => {
+  log.error("Uncaught exception (non-fatal):", error);
 });
 
-process.on('unhandledRejection', (reason: any) => {
-  log.error('Unhandled rejection:', reason);
-  process.exit(1);
+process.on("unhandledRejection", (reason) => {
+  log.error("Unhandled rejection (non-fatal):", reason);
 });
 
 async function main() {
@@ -35,8 +34,23 @@ async function main() {
     log.info('Initializing React & Next.js Dev Assistant MCP Server v1.0.0');
     
     const server = new McpServer({
-      name: "react-nextjs-dev-assistant",
+      name: "nextjs-dev-assistant",
       version: "1.0.0",
+    });
+
+    // Handle roots/list request - MCP protocol for workspace roots
+    server.server.setRequestHandler(ListRootsRequestSchema, async () => {
+      const workspaceRoot = process.env.WORKSPACE_ROOT || process.cwd();
+      log.debug('Roots requested, returning:', workspaceRoot);
+      
+      return {
+        roots: [
+          {
+            uri: `file://${workspaceRoot}`,
+            name: "Project Root"
+          }
+        ]
+      };
     });
 
     // Register all tools
@@ -60,4 +74,7 @@ async function main() {
   }
 }
 
-main();
+main().catch((err) => {
+  log.error("Fatal startup error:", err);
+  process.exit(1);
+});

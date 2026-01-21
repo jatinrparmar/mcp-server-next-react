@@ -121,10 +121,15 @@ export class SecurityAnalyzer {
     const requireAbsence = detection.requireAbsence || [];
     const excludePatterns = detection.excludePatterns || [];
 
-    // Check exclusion patterns
+    // Check exclusion patterns (robust to invalid regex)
     const isExcluded = excludePatterns.some(pattern => {
-      const regex = new RegExp(pattern);
-      return regex.test(code);
+      try {
+        const regex = new RegExp(pattern);
+        return regex.test(code);
+      } catch {
+        console.warn(`Invalid exclude pattern in rule ${rule.id}: ${pattern}`);
+        return false;
+      }
     });
 
     if (isExcluded) return violations;
@@ -139,8 +144,13 @@ export class SecurityAnalyzer {
           // If requirePatterns exist, check if any are present in the context
           if (requirePatterns.length > 0) {
             const hasRequired = requirePatterns.some(reqPattern => {
-              const reqRegex = new RegExp(reqPattern);
-              return reqRegex.test(code);
+              try {
+                const reqRegex = new RegExp(reqPattern);
+                return reqRegex.test(code);
+              } catch {
+                console.warn(`Invalid require pattern in rule ${rule.id}: ${reqPattern}`);
+                return false;
+              }
             });
 
             if (!hasRequired) continue;
@@ -149,8 +159,13 @@ export class SecurityAnalyzer {
           // Check requireAbsence patterns
           if (requireAbsence.length > 0) {
             const hasAbsence = requireAbsence.some(absPattern => {
-              const absRegex = new RegExp(absPattern);
-              return absRegex.test(code);
+              try {
+                const absRegex = new RegExp(absPattern);
+                return absRegex.test(code);
+              } catch {
+                console.warn(`Invalid requireAbsence pattern in rule ${rule.id}: ${absPattern}`);
+                return false;
+              }
             });
 
             if (hasAbsence) continue;
@@ -189,10 +204,11 @@ export class SecurityAnalyzer {
     const scan = (dir: string) => {
       try {
         const entries = fs.readdirSync(dir, { withFileTypes: true });
+        const excludedDirs = ['node_modules', '.git', 'build', 'dist', '.next', '.env.local', '.history', '.vscode', '.cache', '.turbo', '.nuxt', '.output', 'coverage', 'out'];
         for (const entry of entries) {
           const fullPath = path.join(dir, entry.name);
           if (entry.isDirectory()) {
-            if (!['node_modules', '.git', 'build', 'dist', '.next', '.env.local'].includes(entry.name)) {
+            if (!excludedDirs.includes(entry.name)) {
               scan(fullPath);
             }
           } else if (entry.isFile()) {

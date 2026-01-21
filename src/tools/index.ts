@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { CodeAnalyzer } from '../core/analyzer.js';
 import { CodeReviewer } from '../core/reviewer.js';
 import { CodeOptimizer } from '../core/optimizer.js';
-import { analyzeProject, checkMigrationReadiness, checkProjectMigrationReadiness, findRepeatedCode, findRepeatedCodeInProject, generateComponent, optimizeProject, refactorCode, reviewProject } from '../common/helper.js';
+import { analyzeProject, analyzeDirectory, checkMigrationReadiness, checkProjectMigrationReadiness, checkDirectoryMigrationReadiness, findRepeatedCode, findRepeatedCodeInProject, findRepeatedCodeInDirectory, generateComponent, optimizeProject, optimizeDirectory, refactorCode, reviewProject, reviewDirectory, checkAccessibilityInDirectory, checkSecurityInDirectory } from '../common/helper.js';
 import { projectDetector } from '../common/project-detector.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -43,6 +43,14 @@ export function registerTools(server: McpServer): void {
           const projectResult = await analyzeProject(analyzer, includeTests);
           return {
             content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }]
+          };
+        }
+        // Detect if path is a directory
+        const stat = fs.statSync(filePath);
+        if (stat.isDirectory()) {
+          const dirResult = await analyzeDirectory(analyzer, filePath, includeTests);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }]
           };
         }
         const code = fs.readFileSync(filePath, 'utf-8');
@@ -97,6 +105,13 @@ export function registerTools(server: McpServer): void {
             content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }]
           };
         }
+        const stat = fs.statSync(filePath);
+        if (stat.isDirectory()) {
+          const dirResult = await reviewDirectory(reviewer, filePath);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }]
+          };
+        }
         const code = fs.readFileSync(filePath, 'utf-8');
         const result = await reviewer.reviewCode(code, filePath);
 
@@ -147,6 +162,13 @@ export function registerTools(server: McpServer): void {
           const projectResult = await optimizeProject(optimizer);
           return {
             content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }]
+          };
+        }
+        const stat = fs.statSync(filePath);
+        if (stat.isDirectory()) {
+          const dirResult = await optimizeDirectory(optimizer, filePath);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }]
           };
         }
         const code = fs.readFileSync(filePath, 'utf-8');
@@ -370,6 +392,13 @@ export function registerTools(server: McpServer): void {
             content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }]
           };
         }
+        const stat = fs.statSync(filePath);
+        if (stat.isDirectory()) {
+          const dirResult = await checkDirectoryMigrationReadiness(filePath);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }]
+          };
+        }
         const code = fs.readFileSync(filePath, 'utf-8');
         const analysis = checkMigrationReadiness(code, filePath);
 
@@ -415,6 +444,13 @@ export function registerTools(server: McpServer): void {
           const projectResult = await findRepeatedCodeInProject(minOccurrences, includeSmallPatterns);
           return {
             content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }]
+          };
+        }
+        const stat = fs.statSync(filePath);
+        if (stat.isDirectory()) {
+          const dirResult = await findRepeatedCodeInDirectory(filePath, minOccurrences, includeSmallPatterns);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }]
           };
         }
         const code = fs.readFileSync(filePath, 'utf-8');
@@ -469,6 +505,13 @@ export function registerTools(server: McpServer): void {
             content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }]
           };
         }
+        const stat = fs.statSync(filePath);
+        if (stat.isDirectory()) {
+          const dirResult = await checkAccessibilityInDirectory(analyzer, filePath);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }]
+          };
+        }
         const code = fs.readFileSync(filePath, 'utf-8');
         const result = analyzer.checkAccessibility(code, filePath);
 
@@ -519,6 +562,13 @@ export function registerTools(server: McpServer): void {
           const projectResult = await analyzer.checkSecurityInProject();
           return {
             content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }]
+          };
+        }
+        const stat = fs.statSync(filePath);
+        if (stat.isDirectory()) {
+          const dirResult = await checkSecurityInDirectory(analyzer, filePath);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }]
           };
         }
         const code = fs.readFileSync(filePath, 'utf-8');

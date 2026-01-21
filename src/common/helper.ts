@@ -523,9 +523,23 @@ function generateRefactoringRecommendations(patterns: any[]): string[] {
 }
 
 // Helper function to get all source files in the project
-function getAllSourceFiles(dir: string, includeTests: boolean = false): string[] {
+export function getAllSourceFiles(dir: string, includeTests: boolean = false): string[] {
   const files: string[] = [];
-  const excludedDirs = new Set(['node_modules', 'build', 'dist', '.next', '.git', 'coverage']);
+  const excludedDirs = new Set([
+    'node_modules',      // Dependencies
+    'build',             // Build output
+    'dist',              // Distribution
+    '.next',             // Next.js cache
+    '.git',              // Version control
+    'coverage',          // Test coverage
+    '.history',          // VS Code Local History
+    '.vscode',           // VS Code config
+    '.cache',            // Cache directories
+    '.turbo',            // Turborepo cache
+    '.nuxt',             // Nuxt cache
+    '.output',           // Nuxt/other build outputs
+    'out'                // Output directories
+  ]);
 
   function scan(currentDir: string) {
     try {
@@ -560,7 +574,7 @@ function getAllSourceFiles(dir: string, includeTests: boolean = false): string[]
 
 // Helper function to analyze entire project
 export async function analyzeProject(analyzer: CodeAnalyzer, includeTests: boolean = false) {
-  const projectRoot = process.cwd();
+  const projectRoot = process.env.WORKSPACE_ROOT || process.cwd();
   const files = getAllSourceFiles(projectRoot, includeTests);
 
   const results = [];
@@ -587,6 +601,34 @@ export async function analyzeProject(analyzer: CodeAnalyzer, includeTests: boole
   };
 }
 
+// Helper function to analyze a specific directory
+export async function analyzeDirectory(analyzer: CodeAnalyzer, dir: string, includeTests: boolean = false) {
+  const files = getAllSourceFiles(dir, includeTests);
+
+  const results = [];
+  for (const filePath of files) {
+    try {
+      const code = fs.readFileSync(filePath, 'utf-8');
+      const result = await analyzer.analyzeCode(code, filePath);
+      if (result.issues && result.issues.length > 0) {
+        results.push({ ...result, file: filePath });
+      }
+    } catch (error) {
+      console.error(`Error analyzing ${filePath}:`, error);
+    }
+  }
+
+  return {
+    projectRoot: dir,
+    totalFiles: files.length,
+    filesWithIssues: results.length,
+    results: results.slice(0, 50),
+    summary: {
+      totalIssues: results.reduce((sum, r) => sum + (r.issues?.length || 0), 0)
+    }
+  };
+}
+
 const analyzeProjectArchitecture = (codeMap: Map<string, string>, filePaths: string[]): ArchitectureAnalysis => {
   const projectInfo = projectDetector.detectFramework();
   
@@ -602,7 +644,7 @@ const analyzeProjectArchitecture = (codeMap: Map<string, string>, filePaths: str
 
 // Helper function to review entire project
 export async function reviewProject(reviewer: CodeReviewer) {
-  const projectRoot = process.cwd();
+  const projectRoot = process.env.WORKSPACE_ROOT || process.cwd();
   const files = getAllSourceFiles(projectRoot, false);
 
   const codeByFile = new Map<string, string>();
@@ -642,9 +684,49 @@ export async function reviewProject(reviewer: CodeReviewer) {
   };
 }
 
+// Helper function to review a specific directory
+export async function reviewDirectory(reviewer: CodeReviewer, dir: string) {
+  const files = getAllSourceFiles(dir, false);
+
+  const codeByFile = new Map<string, string>();
+  const results = [];
+  for (const filePath of files) {
+    try {
+      const code = fs.readFileSync(filePath, 'utf-8');
+      codeByFile.set(filePath, code);
+      const result = await reviewer.reviewCode(code, filePath);
+      results.push({ ...result, file: filePath });
+    } catch (error) {
+      console.error(`Error reviewing ${filePath}:`, error);
+    }
+  }
+
+  const architecture = analyzeProjectArchitecture(codeByFile, files);
+  const patterns = new DesignPatternAnalyzer().analyze(codeByFile);
+  const sdlc = new SDLCAnalyzer().analyze(files);
+
+  return {
+    projectRoot: dir,
+    totalFiles: files.length,
+    results: results.slice(0, 50),
+    summary: {
+      averageQuality: results.length > 0
+        ? results.reduce((sum, r) => {
+          const qualityScore = (r.codeQuality.maintainability + r.codeQuality.complexity +
+            r.codeQuality.testability + r.codeQuality.readability) / 4;
+          return sum + qualityScore;
+        }, 0) / results.length
+        : 0
+    },
+    architecture: architecture,
+    designPatterns: patterns,
+    sdlcAnalysis: sdlc
+  };
+}
+
 // Helper function to optimize entire project
 export async function optimizeProject(optimizer: CodeOptimizer) {
-  const projectRoot = process.cwd();
+  const projectRoot = process.env.WORKSPACE_ROOT || process.cwd();
   const files = getAllSourceFiles(projectRoot, false);
 
   const results = [];
@@ -671,9 +753,37 @@ export async function optimizeProject(optimizer: CodeOptimizer) {
   };
 }
 
+// Helper function to optimize a specific directory
+export async function optimizeDirectory(optimizer: CodeOptimizer, dir: string) {
+  const files = getAllSourceFiles(dir, false);
+
+  const results = [];
+  for (const filePath of files) {
+    try {
+      const code = fs.readFileSync(filePath, 'utf-8');
+      const result = await optimizer.optimizeCode(code, filePath);
+      if (result.optimizations && result.optimizations.length > 0) {
+        results.push({ ...result, file: filePath });
+      }
+    } catch (error) {
+      console.error(`Error optimizing ${filePath}:`, error);
+    }
+  }
+
+  return {
+    projectRoot: dir,
+    totalFiles: files.length,
+    filesWithSuggestions: results.length,
+    results: results.slice(0, 50),
+    summary: {
+      totalSuggestions: results.reduce((sum, r) => sum + (r.optimizations?.length || 0), 0)
+    }
+  };
+}
+
 // Helper function to check migration readiness for entire project
 export async function checkProjectMigrationReadiness() {
-  const projectRoot = process.cwd();
+  const projectRoot = process.env.WORKSPACE_ROOT || process.cwd();
   const pagesDir = path.join(projectRoot, 'pages');
 
   if (!fs.existsSync(pagesDir)) {
@@ -707,9 +817,36 @@ export async function checkProjectMigrationReadiness() {
   };
 }
 
+// Helper function to check migration readiness for a specific directory
+export async function checkDirectoryMigrationReadiness(dir: string) {
+  const files = getAllSourceFiles(dir, false);
+  const results = [];
+
+  for (const filePath of files) {
+    try {
+      const code = fs.readFileSync(filePath, 'utf-8');
+      const analysis = checkMigrationReadiness(code, filePath);
+      results.push({ ...analysis, file: filePath });
+    } catch (error) {
+      console.error(`Error checking migration for ${filePath}:`, error);
+    }
+  }
+
+  return {
+    projectRoot: dir,
+    totalPages: files.length,
+    results,
+    summary: {
+      ready: results.filter(r => r.readiness === 'Ready').length,
+      hasBlockers: results.filter(r => r.blockers?.length > 0).length,
+      overallReadiness: results.filter(r => r.readiness === 'Ready').length === results.length ? 'Ready' : 'Needs work'
+    }
+  };
+}
+
 // Helper function to find repeated code across entire project
 export async function findRepeatedCodeInProject(minOccurrences: number = 2, includeSmallPatterns: boolean = false) {
-  const projectRoot = process.cwd();
+  const projectRoot = process.env.WORKSPACE_ROOT || process.cwd();
   const files = getAllSourceFiles(projectRoot, false);
 
   const allPatterns: any[] = [];
@@ -757,6 +894,121 @@ export async function findRepeatedCodeInProject(minOccurrences: number = 2, incl
       highestImpact: significantPatterns[0] || null,
       refactoringPotential: getRefactoringPotential(significantPatterns.length)
     }
+  };
+}
+
+// Helper function to find repeated code in a specific directory
+export async function findRepeatedCodeInDirectory(dir: string, minOccurrences: number = 2, includeSmallPatterns: boolean = false) {
+  const files = getAllSourceFiles(dir, false);
+
+  const allPatterns: any[] = [];
+
+  for (const filePath of files) {
+    try {
+      const code = fs.readFileSync(filePath, 'utf-8');
+      const result = findRepeatedCode(code, filePath, minOccurrences, includeSmallPatterns);
+      if (result.patterns && result.patterns.length > 0) {
+        allPatterns.push(...result.patterns.map((p: any) => ({ ...p, file: filePath })));
+      }
+    } catch (error) {
+      console.error(`Error finding repeated code in ${filePath}:`, error);
+    }
+  }
+
+  const crossFilePatterns = new Map<string, any[]>();
+
+  allPatterns.forEach(pattern => {
+    const key = pattern.pattern.substring(0, 100);
+    if (!crossFilePatterns.has(key)) {
+      crossFilePatterns.set(key, []);
+    }
+    crossFilePatterns.get(key)!.push(pattern);
+  });
+
+  const significantPatterns = Array.from(crossFilePatterns.values())
+    .filter(patterns => patterns.length > 1)
+    .map(patterns => ({
+      pattern: patterns[0].pattern,
+      filesAffected: [...new Set(patterns.map(p => p.file))],
+      totalOccurrences: patterns.reduce((sum, p) => sum + p.occurrences, 0),
+      type: patterns[0].type,
+      suggestion: `Extract to shared ${patterns[0].type === 'jsx' ? 'component' : 'utility'} - appears in ${patterns.length} file(s)`
+    }))
+    .sort((a, b) => b.totalOccurrences - a.totalOccurrences);
+
+  return {
+    projectRoot: dir,
+    totalFiles: files.length,
+    crossFilePatterns: significantPatterns.slice(0, 30),
+    summary: {
+      totalCrossFilePatterns: significantPatterns.length,
+      highestImpact: significantPatterns[0] || null,
+      refactoringPotential: getRefactoringPotential(significantPatterns.length)
+    }
+  };
+}
+
+// Helper function to check accessibility in a specific directory
+export async function checkAccessibilityInDirectory(analyzer: CodeAnalyzer, dir: string) {
+  const files = getAllSourceFiles(dir, false);
+  const results: any[] = [];
+  let totalViolations = 0;
+
+  for (const filePath of files) {
+    try {
+      const code = fs.readFileSync(filePath, 'utf-8');
+      const result = await analyzer.checkAccessibility(code, filePath);
+      if (result.issues && result.issues.length > 0) {
+        results.push(result);
+        totalViolations += result.issues.length;
+      }
+    } catch (error) {
+      console.error(`Error checking accessibility for ${filePath}:`, error);
+    }
+  }
+
+  return {
+    projectRoot: dir,
+    totalFilesScanned: files.length,
+    filesWithIssues: results.length,
+    results: results.slice(0, 50),
+    summary: `Found ${totalViolations} accessibility issue(s) across ${results.length} file(s)`
+  };
+}
+
+// Helper function to check security in a specific directory
+export async function checkSecurityInDirectory(analyzer: CodeAnalyzer, dir: string) {
+  const files = getAllSourceFiles(dir, false);
+  const results: any[] = [];
+  let totalViolations = 0;
+  let criticalViolations = 0;
+  let highViolations = 0;
+
+  for (const filePath of files) {
+    try {
+      const code = fs.readFileSync(filePath, 'utf-8');
+      const result = await analyzer.checkSecurity(code, filePath);
+
+      if (result.issues && result.issues.length > 0) {
+        results.push(result);
+        totalViolations += result.issues.length;
+        criticalViolations += result.issues.filter((i: any) => i.type === 'error').length;
+        highViolations += result.issues.filter((i: any) => i.type === 'warning').length;
+      }
+    } catch (error) {
+      console.error(`Error checking security for ${filePath}:`, error);
+    }
+  }
+
+  return {
+    projectRoot: dir,
+    totalFilesScanned: files.length,
+    filesWithIssues: results.length,
+    totalViolations,
+    criticalViolations,
+    highViolations,
+    results: results.slice(0, 50),
+    summary: `Found ${totalViolations} security violation(s) across ${results.length} file(s). Critical: ${criticalViolations}, High: ${highViolations}`
   };
 }
 

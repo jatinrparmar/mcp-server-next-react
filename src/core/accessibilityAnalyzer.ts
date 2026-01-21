@@ -187,10 +187,11 @@ export class AccessibilityAnalyzer {
     const scan = (dir: string) => {
 
       const entries = fs.readdirSync(dir, { withFileTypes: true });
+      const excludedDirs = ['node_modules', '.git', 'build', 'dist', '.next', '.env.local', '.history', '.vscode', '.cache', '.turbo', '.nuxt', '.output', 'coverage', 'out'];
       for (const entry of entries) {
         const fullPath = path.join(dir, entry.name);
         if (entry.isDirectory()) {
-          if (!['node_modules', '.git', 'build', 'dist', '.next', '.env.local'].includes(entry.name)) {
+          if (!excludedDirs.includes(entry.name)) {
             scan(fullPath);
           }
         } else if (entry.isFile()) {

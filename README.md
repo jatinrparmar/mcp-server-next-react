@@ -214,13 +214,37 @@ npm run build
 
 2. Add to your MCP client configuration:
 
+**⚠️ IMPORTANT:** Always include the `WORKSPACE_ROOT` environment variable to prevent EISDIR errors. See [Workspace Configuration Guide](docs/WORKSPACE_CONFIGURATION.md) for details.
+
 **For Claude Desktop** (`claude_desktop_config.json`):
 ```json
 {
   "mcpServers": {
     "nextjs-dev-assistant": {
       "command": "node",
-      "args": ["/path/to/mcp-server-next-react/build/index.js"]
+      "args": ["/path/to/mcp-server-next-react/build/index.js"],
+      "env": {
+        "WORKSPACE_ROOT": "/path/to/your/project"
+      }
+    }
+  }
+}
+```
+
+**For VS Code with GitHub Copilot** (Settings JSON):
+```json
+{
+  "github.copilot.advanced": {
+    "mcp": {
+      "servers": {
+        "nextjs-dev-assistant": {
+          "command": "node",
+          "args": ["/path/to/mcp-server-next-react/build/index.js"],
+          "env": {
+            "WORKSPACE_ROOT": "${workspaceFolder}"
+          }
+        }
+      }
     }
   }
 }
@@ -232,7 +256,10 @@ npm run build
   "mcp.servers": {
     "nextjs-dev-assistant": {
       "command": "node",
-      "args": ["/path/to/mcp-server-next-react/build/index.js"]
+      "args": ["/path/to/mcp-server-next-react/build/index.js"],
+      "env": {
+        "WORKSPACE_ROOT": "${workspaceFolder}"
+      }
     }
   }
 }
@@ -377,7 +404,18 @@ src/
 ## � Documentation
 
 Comprehensive guides for using and customizing the MCP server:
-- **[Config-Driven Architecture](docs/CONFIG_DRIVEN_ARCHITECTURE.md)** - How all analyzers (Code, Security, Accessibility) are config-driven with 107+ rules- **[Rules & Configuration Documentation](docs/RULES_DOCUMENTATION.md)** - Complete reference of all 107+ rules organized by category
+- **[HOW_TO_USE.md](docs/HOW_TO_USE.md)** - Complete guide to install, configure, and use the MCP server ⭐ **START HERE**
+- **[Workspace Configuration](docs/WORKSPACE_CONFIGURATION.md)** - **IMPORTANT:** Configure workspace directory to prevent EISDIR errors ⚠️
+- **[Config-Driven Architecture](docs/CONFIG_DRIVEN_ARCHITECTURE.md)** - How all analyzers (Code, Security, Accessibility) are config-driven with 107+ rules
+- **[Rules & Configuration Documentation](docs/RULES_DOCUMENTATION.md)** - Complete reference of all 107+ rules organized by category
+- **[Custom Rules Guide](docs/CUSTOM_RULES_GUIDE.md)** - How to create and customize your own rule sets
+- **[Security Rules Guide](docs/SECURITY_RULES_GUIDE.md)** - Detailed security rule configurations and best practices
+- **[Configuration Examples](docs/CONFIGURATION_EXAMPLES.md)** - Real-world configuration examples
+- **[Framework Detection](docs/FRAMEWORK_DETECTION.md)** - How the server detects React vs Next.js
+- **[Local Development](docs/LOCAL_DEVELOPMENT.md)** - Development and testing guide
+- **[Architecture](docs/ARCHITECTURE.md)** - System architecture overview
+- **[Copilot Setup](docs/COPILOT_SETUP.md)** - Setup instructions for GitHub Copilot
+- **[Custom Agent Guide](docs/CUSTOM_AGENT_GUIDE.md)** - Create custom agents in VS Code
 - **[Custom Rules Guide](docs/CUSTOM_RULES_GUIDE.md)** - How to create and customize your own rule sets
 - **[Security Rules Guide](docs/SECURITY_RULES_GUIDE.md)** - Detailed security rule configurations and best practices
 - **[Configuration Examples](docs/CONFIGURATION_EXAMPLES.md)** - Real-world configuration examples
