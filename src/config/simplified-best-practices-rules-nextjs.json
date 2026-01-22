@@ -1,0 +1,251 @@
+{
+  "meta": {
+    "framework": "Next.js",
+    "version": "2025.1",
+    "type": "simplified-best-practices-config",
+    "description": "SIMPLIFIED BEST PRACTICES FOR NEXT.JS - Modify this file only. Rules are auto-generated to rules/ directory.",
+    "instructions": "Edit rules below, then run: npm run generate:rules"
+  },
+  "rules": [
+    {
+      "id": "use-app-router",
+      "title": "Prefer App Router over Pages Router",
+      "enabled": true,
+      "severity": "medium",
+      "category": "best-practices",
+      "recommendation": "Use the new App Router (app/) for new projects. It supports React Server Components and improved data fetching.",
+      "codeExample": {
+        "bad": "// pages/index.tsx with getServerSideProps",
+        "good": "// app/page.tsx with Server Components"
+      }
+    },
+    {
+      "id": "server-components-default",
+      "title": "Use Server Components by Default",
+      "enabled": true,
+      "severity": "high",
+      "category": "best-practices",
+      "recommendation": "Make components Server Components by default. Only add 'use client' when you need interactivity, hooks, or browser APIs.",
+      "codeExample": {
+        "bad": "'use client'; export default function Page() { return <div>Static content</div>; }",
+        "good": "export default function Page() { return <div>Static content</div>; } // Server Component"
+      }
+    },
+    {
+      "id": "use-server-actions",
+      "title": "Use Server Actions for Mutations",
+      "enabled": true,
+      "severity": "high",
+      "category": "best-practices",
+      "recommendation": "Use Server Actions instead of API routes for form submissions and mutations. They're more efficient and type-safe.",
+      "codeExample": {
+        "bad": "// POST to /api/submit with fetch",
+        "good": "'use server'; export async function submitForm(formData) { /* Server Action */ }"
+      }
+    },
+    {
+      "id": "avoid-use-effect-data-fetching",
+      "title": "Avoid useEffect for Data Fetching",
+      "enabled": true,
+      "severity": "high",
+      "category": "best-practices",
+      "recommendation": "Fetch data in Server Components instead of useEffect. Use Suspense for loading states.",
+      "codeExample": {
+        "bad": "'use client'; useEffect(() => { fetchData(); }, []);",
+        "good": "// Server Component: const data = await fetchData();"
+      }
+    },
+    {
+      "id": "use-next-image",
+      "title": "Use Next.js Image Component",
+      "enabled": true,
+      "severity": "high",
+      "category": "performance",
+      "recommendation": "Always use next/image instead of <img> for automatic optimization, lazy loading, and responsive images.",
+      "codeExample": {
+        "bad": "<img src='/photo.jpg' />",
+        "good": "import Image from 'next/image'; <Image src='/photo.jpg' width={500} height={300} alt='...' />"
+      }
+    },
+    {
+      "id": "use-next-link",
+      "title": "Use Next.js Link Component",
+      "enabled": true,
+      "severity": "medium",
+      "category": "performance",
+      "recommendation": "Use next/link for client-side navigation. It prefetches pages in the background for faster navigation.",
+      "codeExample": {
+        "bad": "<a href='/about'>About</a>",
+        "good": "import Link from 'next/link'; <Link href='/about'>About</Link>"
+      }
+    },
+    {
+      "id": "dynamic-imports",
+      "title": "Use Dynamic Imports for Code Splitting",
+      "enabled": true,
+      "severity": "medium",
+      "category": "performance",
+      "recommendation": "Use dynamic imports with next/dynamic for components that aren't needed on initial render.",
+      "codeExample": {
+        "bad": "import HeavyComponent from './HeavyComponent';",
+        "good": "const HeavyComponent = dynamic(() => import('./HeavyComponent'));"
+      }
+    },
+    {
+      "id": "metadata-api",
+      "title": "Use Metadata API for SEO",
+      "enabled": true,
+      "severity": "high",
+      "category": "seo",
+      "recommendation": "Use the Metadata API (export metadata or generateMetadata) in App Router for SEO instead of Head component.",
+      "codeExample": {
+        "bad": "<Head><title>My Page</title></Head>",
+        "good": "export const metadata = { title: 'My Page', description: '...' };"
+      }
+    },
+    {
+      "id": "loading-ui",
+      "title": "Provide Loading UI",
+      "enabled": true,
+      "severity": "medium",
+      "category": "best-practices",
+      "recommendation": "Create loading.tsx files for route segments to show loading states during navigation.",
+      "codeExample": {
+        "bad": "// No loading state",
+        "good": "// app/dashboard/loading.tsx: export default function Loading() { return <Spinner />; }"
+      }
+    },
+    {
+      "id": "error-boundaries",
+      "title": "Use Error Boundaries",
+      "enabled": true,
+      "severity": "high",
+      "category": "best-practices",
+      "recommendation": "Create error.tsx files to handle errors gracefully and provide recovery options.",
+      "codeExample": {
+        "bad": "// No error handling",
+        "good": "// app/dashboard/error.tsx: 'use client'; export default function Error({ error, reset }) { /* ... */ }"
+      }
+    },
+    {
+      "id": "route-handlers",
+      "title": "Use Route Handlers for APIs",
+      "enabled": true,
+      "severity": "medium",
+      "category": "best-practices",
+      "recommendation": "Use Route Handlers (route.ts) in App Router instead of API routes in pages/api.",
+      "codeExample": {
+        "bad": "// pages/api/users.ts",
+        "good": "// app/api/users/route.ts: export async function GET(request) { /* ... */ }"
+      }
+    },
+    {
+      "id": "streaming-suspense",
+      "title": "Use Streaming with Suspense",
+      "enabled": true,
+      "severity": "medium",
+      "category": "performance",
+      "recommendation": "Wrap slow components in Suspense to stream content and show loading states.",
+      "codeExample": {
+        "bad": "const data = await slowFetch(); return <SlowComponent data={data} />;",
+        "good": "<Suspense fallback={<Loading />}><SlowComponent /></Suspense>"
+      }
+    },
+    {
+      "id": "parallel-data-fetching",
+      "title": "Fetch Data in Parallel",
+      "enabled": true,
+      "severity": "medium",
+      "category": "performance",
+      "recommendation": "Use Promise.all() to fetch data in parallel instead of sequential awaits.",
+      "codeExample": {
+        "bad": "const users = await getUsers(); const posts = await getPosts();",
+        "good": "const [users, posts] = await Promise.all([getUsers(), getPosts()]);"
+      }
+    },
+    {
+      "id": "revalidate-data",
+      "title": "Configure Revalidation",
+      "enabled": true,
+      "severity": "medium",
+      "category": "performance",
+      "recommendation": "Set revalidate time for cached data or use on-demand revalidation with revalidatePath/revalidateTag.",
+      "codeExample": {
+        "bad": "// No revalidation configured",
+        "good": "export const revalidate = 3600; // Revalidate every hour"
+      }
+    },
+    {
+      "id": "font-optimization",
+      "title": "Use next/font for Font Optimization",
+      "enabled": true,
+      "severity": "medium",
+      "category": "performance",
+      "recommendation": "Use next/font to automatically optimize and self-host fonts, eliminating external network requests.",
+      "codeExample": {
+        "bad": "<link href='https://fonts.googleapis.com/...' />",
+        "good": "import { Inter } from 'next/font/google'; const inter = Inter({ subsets: ['latin'] });"
+      }
+    },
+    {
+      "id": "not-found-page",
+      "title": "Create Custom Not Found Pages",
+      "enabled": true,
+      "severity": "low",
+      "category": "best-practices",
+      "recommendation": "Create not-found.tsx files to show custom 404 pages for route segments.",
+      "codeExample": {
+        "bad": "// Using default 404",
+        "good": "// app/not-found.tsx: export default function NotFound() { return <Custom404 />; }"
+      }
+    },
+    {
+      "id": "middleware-performance",
+      "title": "Keep Middleware Lightweight",
+      "enabled": true,
+      "severity": "medium",
+      "category": "performance",
+      "recommendation": "Keep middleware.ts fast and lightweight. It runs on every request. Avoid heavy computations.",
+      "codeExample": {
+        "bad": "// Heavy database queries in middleware",
+        "good": "// Quick checks only: authentication token validation"
+      }
+    },
+    {
+      "id": "static-exports",
+      "title": "Use Static Exports When Possible",
+      "enabled": true,
+      "severity": "low",
+      "category": "performance",
+      "recommendation": "For static sites, use output: 'export' in next.config.js to generate static HTML.",
+      "codeExample": {
+        "bad": "// Dynamic server required for static content",
+        "good": "// next.config.js: { output: 'export' }"
+      }
+    },
+    {
+      "id": "typescript-strict",
+      "title": "Enable TypeScript Strict Mode",
+      "enabled": true,
+      "severity": "medium",
+      "category": "best-practices",
+      "recommendation": "Enable strict mode in tsconfig.json for better type safety and fewer runtime errors.",
+      "codeExample": {
+        "bad": "// tsconfig.json: { \"strict\": false }",
+        "good": "// tsconfig.json: { \"strict\": true }"
+      }
+    },
+    {
+      "id": "meaningful-variable-names",
+      "title": "Use Meaningful Variable Names",
+      "enabled": true,
+      "severity": "low",
+      "category": "best-practices",
+      "recommendation": "Use descriptive names for variables, functions, and components.",
+      "codeExample": {
+        "bad": "const x = getData(); const a = x.filter(u => u.age > 18);",
+        "good": "const users = getData(); const adults = users.filter(user => user.age > 18);"
+      }
+    }
+  ]
+}

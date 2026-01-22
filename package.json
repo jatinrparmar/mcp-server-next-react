@@ -9,12 +9,15 @@
   },
   "scripts": {
     "build": "tsc && chmod +x build/index.js && npm run copy-config",
-    "copy-config": "mkdir -p build/config build/rules && cp src/config/*.json build/config/ && cp src/rules/*.json build/rules/",
+    "copy-config": "mkdir -p build/config && cp src/config/simplified-*.json build/config/ && cp src/rules/*-llm-*.json build/config/",
     "prepare": "npm run build",
     "dev": "tsc --watch",
     "test": "node scripts/test-local.js",
     "inspector": "npx @modelcontextprotocol/inspector node build/index.js",
-    "start": "node build/index.js"
+    "start": "node build/index.js",
+    "generate:rules": "node --loader ts-node/esm src/common/config-to-rules-generator.ts src/config src/rules",
+    "lint:config": "node scripts/validate-config.js",
+    "test:rules": "node scripts/test-rules.js"
   },
   "keywords": [
     "mcp",
@@ -29,6 +32,7 @@
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.2",
+    "ts-node": "^10.9.2",
     "zod": "^3.25.76"
   },
   "devDependencies": {

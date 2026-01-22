@@ -1,0 +1,170 @@
+{
+  "meta": {
+    "framework": "Next.js",
+    "version": "2025.1",
+    "type": "simplified-security-config",
+    "description": "SIMPLIFIED SECURITY RULES FOR NEXT.JS - Modify this file only. Rules are auto-generated to rules/ directory.",
+    "instructions": "Edit rules below, then run: npm run generate:rules"
+  },
+  "rules": [
+    {
+      "id": "xss-prevention",
+      "title": "Prevent XSS Vulnerabilities",
+      "enabled": true,
+      "severity": "critical",
+      "category": "security",
+      "patterns": [
+        "dangerouslySetInnerHTML",
+        "innerHTML",
+        "eval\\s*\\(",
+        "Function\\s*\\("
+      ],
+      "recommendation": "Avoid using dangerouslySetInnerHTML. React/Next.js escapes content by default. Use DOMPurify for user-generated HTML.",
+      "codeExample": {
+        "bad": "return <div dangerouslySetInnerHTML={{ __html: userInput }} />;",
+        "good": "return <div>{userInput}</div>; // React/Next.js auto-escapes"
+      }
+    },
+    {
+      "id": "no-hardcoded-secrets",
+      "title": "No Hardcoded Secrets",
+      "enabled": true,
+      "severity": "critical",
+      "category": "security",
+      "patterns": [
+        "password\\s*[=:]\\s*['\\\"]",
+        "api[_-]?key\\s*[=:]\\s*['\\\"]",
+        "secret\\s*[=:]\\s*['\\\"]",
+        "token\\s*[=:]\\s*['\\\"]"
+      ],
+      "excludePatterns": [
+        "*.test.*",
+        "*.spec.*",
+        "mock*"
+      ],
+      "recommendation": "Store all secrets in environment variables. Use NEXT_PUBLIC_ prefix for client-side vars. Never commit secrets.",
+      "codeExample": {
+        "bad": "const apiKey = 'sk-1234567890abcdef';",
+        "good": "const apiKey = process.env.API_KEY; // Server-side\nconst publicKey = process.env.NEXT_PUBLIC_API_KEY; // Client-side"
+      }
+    },
+    {
+      "id": "server-only-secrets",
+      "title": "Keep Secrets Server-Side Only",
+      "enabled": true,
+      "severity": "critical",
+      "category": "security",
+      "recommendation": "Never expose server-side secrets to client. Use Server Components or API routes for sensitive operations.",
+      "codeExample": {
+        "bad": "'use client'; const secret = process.env.SECRET_KEY; // Exposed to client!",
+        "good": "// In Server Component: const secret = process.env.SECRET_KEY; // Safe"
+      }
+    },
+    {
+      "id": "no-eval",
+      "title": "Avoid eval() and Dynamic Code Execution",
+      "enabled": true,
+      "severity": "critical",
+      "category": "security",
+      "patterns": [
+        "\\beval\\s*\\(",
+        "\\bFunction\\s*\\(",
+        "setTimeout\\s*\\(['\\\"]",
+        "setInterval\\s*\\(['\\\"]"
+      ],
+      "recommendation": "Never use eval() or Function() constructor. Use JSON.parse or data-driven approaches instead.",
+      "codeExample": {
+        "bad": "const result = eval(userInput);",
+        "good": "const result = JSON.parse(userInput);"
+      }
+    },
+    {
+      "id": "secure-api-calls",
+      "title": "Secure API Communication",
+      "enabled": true,
+      "severity": "high",
+      "category": "security",
+      "patterns": [
+        "fetch\\s*\\(\\s*['\\\"]http://",
+        "axios\\s*\\(\\s*['\\\"]http://"
+      ],
+      "recommendation": "Always use HTTPS for external API calls. Use Next.js API routes for sensitive operations.",
+      "codeExample": {
+        "bad": "fetch('http://api.example.com/data');",
+        "good": "fetch('/api/data'); // Use Next.js API route"
+      }
+    },
+    {
+      "id": "csrf-protection-server-actions",
+      "title": "CSRF Protection for Server Actions",
+      "enabled": true,
+      "severity": "high",
+      "category": "security",
+      "recommendation": "Next.js Server Actions have built-in CSRF protection. Ensure you're using them correctly with 'use server' directive.",
+      "codeExample": {
+        "bad": "// Client-side POST without protection",
+        "good": "'use server'; export async function submitForm(formData) { /* protected */ }"
+      }
+    },
+    {
+      "id": "input-validation",
+      "title": "Input Validation in Server Actions",
+      "enabled": true,
+      "severity": "high",
+      "category": "security",
+      "recommendation": "Validate all inputs in Server Actions and API routes. Use Zod or similar validation libraries.",
+      "codeExample": {
+        "bad": "const data = formData.get('email');",
+        "good": "const schema = z.object({ email: z.string().email() }); const data = schema.parse(formData);"
+      }
+    },
+    {
+      "id": "dependency-vulnerabilities",
+      "title": "Check for Vulnerable Dependencies",
+      "enabled": true,
+      "severity": "high",
+      "category": "security",
+      "recommendation": "Regularly run npm audit and update vulnerable packages. Use dependabot for automated updates.",
+      "codeExample": {
+        "bad": "// Outdated vulnerable package version",
+        "good": "// Run: npm update && npm audit fix"
+      }
+    },
+    {
+      "id": "secure-headers",
+      "title": "HTTP Security Headers",
+      "enabled": true,
+      "severity": "high",
+      "category": "security",
+      "recommendation": "Configure security headers in next.config.js: CSP, X-Frame-Options, X-Content-Type-Options, Strict-Transport-Security.",
+      "codeExample": {
+        "bad": "// No security headers in next.config.js",
+        "good": "// next.config.js: async headers() { return [{ source: '/:path*', headers: [...securityHeaders] }] }"
+      }
+    },
+    {
+      "id": "authentication-checks",
+      "title": "Authentication & Authorization",
+      "enabled": true,
+      "severity": "critical",
+      "category": "security",
+      "recommendation": "Verify authentication in Server Components, Server Actions, and API routes. Use middleware for route protection.",
+      "codeExample": {
+        "bad": "export default async function Page() { return <SecretData />; }",
+        "good": "export default async function Page() { const session = await getSession(); if (!session) redirect('/login'); }"
+      }
+    },
+    {
+      "id": "middleware-security",
+      "title": "Secure Middleware Configuration",
+      "enabled": true,
+      "severity": "high",
+      "category": "security",
+      "recommendation": "Use Next.js middleware for authentication checks and security headers. Ensure proper matcher configuration.",
+      "codeExample": {
+        "bad": "// No authentication middleware",
+        "good": "// middleware.ts: export function middleware(request) { const token = request.cookies.get('token'); if (!token) return NextResponse.redirect('/login'); }"
+      }
+    }
+  ]
+}
