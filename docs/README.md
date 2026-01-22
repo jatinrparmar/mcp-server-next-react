@@ -4,8 +4,12 @@ Welcome to the React & Next.js Dev Assistant MCP Server documentation!
 
 ## 📚 Documentation Structure
 
+### 🎯 For Developers (Simplified Config System)
+- **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - One-page cheat sheet for modifying rules ⭐ **START HERE**
+- **[DEVELOPER_CONFIG_GUIDE.md](DEVELOPER_CONFIG_GUIDE.md)** - Complete guide to modifying rules and configs
+  
 ### Getting Started
-- **[HOW_TO_USE.md](HOW_TO_USE.md)** - Complete guide to install, configure, and use the MCP server ⭐ **START HERE**
+- **[HOW_TO_USE.md](HOW_TO_USE.md)** - Complete guide to install, configure, and use the MCP server
 - **[COPILOT_SETUP.md](COPILOT_SETUP.md)** - GitHub Copilot and AI assistant configuration
 - **[LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md)** - Local development and testing guide
 
@@ -16,18 +20,19 @@ Welcome to the React & Next.js Dev Assistant MCP Server documentation!
 
 ### Reference Guides
 - **[SECURITY_RULES_GUIDE.md](SECURITY_RULES_GUIDE.md)** - Security rules and OWASP mappings
-- **[CUSTOM_RULES_GUIDE.md](CUSTOM_RULES_GUIDE.md)** - How to create and customize rules
 
 ### Configuration & Agents
-- **[CUSTOM_AGENT_GUIDE.md](CUSTOM_AGENT_GUIDE.md)** - Configure a custom VS Code agent with MCP server ⭐ **STEP-BY-STEP**
+- **[CUSTOM_AGENT_GUIDE.md](CUSTOM_AGENT_GUIDE.md)** - Configure a custom VS Code agent with MCP server
 - **[../AGENT.md](../AGENT.md)** - Agent behavior instructions (attach to custom agent)
-
-### Advanced
-- **[CUSTOM_RULES_GUIDE.md](CUSTOM_RULES_GUIDE.md)** - Create and customize your own rules
 
 ---
 
 ## Quick Links by Use Case
+
+### 🎯 Developer: "How do I modify or add rules?"
+→ **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** (One-pager)  
+→ **[DEVELOPER_CONFIG_GUIDE.md](DEVELOPER_CONFIG_GUIDE.md)** (Complete guide)  
+**The Flow:** Edit `src/config/` → Run `npm run generate:rules` → Done!
 
 ### "I want to use this with GitHub Copilot"
 → [HOW_TO_USE.md#using-with-github-copilot](HOW_TO_USE.md#using-with-github-copilot)
@@ -47,9 +52,6 @@ Welcome to the React & Next.js Dev Assistant MCP Server documentation!
 ### "How do I customize security rules?"
 → [SECURITY_RULES_GUIDE.md](SECURITY_RULES_GUIDE.md)
 
-### "I want to add my own rules"
-→ [CUSTOM_RULES_GUIDE.md](CUSTOM_RULES_GUIDE.md)
-
 ### "I want to configure a custom agent in VS Code"
 → [CUSTOM_AGENT_GUIDE.md](CUSTOM_AGENT_GUIDE.md) **← DETAILED STEP-BY-STEP GUIDE**
 
@@ -59,6 +61,39 @@ Welcome to the React & Next.js Dev Assistant MCP Server documentation!
 ---
 
 ## Documentation Overview
+
+### 🆕 Simplified Configuration System
+
+This system makes it **dead simple** for developers to modify rules:
+
+```
+┌─────────────────────────────────────┐
+│  DEVELOPER WORKFLOW                 │
+├─────────────────────────────────────┤
+│ 1. Edit src/config/*.json           │
+│ 2. Run: npm run generate:rules      │
+│ 3. Rules auto-update ✅             │
+│                                     │
+│ Never edit src/rules/ directly!     │
+└─────────────────────────────────────┘
+```
+
+**Key Files:**
+- `src/config/simplified-security-rules.json` - Edit this
+- `src/config/simplified-best-practices-rules.json` - Edit this
+- `src/config/simplified-accessibility-rules.json` - Edit this
+- `src/rules/` - Auto-generated (don't edit)
+
+**Available Commands:**
+```bash
+npm run generate:rules   # Generate rules from config
+npm run lint:config      # Validate config syntax
+npm run test:rules       # Test generated rules
+```
+
+📖 **Learn More:** [DEVELOPER_CONFIG_GUIDE.md](DEVELOPER_CONFIG_GUIDE.md)
+
+---
 
 ### Core Concepts
 

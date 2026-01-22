@@ -1,0 +1,254 @@
+{
+  "meta": {
+    "framework": "React + Next.js",
+    "version": "2025.1",
+    "type": "simplified-accessibility-config",
+    "description": "SIMPLIFIED ACCESSIBILITY RULES - Modify this file only. Rules are auto-generated to rules/ directory.",
+    "instructions": "Edit rules below, then run: npm run generate:rules"
+  },
+  "rules": [
+    {
+      "id": "wcag-alt-text",
+      "title": "WCAG: Alt Text for Images",
+      "enabled": true,
+      "severity": "high",
+      "category": "accessibility",
+      "patterns": [
+        "<img[^>]*>"
+      ],
+      "recommendation": "Every image must have meaningful alt text. Alt text should describe the image purpose, not 'image' or 'photo'.",
+      "codeExample": {
+        "bad": "<img src='photo.jpg' alt='photo' />",
+        "good": "<img src='photo.jpg' alt='User profile photo of Sarah Johnson' />"
+      }
+    },
+    {
+      "id": "wcag-keyboard-access",
+      "title": "WCAG: Keyboard Accessibility",
+      "enabled": true,
+      "severity": "high",
+      "category": "accessibility",
+      "recommendation": "All interactive elements must be accessible via keyboard. Use proper semantic HTML elements.",
+      "codeExample": {
+        "bad": "<div className='button' onClick={handleClick}>Submit</div>",
+        "good": "<button onClick={handleClick}>Submit</button>"
+      }
+    },
+    {
+      "id": "wcag-focus-visible",
+      "title": "WCAG: Focus Indicators",
+      "enabled": true,
+      "severity": "high",
+      "category": "accessibility",
+      "recommendation": "Interactive elements must have visible focus indicators. Don't remove outline without replacing it.",
+      "codeExample": {
+        "bad": "button { outline: none; } /* Removes focus indicator */",
+        "good": "button:focus-visible { outline: 2px solid #0066cc; }"
+      }
+    },
+    {
+      "id": "wcag-heading-hierarchy",
+      "title": "WCAG: Heading Hierarchy",
+      "enabled": true,
+      "severity": "medium",
+      "category": "accessibility",
+      "recommendation": "Use heading levels in proper order (h1, h2, h3...). Don't skip levels. Use only one h1 per page.",
+      "codeExample": {
+        "bad": "<h1>Title</h1><h3>Subtitle</h3> {/* Skipped h2 */}",
+        "good": "<h1>Title</h1><h2>Subtitle</h2><h3>Details</h3>"
+      }
+    },
+    {
+      "id": "wcag-form-labels",
+      "title": "WCAG: Form Labels",
+      "enabled": true,
+      "severity": "high",
+      "category": "accessibility",
+      "recommendation": "Every form input must have an associated label element.",
+      "codeExample": {
+        "bad": "<input type='email' placeholder='Email' />",
+        "good": "<label htmlFor='email'>Email</label><input id='email' type='email' />"
+      }
+    },
+    {
+      "id": "wcag-color-contrast",
+      "title": "WCAG: Color Contrast (AA)",
+      "enabled": true,
+      "severity": "high",
+      "category": "accessibility",
+      "recommendation": "Text must have minimum contrast ratio of 4.5:1 (normal text) or 3:1 (large text).",
+      "codeExample": {
+        "bad": "color: #999; background: #f5f5f5; /* Low contrast */",
+        "good": "color: #333; background: #ffffff; /* High contrast */"
+      }
+    },
+    {
+      "id": "wcag-color-not-only",
+      "title": "WCAG: Don't Use Color Alone",
+      "enabled": true,
+      "severity": "medium",
+      "category": "accessibility",
+      "recommendation": "Don't rely on color alone to convey information. Use text, icons, or patterns too.",
+      "codeExample": {
+        "bad": "// Red icon = error, Green icon = success (no labels)",
+        "good": "// Red icon + 'Error' text, Green icon + 'Success' text"
+      }
+    },
+    {
+      "id": "wcag-aria-labels",
+      "title": "WCAG: ARIA Labels",
+      "enabled": true,
+      "severity": "high",
+      "category": "accessibility",
+      "recommendation": "Use aria-label or aria-labelledby for elements without visible text.",
+      "codeExample": {
+        "bad": "<button><MagnifyingGlassIcon /></button> {/* No label */}",
+        "good": "<button aria-label='Search'><MagnifyingGlassIcon /></button>"
+      }
+    },
+    {
+      "id": "wcag-skip-link",
+      "title": "WCAG: Skip Navigation Link",
+      "enabled": true,
+      "severity": "medium",
+      "category": "accessibility",
+      "recommendation": "Provide a skip link to jump over repetitive content (like navigation).",
+      "codeExample": {
+        "bad": "// No way to skip to main content",
+        "good": "<a href='#main' className='skip-link'>Skip to main content</a>"
+      }
+    },
+    {
+      "id": "wcag-landmarks",
+      "title": "WCAG: Landmark Regions",
+      "enabled": true,
+      "severity": "medium",
+      "category": "accessibility",
+      "recommendation": "Use semantic HTML landmarks: main, nav, header, footer, aside, section.",
+      "codeExample": {
+        "bad": "<div id='header'> <div id='nav'> <div id='main'>",
+        "good": "<header> <nav> <main>"
+      }
+    },
+    {
+      "id": "wcag-form-errors",
+      "title": "WCAG: Form Error Messages",
+      "enabled": true,
+      "severity": "high",
+      "category": "accessibility",
+      "recommendation": "Provide clear, linked error messages that identify the problematic field.",
+      "codeExample": {
+        "bad": "// Just show red border",
+        "good": "// Red border + error message linked to input"
+      }
+    },
+    {
+      "id": "wcag-resize-text",
+      "title": "WCAG: Resizable Text",
+      "enabled": true,
+      "severity": "medium",
+      "category": "accessibility",
+      "recommendation": "Don't disable text resizing. Ensure layout works at 200% zoom.",
+      "codeExample": {
+        "bad": "html { font-size: 12px; user-select: none; }",
+        "good": "html { font-size: 16px; /* Allows browser zoom */ }"
+      }
+    },
+    {
+      "id": "wcag-link-purpose",
+      "title": "WCAG: Link Purpose",
+      "enabled": true,
+      "severity": "medium",
+      "category": "accessibility",
+      "recommendation": "Link text must describe its purpose. Avoid 'Click here' or 'More'.",
+      "codeExample": {
+        "bad": "<a href='/docs'>Click here</a>",
+        "good": "<a href='/docs'>Read documentation</a>"
+      }
+    },
+    {
+      "id": "wcag-form-autocomplete",
+      "title": "WCAG: Form Autocomplete",
+      "enabled": true,
+      "severity": "low",
+      "category": "accessibility",
+      "recommendation": "Use proper autocomplete attributes on form fields for accessibility and UX.",
+      "codeExample": {
+        "bad": "<input type='text' name='email' />",
+        "good": "<input type='email' name='email' autoComplete='email' />"
+      }
+    },
+    {
+      "id": "wcag-modal-focus",
+      "title": "WCAG: Modal Focus Management",
+      "enabled": true,
+      "severity": "high",
+      "category": "accessibility",
+      "recommendation": "When a modal opens, focus must move to it. Trap focus within modal. Return focus when closed.",
+      "codeExample": {
+        "bad": "// Modal opens but focus stays on background",
+        "good": "// useEffect(() => modalRef.focus()) on mount, trap focus inside"
+      }
+    },
+    {
+      "id": "wcag-video-captions",
+      "title": "WCAG: Video Captions",
+      "enabled": true,
+      "severity": "high",
+      "category": "accessibility",
+      "recommendation": "Provide captions for all video content. Provide transcripts for audio content.",
+      "codeExample": {
+        "bad": "<video src='tutorial.mp4' controls />",
+        "good": "<video src='tutorial.mp4' controls><track kind='captions' src='tutorial.vtt' /></video>"
+      }
+    },
+    {
+      "id": "wcag-motion",
+      "title": "WCAG: Reduce Motion",
+      "enabled": true,
+      "severity": "medium",
+      "category": "accessibility",
+      "recommendation": "Respect prefers-reduced-motion media query for users with vestibular disorders.",
+      "codeExample": {
+        "bad": "@keyframes slide { from { transform: translateX(-100%); } }",
+        "good": "@media (prefers-reduced-motion: reduce) { animation: none; }"
+      }
+    },
+    {
+      "id": "wcag-time-limits",
+      "title": "WCAG: No Time Limits",
+      "enabled": true,
+      "severity": "medium",
+      "category": "accessibility",
+      "recommendation": "Don't use time limits for user interactions. If necessary, allow users to extend them.",
+      "codeExample": {
+        "bad": "// Session expires after 5 minutes with no warning",
+        "good": "// Show warning with option to extend session"
+      }
+    },
+    {
+      "id": "wcag-language",
+      "title": "WCAG: Page Language",
+      "enabled": true,
+      "severity": "medium",
+      "category": "accessibility",
+      "recommendation": "Specify page language in HTML. Mark content in other languages.",
+      "codeExample": {
+        "bad": "<html>",
+        "good": "<html lang='en'>"
+      }
+    },
+    {
+      "id": "wcag-error-suggestions",
+      "title": "WCAG: Error Prevention & Recovery",
+      "enabled": true,
+      "severity": "high",
+      "category": "accessibility",
+      "recommendation": "Provide error prevention (confirmation for important actions) and recovery methods.",
+      "codeExample": {
+        "bad": "// Click delete button = immediate deletion",
+        "good": "// Show confirmation dialog before deleting"
+      }
+    }
+  ]
+}

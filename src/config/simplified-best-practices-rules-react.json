@@ -1,0 +1,298 @@
+{
+  "meta": {
+    "framework": "React",
+    "version": "2025.1",
+    "type": "simplified-best-practices-config",
+    "description": "SIMPLIFIED BEST PRACTICES - Modify this file only. Rules are auto-generated to rules/ directory.",
+    "instructions": "Edit rules below, then run: npm run generate:rules"
+  },
+  "rules": [
+    {
+      "id": "meaningful-names",
+      "title": "Use Meaningful Variable Names",
+      "enabled": true,
+      "severity": "low",
+      "category": "best-practices",
+      "recommendation": "Use descriptive names for variables, functions, and components. Avoid single letters (except i, j in loops).",
+      "codeExample": {
+        "bad": "const x = getData(); const a = x.filter(u => u.age > 18);",
+        "good": "const users = getData(); const adults = users.filter(user => user.age > 18);"
+      }
+    },
+    {
+      "id": "error-handling",
+      "title": "Proper Error Handling",
+      "enabled": true,
+      "severity": "high",
+      "category": "best-practices",
+      "recommendation": "Always catch and handle errors gracefully. Provide meaningful error messages to users.",
+      "codeExample": {
+        "bad": "const data = fetchData();",
+        "good": "try { const data = fetchData(); } catch (error) { console.error('Failed:', error); }"
+      }
+    },
+    {
+      "id": "component-composition",
+      "title": "Component Composition",
+      "enabled": true,
+      "severity": "medium",
+      "category": "best-practices",
+      "recommendation": "Break large components into smaller, reusable components. Avoid prop drilling.",
+      "codeExample": {
+        "bad": "// One huge component with 500 lines",
+        "good": "// Split into UserHeader, UserContent, UserFooter components"
+      }
+    },
+    {
+      "id": "const-vs-let",
+      "title": "Prefer const and let over var",
+      "enabled": true,
+      "severity": "low",
+      "category": "best-practices",
+      "patterns": [
+        "var\\s+\\w+\\s*="
+      ],
+      "recommendation": "Use const by default, let when needed, avoid var (which has function scope issues).",
+      "codeExample": {
+        "bad": "var count = 0;",
+        "good": "const count = 0; // or let if it changes"
+      }
+    },
+    {
+      "id": "avoid-prop-drilling",
+      "title": "Avoid Prop Drilling",
+      "enabled": true,
+      "severity": "medium",
+      "category": "best-practices",
+      "recommendation": "Use Context API or state management for deeply nested props. Don't pass props through many levels.",
+      "codeExample": {
+        "bad": "// Passing through 5 component levels just to reach one child",
+        "good": "// Use Context: <UserContext.Provider value={user}>"
+      }
+    },
+    {
+      "id": "testing-coverage",
+      "title": "Test Coverage",
+      "enabled": true,
+      "severity": "medium",
+      "category": "best-practices",
+      "recommendation": "Write tests for critical functions and components. Aim for at least 80% coverage.",
+      "codeExample": {
+        "bad": "// No tests written",
+        "good": "// Write unit and integration tests using Jest/Vitest"
+      }
+    },
+    {
+      "id": "documentation",
+      "title": "Code Documentation",
+      "enabled": true,
+      "severity": "low",
+      "category": "best-practices",
+      "recommendation": "Document complex functions, components, and modules. Use JSDoc comments.",
+      "codeExample": {
+        "bad": "function process(x, y) { return x + y; }",
+        "good": "/** Adds two numbers. @param {number} x @param {number} y @returns {number} */ function add(x, y) { return x + y; }"
+      }
+    },
+    {
+      "id": "avoid-deeply-nested",
+      "title": "Avoid Deep Nesting",
+      "enabled": true,
+      "severity": "low",
+      "category": "best-practices",
+      "recommendation": "Keep code nesting at 3 levels or less. Use early returns to reduce nesting.",
+      "codeExample": {
+        "bad": "if (condition1) { if (condition2) { if (condition3) { doSomething(); } } }",
+        "good": "if (!condition1) return; if (!condition2) return; doSomething();"
+      }
+    },
+    {
+      "id": "dry-principle",
+      "title": "Don't Repeat Yourself (DRY)",
+      "enabled": true,
+      "severity": "medium",
+      "category": "best-practices",
+      "recommendation": "Extract duplicate code into reusable functions or components.",
+      "codeExample": {
+        "bad": "// Same validation logic in 5 different places",
+        "good": "// Create a validateEmail utility function"
+      }
+    },
+    {
+      "id": "use-hooks",
+      "title": "Use React Hooks Properly",
+      "enabled": true,
+      "severity": "high",
+      "category": "best-practices",
+      "patterns": [
+        "componentDidMount",
+        "componentWillUnmount",
+        "this.state"
+      ],
+      "recommendation": "Use functional components with hooks instead of class components.",
+      "codeExample": {
+        "bad": "class MyComponent extends React.Component { componentDidMount() {} }",
+        "good": "function MyComponent() { useEffect(() => {}, []); }"
+      }
+    },
+    {
+      "id": "handle-loading-states",
+      "title": "Handle Loading and Error States",
+      "enabled": true,
+      "severity": "medium",
+      "category": "best-practices",
+      "recommendation": "Always handle loading, error, and empty states in your components.",
+      "codeExample": {
+        "bad": "// Just showing data without handling loading/error",
+        "good": "// Show spinner when loading, error message on failure, empty state if no data"
+      }
+    },
+    {
+      "id": "performance-memo",
+      "title": "Use React.memo for Performance",
+      "enabled": true,
+      "severity": "low",
+      "category": "performance",
+      "recommendation": "Wrap expensive components with React.memo to prevent unnecessary re-renders.",
+      "codeExample": {
+        "bad": "function UserCard(props) { return <div>{props.name}</div>; }",
+        "good": "const UserCard = React.memo(function UserCard(props) { return <div>{props.name}</div>; });"
+      }
+    },
+    {
+      "id": "code-splitting",
+      "title": "Code Splitting",
+      "enabled": true,
+      "severity": "medium",
+      "category": "performance",
+      "recommendation": "Use dynamic imports for large features to reduce initial bundle size.",
+      "codeExample": {
+        "bad": "import HeavyFeature from './HeavyFeature';",
+        "good": "const HeavyFeature = lazy(() => import('./HeavyFeature'));"
+      }
+    },
+    {
+      "id": "lazy-loading-images",
+      "title": "Lazy Load Images",
+      "enabled": true,
+      "severity": "medium",
+      "category": "performance",
+      "recommendation": "Use lazy loading for images below the fold. Use responsive images.",
+      "codeExample": {
+        "bad": "<img src='large-image.jpg' />",
+        "good": "<Image src='large-image.jpg' loading='lazy' />"
+      }
+    },
+    {
+      "id": "use-next-image",
+      "title": "Use Next.js Image Component",
+      "enabled": true,
+      "severity": "medium",
+      "category": "performance",
+      "recommendation": "Use next/image instead of <img> for automatic optimization.",
+      "codeExample": {
+        "bad": "<img src='photo.jpg' />",
+        "good": "import Image from 'next/image'; <Image src='photo.jpg' alt='...' />"
+      }
+    },
+    {
+      "id": "bundle-analysis",
+      "title": "Monitor Bundle Size",
+      "enabled": true,
+      "severity": "low",
+      "category": "performance",
+      "recommendation": "Regularly check bundle size. Keep it under 100KB for initial load.",
+      "codeExample": {
+        "bad": "// No bundle size monitoring",
+        "good": "// Run: npm run build:analyze"
+      }
+    },
+    {
+      "id": "accessibility-alt-text",
+      "title": "Add Alt Text to Images",
+      "enabled": true,
+      "severity": "high",
+      "category": "accessibility",
+      "patterns": [
+        "<img[^>]*(?<!alt)[^>]*>"
+      ],
+      "recommendation": "Every image must have meaningful alt text for screen readers.",
+      "codeExample": {
+        "bad": "<img src='hero.jpg' />",
+        "good": "<img src='hero.jpg' alt='Team celebrating successful project launch' />"
+      }
+    },
+    {
+      "id": "keyboard-navigation",
+      "title": "Keyboard Navigation",
+      "enabled": true,
+      "severity": "high",
+      "category": "accessibility",
+      "recommendation": "Ensure all interactive elements are accessible via keyboard (Tab, Enter, Space).",
+      "codeExample": {
+        "bad": "<div onClick={handleClick}>Click me</div>",
+        "good": "<button onClick={handleClick}>Click me</button> // Has built-in keyboard support"
+      }
+    },
+    {
+      "id": "semantic-html",
+      "title": "Use Semantic HTML",
+      "enabled": true,
+      "severity": "medium",
+      "category": "accessibility",
+      "recommendation": "Use semantic HTML tags (button, nav, main, article) instead of generic divs.",
+      "codeExample": {
+        "bad": "<div onClick={...}>Click</div>",
+        "good": "<button onClick={...}>Click</button>"
+      }
+    },
+    {
+      "id": "aria-labels",
+      "title": "ARIA Labels for Complex Components",
+      "enabled": true,
+      "severity": "medium",
+      "category": "accessibility",
+      "recommendation": "Use aria-label, aria-labelledby for non-standard components.",
+      "codeExample": {
+        "bad": "<div className='icon-button' onClick={...} />",
+        "good": "<button aria-label='Close menu' onClick={...} />"
+      }
+    },
+    {
+      "id": "color-contrast",
+      "title": "Color Contrast",
+      "enabled": true,
+      "severity": "medium",
+      "category": "accessibility",
+      "recommendation": "Ensure text has sufficient contrast ratio (at least 4.5:1 for normal text).",
+      "codeExample": {
+        "bad": "// Light gray text on white background",
+        "good": "// Dark text on light background or light text on dark background"
+      }
+    },
+    {
+      "id": "meta-tags",
+      "title": "Meta Tags for SEO",
+      "enabled": true,
+      "severity": "low",
+      "category": "seo",
+      "recommendation": "Add meaningful title, description, and OpenGraph tags for better SEO.",
+      "codeExample": {
+        "bad": "<head><title>My Site</title></head>",
+        "good": "<head><title>My Site - Great Products</title><meta name='description' content='...' /></head>"
+      }
+    },
+    {
+      "id": "structured-data",
+      "title": "Structured Data",
+      "enabled": true,
+      "severity": "low",
+      "category": "seo",
+      "recommendation": "Use JSON-LD for structured data to help search engines understand content.",
+      "codeExample": {
+        "bad": "// No structured data",
+        "good": "// Add schema.org JSON-LD in Head"
+      }
+    }
+  ]
+}
