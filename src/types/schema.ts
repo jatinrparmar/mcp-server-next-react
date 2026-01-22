@@ -239,3 +239,11 @@ export interface AccessibilityConfig {
   };
   accessibilityRules: AccessibilityRule[];
 }
+
+export type McpUsage = {
+  input_tokens: number
+  output_tokens: number
+  total_tokens: number
+  premium_hits_used: number
+  cost_tier: 'free' | 'standard' | 'high'
+}
