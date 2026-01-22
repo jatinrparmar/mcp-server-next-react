@@ -14,8 +14,8 @@
   "bestPracticeRules": [
     {
       "id": "meaningful-names",
-      "title": "Use Meaningful Variable Names",
-      "intent": "best-practices rule: Use descriptive names for variables, functions, and components. Avoid single letters (except i, j in loops).",
+      "title": "Use Meaningful Names",
+      "intent": "best-practices rule: Use descriptive names for variables, functions, and components. Avoid single letters unless in tight loop counters.",
       "scope": "project",
       "severity": "low",
       "enabled": true,
@@ -25,7 +25,7 @@
           "package.json"
         ]
       },
-      "recommendation": "Use descriptive names for variables, functions, and components. Avoid single letters (except i, j in loops).",
+      "recommendation": "Use descriptive names for variables, functions, and components. Avoid single letters unless in tight loop counters.",
       "codeExample": {
         "bad": "const x = getData(); const a = x.filter(u => u.age > 18);",
         "good": "const users = getData(); const adults = users.filter(user => user.age > 18);"
@@ -34,8 +34,8 @@
       "falsePositives": "high",
       "performanceImpact": "low",
       "easeOfRemediation": "high",
-      "detectionExplanation": "Detects use meaningful variable names patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Use descriptive names for variables, functions, and components. Avoid single letters (except i, j in loops).",
+      "detectionExplanation": "Detects use meaningful names patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Use descriptive names for variables, functions, and components. Avoid single letters unless in tight loop counters.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -44,8 +44,8 @@
     },
     {
       "id": "error-handling",
-      "title": "Proper Error Handling",
-      "intent": "best-practices rule: Always catch and handle errors gracefully. Provide meaningful error messages to users.",
+      "title": "Handle Errors Gracefully",
+      "intent": "best-practices rule: Catch async errors, show user-friendly messages, and avoid leaking stack traces in UI.",
       "scope": "project",
       "severity": "high",
       "enabled": true,
@@ -55,17 +55,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Always catch and handle errors gracefully. Provide meaningful error messages to users.",
+      "recommendation": "Catch async errors, show user-friendly messages, and avoid leaking stack traces in UI.",
       "codeExample": {
-        "bad": "const data = fetchData();",
-        "good": "try { const data = fetchData(); } catch (error) { console.error('Failed:', error); }"
+        "bad": "const data = await fetchData();",
+        "good": "try { const data = await fetchData(); } catch (error) { setError('Unable to load data'); reportError(error); }"
       },
       "confidence": "high",
       "falsePositives": "low",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects proper error handling patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Always catch and handle errors gracefully. Provide meaningful error messages to users.",
+      "detectionExplanation": "Detects handle errors gracefully patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Catch async errors, show user-friendly messages, and avoid leaking stack traces in UI.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -74,8 +74,8 @@
     },
     {
       "id": "component-composition",
-      "title": "Component Composition",
-      "intent": "best-practices rule: Break large components into smaller, reusable components. Avoid prop drilling.",
+      "title": "Compose Small Components",
+      "intent": "best-practices rule: Split large components into focused, reusable pieces. Prefer composition over deep prop drilling.",
       "scope": "project",
       "severity": "medium",
       "enabled": true,
@@ -85,17 +85,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Break large components into smaller, reusable components. Avoid prop drilling.",
+      "recommendation": "Split large components into focused, reusable pieces. Prefer composition over deep prop drilling.",
       "codeExample": {
-        "bad": "// One huge component with 500 lines",
-        "good": "// Split into UserHeader, UserContent, UserFooter components"
+        "bad": "// One 500-line component handling layout, data, and UI",
+        "good": "// Compose with <UserHeader />, <UserContent />, <UserFooter />"
       },
       "confidence": "medium",
       "falsePositives": "medium",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects component composition patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Break large components into smaller, reusable components. Avoid prop drilling.",
+      "detectionExplanation": "Detects compose small components patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Split large components into focused, reusable pieces. Prefer composition over deep prop drilling.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -104,8 +104,8 @@
     },
     {
       "id": "const-vs-let",
-      "title": "Prefer const and let over var",
-      "intent": "best-practices rule: Use const by default, let when needed, avoid var (which has function scope issues).",
+      "title": "Prefer const/let over var",
+      "intent": "best-practices rule: Use const by default, let when reassignment is required. Avoid var due to function scope and hoisting pitfalls.",
       "scope": "code",
       "severity": "low",
       "enabled": true,
@@ -115,7 +115,7 @@
           "var\\s+\\w+\\s*="
         ]
       },
-      "recommendation": "Use const by default, let when needed, avoid var (which has function scope issues).",
+      "recommendation": "Use const by default, let when reassignment is required. Avoid var due to function scope and hoisting pitfalls.",
       "codeExample": {
         "bad": "var count = 0;",
         "good": "const count = 0; // or let if it changes"
@@ -124,8 +124,8 @@
       "falsePositives": "high",
       "performanceImpact": "low",
       "easeOfRemediation": "high",
-      "detectionExplanation": "Detects prefer const and let over var patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Use const by default, let when needed, avoid var (which has function scope issues).",
+      "detectionExplanation": "Detects prefer const/let over var patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Use const by default, let when reassignment is required. Avoid var due to function scope and hoisting pitfalls.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -135,7 +135,7 @@
     {
       "id": "avoid-prop-drilling",
       "title": "Avoid Prop Drilling",
-      "intent": "best-practices rule: Use Context API or state management for deeply nested props. Don't pass props through many levels.",
+      "intent": "best-practices rule: Use Context or state libraries when props must cross many levels. Pass only what each component needs.",
       "scope": "project",
       "severity": "medium",
       "enabled": true,
@@ -145,17 +145,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Use Context API or state management for deeply nested props. Don't pass props through many levels.",
+      "recommendation": "Use Context or state libraries when props must cross many levels. Pass only what each component needs.",
       "codeExample": {
-        "bad": "// Passing through 5 component levels just to reach one child",
-        "good": "// Use Context: <UserContext.Provider value={user}>"
+        "bad": "<App user={user} onThemeChange={setTheme} locale={locale} ...>",
+        "good": "<UserProvider value={user}><ThemeProvider value={theme}>...</ThemeProvider></UserProvider>"
       },
       "confidence": "medium",
       "falsePositives": "medium",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
       "detectionExplanation": "Detects avoid prop drilling patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Use Context API or state management for deeply nested props. Don't pass props through many levels.",
+      "remediationExplanation": "Fix this by: Use Context or state libraries when props must cross many levels. Pass only what each component needs.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -164,8 +164,8 @@
     },
     {
       "id": "testing-coverage",
-      "title": "Test Coverage",
-      "intent": "best-practices rule: Write tests for critical functions and components. Aim for at least 80% coverage.",
+      "title": "Test Critical Paths",
+      "intent": "best-practices rule: Write tests for core flows, reducers, hooks, and components. Target at least 80% coverage on critical areas.",
       "scope": "project",
       "severity": "medium",
       "enabled": true,
@@ -175,17 +175,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Write tests for critical functions and components. Aim for at least 80% coverage.",
+      "recommendation": "Write tests for core flows, reducers, hooks, and components. Target at least 80% coverage on critical areas.",
       "codeExample": {
-        "bad": "// No tests written",
-        "good": "// Write unit and integration tests using Jest/Vitest"
+        "bad": "// No tests",
+        "good": "// Vitest/Jest tests for reducers, hooks, and page flows"
       },
       "confidence": "medium",
       "falsePositives": "medium",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects test coverage patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Write tests for critical functions and components. Aim for at least 80% coverage.",
+      "detectionExplanation": "Detects test critical paths patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Write tests for core flows, reducers, hooks, and components. Target at least 80% coverage on critical areas.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -194,8 +194,8 @@
     },
     {
       "id": "documentation",
-      "title": "Code Documentation",
-      "intent": "best-practices rule: Document complex functions, components, and modules. Use JSDoc comments.",
+      "title": "Document Intent",
+      "intent": "best-practices rule: Add short comments/JSDoc for complex logic, public APIs, and tricky decisions. Keep docs close to code.",
       "scope": "project",
       "severity": "low",
       "enabled": true,
@@ -205,17 +205,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Document complex functions, components, and modules. Use JSDoc comments.",
+      "recommendation": "Add short comments/JSDoc for complex logic, public APIs, and tricky decisions. Keep docs close to code.",
       "codeExample": {
         "bad": "function process(x, y) { return x + y; }",
-        "good": "/** Adds two numbers. @param {number} x @param {number} y @returns {number} */ function add(x, y) { return x + y; }"
+        "good": "/** Adds tax to subtotal. */ function addTax(subtotal, rate) { return subtotal * (1 + rate); }"
       },
       "confidence": "medium",
       "falsePositives": "high",
       "performanceImpact": "low",
       "easeOfRemediation": "high",
-      "detectionExplanation": "Detects code documentation patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Document complex functions, components, and modules. Use JSDoc comments.",
+      "detectionExplanation": "Detects document intent patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Add short comments/JSDoc for complex logic, public APIs, and tricky decisions. Keep docs close to code.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -224,8 +224,8 @@
     },
     {
       "id": "avoid-deeply-nested",
-      "title": "Avoid Deep Nesting",
-      "intent": "best-practices rule: Keep code nesting at 3 levels or less. Use early returns to reduce nesting.",
+      "title": "Limit Nesting",
+      "intent": "best-practices rule: Keep branching shallow (≤3 levels). Use early returns and helper functions to reduce indentation.",
       "scope": "project",
       "severity": "low",
       "enabled": true,
@@ -235,17 +235,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Keep code nesting at 3 levels or less. Use early returns to reduce nesting.",
+      "recommendation": "Keep branching shallow (≤3 levels). Use early returns and helper functions to reduce indentation.",
       "codeExample": {
-        "bad": "if (condition1) { if (condition2) { if (condition3) { doSomething(); } } }",
-        "good": "if (!condition1) return; if (!condition2) return; doSomething();"
+        "bad": "if (a) { if (b) { if (c) { doThing(); } } }",
+        "good": "if (!a || !b || !c) return; doThing();"
       },
       "confidence": "medium",
       "falsePositives": "high",
       "performanceImpact": "low",
       "easeOfRemediation": "high",
-      "detectionExplanation": "Detects avoid deep nesting patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Keep code nesting at 3 levels or less. Use early returns to reduce nesting.",
+      "detectionExplanation": "Detects limit nesting patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Keep branching shallow (≤3 levels). Use early returns and helper functions to reduce indentation.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -254,8 +254,8 @@
     },
     {
       "id": "dry-principle",
-      "title": "Don't Repeat Yourself (DRY)",
-      "intent": "best-practices rule: Extract duplicate code into reusable functions or components.",
+      "title": "Avoid Duplication",
+      "intent": "best-practices rule: Extract repeated UI and logic into components or utilities. Share validation, formatting, and fetch helpers.",
       "scope": "project",
       "severity": "medium",
       "enabled": true,
@@ -265,17 +265,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Extract duplicate code into reusable functions or components.",
+      "recommendation": "Extract repeated UI and logic into components or utilities. Share validation, formatting, and fetch helpers.",
       "codeExample": {
-        "bad": "// Same validation logic in 5 different places",
-        "good": "// Create a validateEmail utility function"
+        "bad": "// Same email validation in multiple forms",
+        "good": "// reuse validateEmail() helper"
       },
       "confidence": "medium",
       "falsePositives": "medium",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects don't repeat yourself (dry) patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Extract duplicate code into reusable functions or components.",
+      "detectionExplanation": "Detects avoid duplication patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Extract repeated UI and logic into components or utilities. Share validation, formatting, and fetch helpers.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -283,9 +283,9 @@
       "examplesOfExploits": []
     },
     {
-      "id": "use-hooks",
-      "title": "Use React Hooks Properly",
-      "intent": "best-practices rule: Use functional components with hooks instead of class components.",
+      "id": "modern-hooks",
+      "title": "Prefer Functional Components with Hooks",
+      "intent": "best-practices rule: Use functional components and modern hooks (useEffect/useMemo/useCallback/useReducer). Avoid legacy lifecycle methods and class state.",
       "scope": "code",
       "severity": "high",
       "enabled": true,
@@ -297,17 +297,47 @@
           "this.state"
         ]
       },
-      "recommendation": "Use functional components with hooks instead of class components.",
+      "recommendation": "Use functional components and modern hooks (useEffect/useMemo/useCallback/useReducer). Avoid legacy lifecycle methods and class state.",
       "codeExample": {
         "bad": "class MyComponent extends React.Component { componentDidMount() {} }",
-        "good": "function MyComponent() { useEffect(() => {}, []); }"
+        "good": "function MyComponent() { useEffect(() => {/*...*/}, []); }"
       },
       "confidence": "high",
       "falsePositives": "low",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects use react hooks properly patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Use functional components with hooks instead of class components.",
+      "detectionExplanation": "Detects prefer functional components with hooks patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Use functional components and modern hooks (useEffect/useMemo/useCallback/useReducer). Avoid legacy lifecycle methods and class state.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "avoid-use-effect-data-fetching",
+      "title": "Avoid useEffect for Data Fetching",
+      "intent": "best-practices rule: Prefer data libraries (SWR/React Query) or loader patterns. Avoid fire-and-forget fetches in useEffect without abort/controllers.",
+      "scope": "project",
+      "severity": "high",
+      "enabled": true,
+      "category": "best-practices",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "Prefer data libraries (SWR/React Query) or loader patterns. Avoid fire-and-forget fetches in useEffect without abort/controllers.",
+      "codeExample": {
+        "bad": "useEffect(() => { fetch('/api/users').then(setUsers); }, []);",
+        "good": "const { data: users } = useSWR('/api/users', fetcher);"
+      },
+      "confidence": "high",
+      "falsePositives": "low",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects avoid useeffect for data fetching patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Prefer data libraries (SWR/React Query) or loader patterns. Avoid fire-and-forget fetches in useEffect without abort/controllers.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -317,7 +347,7 @@
     {
       "id": "handle-loading-states",
       "title": "Handle Loading and Error States",
-      "intent": "best-practices rule: Always handle loading, error, and empty states in your components.",
+      "intent": "best-practices rule: Always show loading/empty/error UI. Disable submit buttons while pending and surface actionable errors.",
       "scope": "project",
       "severity": "medium",
       "enabled": true,
@@ -327,17 +357,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Always handle loading, error, and empty states in your components.",
+      "recommendation": "Always show loading/empty/error UI. Disable submit buttons while pending and surface actionable errors.",
       "codeExample": {
-        "bad": "// Just showing data without handling loading/error",
-        "good": "// Show spinner when loading, error message on failure, empty state if no data"
+        "bad": "{data && <List data={data} />} // No loading/error handling",
+        "good": "if (error) return <ErrorBanner />; if (!data) return <Spinner />; return <List data={data} />;"
       },
       "confidence": "medium",
       "falsePositives": "medium",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
       "detectionExplanation": "Detects handle loading and error states patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Always handle loading, error, and empty states in your components.",
+      "remediationExplanation": "Fix this by: Always show loading/empty/error UI. Disable submit buttons while pending and surface actionable errors.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -346,8 +376,8 @@
     },
     {
       "id": "performance-memo",
-      "title": "Use React.memo for Performance",
-      "intent": "performance rule: Wrap expensive components with React.memo to prevent unnecessary re-renders.",
+      "title": "Memoize Expensive Components",
+      "intent": "performance rule: Use React.memo/useMemo/useCallback for expensive renders or stable callbacks. Measure before optimizing.",
       "scope": "project",
       "severity": "low",
       "enabled": true,
@@ -357,17 +387,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Wrap expensive components with React.memo to prevent unnecessary re-renders.",
+      "recommendation": "Use React.memo/useMemo/useCallback for expensive renders or stable callbacks. Measure before optimizing.",
       "codeExample": {
-        "bad": "function UserCard(props) { return <div>{props.name}</div>; }",
-        "good": "const UserCard = React.memo(function UserCard(props) { return <div>{props.name}</div>; });"
+        "bad": "const UserCard = ({ user }) => <div>{user.name}</div>;",
+        "good": "const UserCard = React.memo(({ user }) => <div>{user.name}</div>);"
       },
       "confidence": "medium",
       "falsePositives": "high",
       "performanceImpact": "low",
       "easeOfRemediation": "high",
-      "detectionExplanation": "Detects use react.memo for performance patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Wrap expensive components with React.memo to prevent unnecessary re-renders.",
+      "detectionExplanation": "Detects memoize expensive components patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Use React.memo/useMemo/useCallback for expensive renders or stable callbacks. Measure before optimizing.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -376,8 +406,8 @@
     },
     {
       "id": "code-splitting",
-      "title": "Code Splitting",
-      "intent": "performance rule: Use dynamic imports for large features to reduce initial bundle size.",
+      "title": "Code Split Large Features",
+      "intent": "performance rule: Use React.lazy/dynamic imports for heavy, non-critical routes and admin panels to reduce initial bundle size.",
       "scope": "project",
       "severity": "medium",
       "enabled": true,
@@ -387,17 +417,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Use dynamic imports for large features to reduce initial bundle size.",
+      "recommendation": "Use React.lazy/dynamic imports for heavy, non-critical routes and admin panels to reduce initial bundle size.",
       "codeExample": {
         "bad": "import HeavyFeature from './HeavyFeature';",
-        "good": "const HeavyFeature = lazy(() => import('./HeavyFeature'));"
+        "good": "const HeavyFeature = React.lazy(() => import('./HeavyFeature'));"
       },
       "confidence": "medium",
       "falsePositives": "medium",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects code splitting patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Use dynamic imports for large features to reduce initial bundle size.",
+      "detectionExplanation": "Detects code split large features patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Use React.lazy/dynamic imports for heavy, non-critical routes and admin panels to reduce initial bundle size.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -406,8 +436,8 @@
     },
     {
       "id": "lazy-loading-images",
-      "title": "Lazy Load Images",
-      "intent": "performance rule: Use lazy loading for images below the fold. Use responsive images.",
+      "title": "Lazy Load Offscreen Images",
+      "intent": "performance rule: Lazy load imagery below the fold and provide intrinsic sizes to avoid layout shifts.",
       "scope": "project",
       "severity": "medium",
       "enabled": true,
@@ -417,47 +447,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Use lazy loading for images below the fold. Use responsive images.",
+      "recommendation": "Lazy load imagery below the fold and provide intrinsic sizes to avoid layout shifts.",
       "codeExample": {
-        "bad": "<img src='large-image.jpg' />",
-        "good": "<Image src='large-image.jpg' loading='lazy' />"
+        "bad": "<img src='hero-large.jpg' />",
+        "good": "<img src='hero-large.jpg' loading='lazy' width='1200' height='600' alt='...' />"
       },
       "confidence": "medium",
       "falsePositives": "medium",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects lazy load images patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Use lazy loading for images below the fold. Use responsive images.",
-      "references": [],
-      "relatedVulnerabilities": [],
-      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
-      "additionalNotes": "Keep dependencies updated and follow security best practices.",
-      "examplesOfExploits": []
-    },
-    {
-      "id": "use-next-image",
-      "title": "Use Next.js Image Component",
-      "intent": "performance rule: Use next/image instead of <img> for automatic optimization.",
-      "scope": "project",
-      "severity": "medium",
-      "enabled": true,
-      "category": "performance",
-      "detection": {
-        "fileGlobs": [
-          "package.json"
-        ]
-      },
-      "recommendation": "Use next/image instead of <img> for automatic optimization.",
-      "codeExample": {
-        "bad": "<img src='photo.jpg' />",
-        "good": "import Image from 'next/image'; <Image src='photo.jpg' alt='...' />"
-      },
-      "confidence": "medium",
-      "falsePositives": "medium",
-      "performanceImpact": "low",
-      "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects use next.js image component patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Use next/image instead of <img> for automatic optimization.",
+      "detectionExplanation": "Detects lazy load offscreen images patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Lazy load imagery below the fold and provide intrinsic sizes to avoid layout shifts.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -467,7 +467,7 @@
     {
       "id": "bundle-analysis",
       "title": "Monitor Bundle Size",
-      "intent": "performance rule: Regularly check bundle size. Keep it under 100KB for initial load.",
+      "intent": "performance rule: Track bundle size in CI. Keep initial JS lean; defer non-critical scripts.",
       "scope": "project",
       "severity": "low",
       "enabled": true,
@@ -477,77 +477,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Regularly check bundle size. Keep it under 100KB for initial load.",
+      "recommendation": "Track bundle size in CI. Keep initial JS lean; defer non-critical scripts.",
       "codeExample": {
-        "bad": "// No bundle size monitoring",
-        "good": "// Run: npm run build:analyze"
+        "bad": "// No size checks",
+        "good": "// Run bundle analyzer in CI and gate on size budgets"
       },
       "confidence": "medium",
       "falsePositives": "high",
       "performanceImpact": "low",
       "easeOfRemediation": "high",
       "detectionExplanation": "Detects monitor bundle size patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Regularly check bundle size. Keep it under 100KB for initial load.",
-      "references": [],
-      "relatedVulnerabilities": [],
-      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
-      "additionalNotes": "Keep dependencies updated and follow security best practices.",
-      "examplesOfExploits": []
-    },
-    {
-      "id": "meta-tags",
-      "title": "Meta Tags for SEO",
-      "intent": "seo rule: Add meaningful title, description, and OpenGraph tags for better SEO.",
-      "scope": "project",
-      "severity": "low",
-      "enabled": true,
-      "category": "seo",
-      "detection": {
-        "fileGlobs": [
-          "package.json"
-        ]
-      },
-      "recommendation": "Add meaningful title, description, and OpenGraph tags for better SEO.",
-      "codeExample": {
-        "bad": "<head><title>My Site</title></head>",
-        "good": "<head><title>My Site - Great Products</title><meta name='description' content='...' /></head>"
-      },
-      "confidence": "medium",
-      "falsePositives": "high",
-      "performanceImpact": "low",
-      "easeOfRemediation": "high",
-      "detectionExplanation": "Detects meta tags for seo patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Add meaningful title, description, and OpenGraph tags for better SEO.",
-      "references": [],
-      "relatedVulnerabilities": [],
-      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
-      "additionalNotes": "Keep dependencies updated and follow security best practices.",
-      "examplesOfExploits": []
-    },
-    {
-      "id": "structured-data",
-      "title": "Structured Data",
-      "intent": "seo rule: Use JSON-LD for structured data to help search engines understand content.",
-      "scope": "project",
-      "severity": "low",
-      "enabled": true,
-      "category": "seo",
-      "detection": {
-        "fileGlobs": [
-          "package.json"
-        ]
-      },
-      "recommendation": "Use JSON-LD for structured data to help search engines understand content.",
-      "codeExample": {
-        "bad": "// No structured data",
-        "good": "// Add schema.org JSON-LD in Head"
-      },
-      "confidence": "medium",
-      "falsePositives": "high",
-      "performanceImpact": "low",
-      "easeOfRemediation": "high",
-      "detectionExplanation": "Detects structured data patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Use JSON-LD for structured data to help search engines understand content.",
+      "remediationExplanation": "Fix this by: Track bundle size in CI. Keep initial JS lean; defer non-critical scripts.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",

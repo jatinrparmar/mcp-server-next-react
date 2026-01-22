@@ -14,8 +14,8 @@
   "bestPracticeRules": [
     {
       "id": "use-app-router",
-      "title": "Prefer App Router over Pages Router",
-      "intent": "best-practices rule: Use the new App Router (app/) for new projects. It supports React Server Components and improved data fetching.",
+      "title": "Prefer App Router",
+      "intent": "best-practices rule: Use the App Router (app/) for all new work. Reserve Pages Router only for legacy pages you haven't migrated yet.",
       "scope": "project",
       "severity": "medium",
       "enabled": true,
@@ -25,7 +25,7 @@
           "package.json"
         ]
       },
-      "recommendation": "Use the new App Router (app/) for new projects. It supports React Server Components and improved data fetching.",
+      "recommendation": "Use the App Router (app/) for all new work. Reserve Pages Router only for legacy pages you haven't migrated yet.",
       "codeExample": {
         "bad": "// pages/index.tsx with getServerSideProps",
         "good": "// app/page.tsx with Server Components"
@@ -34,8 +34,8 @@
       "falsePositives": "medium",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects prefer app router over pages router patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Use the new App Router (app/) for new projects. It supports React Server Components and improved data fetching.",
+      "detectionExplanation": "Detects prefer app router patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Use the App Router (app/) for all new work. Reserve Pages Router only for legacy pages you haven't migrated yet.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -44,8 +44,8 @@
     },
     {
       "id": "server-components-default",
-      "title": "Use Server Components by Default",
-      "intent": "best-practices rule: Make components Server Components by default. Only add 'use client' when you need interactivity, hooks, or browser APIs.",
+      "title": "Default to Server Components",
+      "intent": "best-practices rule: Make components Server Components by default. Add 'use client' only when you need interactivity, browser APIs, or client-only hooks.",
       "scope": "project",
       "severity": "high",
       "enabled": true,
@@ -55,7 +55,7 @@
           "package.json"
         ]
       },
-      "recommendation": "Make components Server Components by default. Only add 'use client' when you need interactivity, hooks, or browser APIs.",
+      "recommendation": "Make components Server Components by default. Add 'use client' only when you need interactivity, browser APIs, or client-only hooks.",
       "codeExample": {
         "bad": "'use client'; export default function Page() { return <div>Static content</div>; }",
         "good": "export default function Page() { return <div>Static content</div>; } // Server Component"
@@ -64,8 +64,38 @@
       "falsePositives": "low",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects use server components by default patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Make components Server Components by default. Only add 'use client' when you need interactivity, hooks, or browser APIs.",
+      "detectionExplanation": "Detects default to server components patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Make components Server Components by default. Add 'use client' only when you need interactivity, browser APIs, or client-only hooks.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "minimal-client-components",
+      "title": "Keep Client Components Minimal",
+      "intent": "performance rule: Limit 'use client' files to interactive islands. Push data fetching, heavy logic, and markup to Server Components to shrink client bundles.",
+      "scope": "project",
+      "severity": "high",
+      "enabled": true,
+      "category": "performance",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "Limit 'use client' files to interactive islands. Push data fetching, heavy logic, and markup to Server Components to shrink client bundles.",
+      "codeExample": {
+        "bad": "'use client'; // large page mixing fetch + UI",
+        "good": "// Server component fetches data; small client child handles just the interaction"
+      },
+      "confidence": "high",
+      "falsePositives": "low",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects keep client components minimal patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Limit 'use client' files to interactive islands. Push data fetching, heavy logic, and markup to Server Components to shrink client bundles.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -74,8 +104,8 @@
     },
     {
       "id": "use-server-actions",
-      "title": "Use Server Actions for Mutations",
-      "intent": "best-practices rule: Use Server Actions instead of API routes for form submissions and mutations. They're more efficient and type-safe.",
+      "title": "Prefer Server Actions for Mutations",
+      "intent": "best-practices rule: Use Server Actions for form submissions and mutations to keep logic on the server, reduce client JS, and simplify data consistency.",
       "scope": "project",
       "severity": "high",
       "enabled": true,
@@ -85,17 +115,47 @@
           "package.json"
         ]
       },
-      "recommendation": "Use Server Actions instead of API routes for form submissions and mutations. They're more efficient and type-safe.",
+      "recommendation": "Use Server Actions for form submissions and mutations to keep logic on the server, reduce client JS, and simplify data consistency.",
       "codeExample": {
-        "bad": "// POST to /api/submit with fetch",
-        "good": "'use server'; export async function submitForm(formData) { /* Server Action */ }"
+        "bad": "'use client'; const submit = async (data) => fetch('/api/submit', { method: 'POST', body: data });",
+        "good": "'use server'; export async function submit(data) { /* mutate on server */ } // <form action={submit}>...</form>"
       },
       "confidence": "high",
       "falsePositives": "low",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects use server actions for mutations patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Use Server Actions instead of API routes for form submissions and mutations. They're more efficient and type-safe.",
+      "detectionExplanation": "Detects prefer server actions for mutations patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Use Server Actions for form submissions and mutations to keep logic on the server, reduce client JS, and simplify data consistency.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "use-revalidate-tags",
+      "title": "Use Revalidation Tags and Paths",
+      "intent": "performance rule: Tag cached fetches and invalidate with revalidateTag/revalidatePath after mutations. Avoid stale data by wiring mutations to revalidation.",
+      "scope": "project",
+      "severity": "medium",
+      "enabled": true,
+      "category": "performance",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "Tag cached fetches and invalidate with revalidateTag/revalidatePath after mutations. Avoid stale data by wiring mutations to revalidation.",
+      "codeExample": {
+        "bad": "await fetch(api, { cache: 'force-cache' }); // no invalidation",
+        "good": "await fetch(api, { next: { tags: ['users'] } }); await revalidateTag('users');"
+      },
+      "confidence": "medium",
+      "falsePositives": "medium",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects use revalidation tags and paths patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Tag cached fetches and invalidate with revalidateTag/revalidatePath after mutations. Avoid stale data by wiring mutations to revalidation.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -104,8 +164,8 @@
     },
     {
       "id": "avoid-use-effect-data-fetching",
-      "title": "Avoid useEffect for Data Fetching",
-      "intent": "best-practices rule: Fetch data in Server Components instead of useEffect. Use Suspense for loading states.",
+      "title": "Don't Fetch in useEffect",
+      "intent": "best-practices rule: Fetch data in Server Components. For client needs, use Suspense with fetch caches or libraries like SWR/React Query instead of ad-hoc useEffect fetches.",
       "scope": "project",
       "severity": "high",
       "enabled": true,
@@ -115,17 +175,47 @@
           "package.json"
         ]
       },
-      "recommendation": "Fetch data in Server Components instead of useEffect. Use Suspense for loading states.",
+      "recommendation": "Fetch data in Server Components. For client needs, use Suspense with fetch caches or libraries like SWR/React Query instead of ad-hoc useEffect fetches.",
       "codeExample": {
-        "bad": "'use client'; useEffect(() => { fetchData(); }, []);",
-        "good": "// Server Component: const data = await fetchData();"
+        "bad": "'use client'; useEffect(() => { fetch('/api/data').then(setData); }, []);",
+        "good": "// Server Component: const data = await fetch(api, { cache: 'no-store' });"
       },
       "confidence": "high",
       "falsePositives": "low",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects avoid useeffect for data fetching patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Fetch data in Server Components instead of useEffect. Use Suspense for loading states.",
+      "detectionExplanation": "Detects don't fetch in useeffect patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Fetch data in Server Components. For client needs, use Suspense with fetch caches or libraries like SWR/React Query instead of ad-hoc useEffect fetches.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "cache-and-fetch-options",
+      "title": "Set Fetch Cache Intentionally",
+      "intent": "performance rule: Explicitly set cache/no-store/force-cache and next: { revalidate, tags } on fetch. Avoid implicit caching that causes stale data.",
+      "scope": "project",
+      "severity": "medium",
+      "enabled": true,
+      "category": "performance",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "Explicitly set cache/no-store/force-cache and next: { revalidate, tags } on fetch. Avoid implicit caching that causes stale data.",
+      "codeExample": {
+        "bad": "await fetch(api); // default cache depends on method",
+        "good": "await fetch(api, { cache: 'no-store' }); // or { next: { revalidate: 300, tags: ['posts'] } }"
+      },
+      "confidence": "medium",
+      "falsePositives": "medium",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects set fetch cache intentionally patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Explicitly set cache/no-store/force-cache and next: { revalidate, tags } on fetch. Avoid implicit caching that causes stale data.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -134,8 +224,8 @@
     },
     {
       "id": "use-next-image",
-      "title": "Use Next.js Image Component",
-      "intent": "performance rule: Always use next/image instead of <img> for automatic optimization, lazy loading, and responsive images.",
+      "title": "Use next/image",
+      "intent": "performance rule: Use next/image for built-in optimization, responsive sizing, and lazy loading. Provide width/height to avoid CLS.",
       "scope": "project",
       "severity": "high",
       "enabled": true,
@@ -145,17 +235,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Always use next/image instead of <img> for automatic optimization, lazy loading, and responsive images.",
+      "recommendation": "Use next/image for built-in optimization, responsive sizing, and lazy loading. Provide width/height to avoid CLS.",
       "codeExample": {
         "bad": "<img src='/photo.jpg' />",
-        "good": "import Image from 'next/image'; <Image src='/photo.jpg' width={500} height={300} alt='...' />"
+        "good": "import Image from 'next/image'; <Image src='/photo.jpg' width={800} height={600} alt='Team' />"
       },
       "confidence": "high",
       "falsePositives": "low",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects use next.js image component patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Always use next/image instead of <img> for automatic optimization, lazy loading, and responsive images.",
+      "detectionExplanation": "Detects use next/image patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Use next/image for built-in optimization, responsive sizing, and lazy loading. Provide width/height to avoid CLS.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -164,8 +254,8 @@
     },
     {
       "id": "use-next-link",
-      "title": "Use Next.js Link Component",
-      "intent": "performance rule: Use next/link for client-side navigation. It prefetches pages in the background for faster navigation.",
+      "title": "Use next/link for Nav",
+      "intent": "performance rule: Use next/link for client navigation with prefetch. Avoid plain anchors for internal links.",
       "scope": "project",
       "severity": "medium",
       "enabled": true,
@@ -175,7 +265,7 @@
           "package.json"
         ]
       },
-      "recommendation": "Use next/link for client-side navigation. It prefetches pages in the background for faster navigation.",
+      "recommendation": "Use next/link for client navigation with prefetch. Avoid plain anchors for internal links.",
       "codeExample": {
         "bad": "<a href='/about'>About</a>",
         "good": "import Link from 'next/link'; <Link href='/about'>About</Link>"
@@ -184,8 +274,8 @@
       "falsePositives": "medium",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects use next.js link component patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Use next/link for client-side navigation. It prefetches pages in the background for faster navigation.",
+      "detectionExplanation": "Detects use next/link for nav patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Use next/link for client navigation with prefetch. Avoid plain anchors for internal links.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -194,8 +284,8 @@
     },
     {
       "id": "dynamic-imports",
-      "title": "Use Dynamic Imports for Code Splitting",
-      "intent": "performance rule: Use dynamic imports with next/dynamic for components that aren't needed on initial render.",
+      "title": "Code Split Non-Critical UI",
+      "intent": "performance rule: Use next/dynamic for heavy widgets not needed on first paint (charts, editors, maps). Provide a lightweight loading fallback.",
       "scope": "project",
       "severity": "medium",
       "enabled": true,
@@ -205,17 +295,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Use dynamic imports with next/dynamic for components that aren't needed on initial render.",
+      "recommendation": "Use next/dynamic for heavy widgets not needed on first paint (charts, editors, maps). Provide a lightweight loading fallback.",
       "codeExample": {
-        "bad": "import HeavyComponent from './HeavyComponent';",
-        "good": "const HeavyComponent = dynamic(() => import('./HeavyComponent'));"
+        "bad": "import Heavy from './Heavy';",
+        "good": "const Heavy = dynamic(() => import('./Heavy'), { ssr: false, loading: () => <Spinner /> });"
       },
       "confidence": "medium",
       "falsePositives": "medium",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects use dynamic imports for code splitting patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Use dynamic imports with next/dynamic for components that aren't needed on initial render.",
+      "detectionExplanation": "Detects code split non-critical ui patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Use next/dynamic for heavy widgets not needed on first paint (charts, editors, maps). Provide a lightweight loading fallback.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -224,8 +314,8 @@
     },
     {
       "id": "metadata-api",
-      "title": "Use Metadata API for SEO",
-      "intent": "seo rule: Use the Metadata API (export metadata or generateMetadata) in App Router for SEO instead of Head component.",
+      "title": "Use Metadata API",
+      "intent": "seo rule: Use export const metadata or generateMetadata for titles, descriptions, Open Graph, and structured data per route segment.",
       "scope": "project",
       "severity": "high",
       "enabled": true,
@@ -235,7 +325,7 @@
           "package.json"
         ]
       },
-      "recommendation": "Use the Metadata API (export metadata or generateMetadata) in App Router for SEO instead of Head component.",
+      "recommendation": "Use export const metadata or generateMetadata for titles, descriptions, Open Graph, and structured data per route segment.",
       "codeExample": {
         "bad": "<Head><title>My Page</title></Head>",
         "good": "export const metadata = { title: 'My Page', description: '...' };"
@@ -244,8 +334,8 @@
       "falsePositives": "low",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects use metadata api for seo patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Use the Metadata API (export metadata or generateMetadata) in App Router for SEO instead of Head component.",
+      "detectionExplanation": "Detects use metadata api patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Use export const metadata or generateMetadata for titles, descriptions, Open Graph, and structured data per route segment.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -255,7 +345,7 @@
     {
       "id": "loading-ui",
       "title": "Provide Loading UI",
-      "intent": "best-practices rule: Create loading.tsx files for route segments to show loading states during navigation.",
+      "intent": "best-practices rule: Add loading.tsx per segment for skeletons/spinners. Pair with Suspense boundaries for streaming.",
       "scope": "project",
       "severity": "medium",
       "enabled": true,
@@ -265,17 +355,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Create loading.tsx files for route segments to show loading states during navigation.",
+      "recommendation": "Add loading.tsx per segment for skeletons/spinners. Pair with Suspense boundaries for streaming.",
       "codeExample": {
         "bad": "// No loading state",
-        "good": "// app/dashboard/loading.tsx: export default function Loading() { return <Spinner />; }"
+        "good": "// app/dashboard/loading.tsx -> export default function Loading() { return <Spinner />; }"
       },
       "confidence": "medium",
       "falsePositives": "medium",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
       "detectionExplanation": "Detects provide loading ui patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Create loading.tsx files for route segments to show loading states during navigation.",
+      "remediationExplanation": "Fix this by: Add loading.tsx per segment for skeletons/spinners. Pair with Suspense boundaries for streaming.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -284,8 +374,8 @@
     },
     {
       "id": "error-boundaries",
-      "title": "Use Error Boundaries",
-      "intent": "best-practices rule: Create error.tsx files to handle errors gracefully and provide recovery options.",
+      "title": "Segment Error Boundaries",
+      "intent": "best-practices rule: Add error.tsx per route segment to capture and recover from errors without taking down the entire app tree.",
       "scope": "project",
       "severity": "high",
       "enabled": true,
@@ -295,7 +385,7 @@
           "package.json"
         ]
       },
-      "recommendation": "Create error.tsx files to handle errors gracefully and provide recovery options.",
+      "recommendation": "Add error.tsx per route segment to capture and recover from errors without taking down the entire app tree.",
       "codeExample": {
         "bad": "// No error handling",
         "good": "// app/dashboard/error.tsx: 'use client'; export default function Error({ error, reset }) { /* ... */ }"
@@ -304,8 +394,8 @@
       "falsePositives": "low",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects use error boundaries patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Create error.tsx files to handle errors gracefully and provide recovery options.",
+      "detectionExplanation": "Detects segment error boundaries patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Add error.tsx per route segment to capture and recover from errors without taking down the entire app tree.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -314,8 +404,8 @@
     },
     {
       "id": "route-handlers",
-      "title": "Use Route Handlers for APIs",
-      "intent": "best-practices rule: Use Route Handlers (route.ts) in App Router instead of API routes in pages/api.",
+      "title": "Use Route Handlers",
+      "intent": "best-practices rule: Prefer app/api/* route handlers over pages/api. Co-locate API logic with the segment and leverage Server Actions where possible.",
       "scope": "project",
       "severity": "medium",
       "enabled": true,
@@ -325,17 +415,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Use Route Handlers (route.ts) in App Router instead of API routes in pages/api.",
+      "recommendation": "Prefer app/api/* route handlers over pages/api. Co-locate API logic with the segment and leverage Server Actions where possible.",
       "codeExample": {
         "bad": "// pages/api/users.ts",
-        "good": "// app/api/users/route.ts: export async function GET(request) { /* ... */ }"
+        "good": "// app/api/users/route.ts: export async function GET() { ... }"
       },
       "confidence": "medium",
       "falsePositives": "medium",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects use route handlers for apis patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Use Route Handlers (route.ts) in App Router instead of API routes in pages/api.",
+      "detectionExplanation": "Detects use route handlers patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Prefer app/api/* route handlers over pages/api. Co-locate API logic with the segment and leverage Server Actions where possible.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -345,7 +435,7 @@
     {
       "id": "streaming-suspense",
       "title": "Use Streaming with Suspense",
-      "intent": "performance rule: Wrap slow components in Suspense to stream content and show loading states.",
+      "intent": "performance rule: Stream slow sections behind Suspense to improve TTFB and interactivity. Provide meaningful fallbacks.",
       "scope": "project",
       "severity": "medium",
       "enabled": true,
@@ -355,17 +445,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Wrap slow components in Suspense to stream content and show loading states.",
+      "recommendation": "Stream slow sections behind Suspense to improve TTFB and interactivity. Provide meaningful fallbacks.",
       "codeExample": {
-        "bad": "const data = await slowFetch(); return <SlowComponent data={data} />;",
-        "good": "<Suspense fallback={<Loading />}><SlowComponent /></Suspense>"
+        "bad": "const data = await slowFetch(); return <Slow data={data} />;",
+        "good": "<Suspense fallback={<Loading />}><SlowSection /></Suspense>"
       },
       "confidence": "medium",
       "falsePositives": "medium",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
       "detectionExplanation": "Detects use streaming with suspense patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Wrap slow components in Suspense to stream content and show loading states.",
+      "remediationExplanation": "Fix this by: Stream slow sections behind Suspense to improve TTFB and interactivity. Provide meaningful fallbacks.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -374,8 +464,8 @@
     },
     {
       "id": "parallel-data-fetching",
-      "title": "Fetch Data in Parallel",
-      "intent": "performance rule: Use Promise.all() to fetch data in parallel instead of sequential awaits.",
+      "title": "Fetch in Parallel",
+      "intent": "performance rule: Use Promise.all or parallel awaits in Server Components to reduce latency. Avoid serial fetch waterfalls.",
       "scope": "project",
       "severity": "medium",
       "enabled": true,
@@ -385,7 +475,7 @@
           "package.json"
         ]
       },
-      "recommendation": "Use Promise.all() to fetch data in parallel instead of sequential awaits.",
+      "recommendation": "Use Promise.all or parallel awaits in Server Components to reduce latency. Avoid serial fetch waterfalls.",
       "codeExample": {
         "bad": "const users = await getUsers(); const posts = await getPosts();",
         "good": "const [users, posts] = await Promise.all([getUsers(), getPosts()]);"
@@ -394,8 +484,8 @@
       "falsePositives": "medium",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects fetch data in parallel patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Use Promise.all() to fetch data in parallel instead of sequential awaits.",
+      "detectionExplanation": "Detects fetch in parallel patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Use Promise.all or parallel awaits in Server Components to reduce latency. Avoid serial fetch waterfalls.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -404,8 +494,8 @@
     },
     {
       "id": "revalidate-data",
-      "title": "Configure Revalidation",
-      "intent": "performance rule: Set revalidate time for cached data or use on-demand revalidation with revalidatePath/revalidateTag.",
+      "title": "Set Revalidation Intentionally",
+      "intent": "performance rule: Choose revalidate per route or fetch. Use short windows for dynamic content; use 'force-cache' for stable assets; use 'no-store' for secrets.",
       "scope": "project",
       "severity": "medium",
       "enabled": true,
@@ -415,17 +505,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Set revalidate time for cached data or use on-demand revalidation with revalidatePath/revalidateTag.",
+      "recommendation": "Choose revalidate per route or fetch. Use short windows for dynamic content; use 'force-cache' for stable assets; use 'no-store' for secrets.",
       "codeExample": {
         "bad": "// No revalidation configured",
-        "good": "export const revalidate = 3600; // Revalidate every hour"
+        "good": "export const revalidate = 600; // 10 minutes\nawait fetch(api, { cache: 'no-store' }); // for sensitive data"
       },
       "confidence": "medium",
       "falsePositives": "medium",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects configure revalidation patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Set revalidate time for cached data or use on-demand revalidation with revalidatePath/revalidateTag.",
+      "detectionExplanation": "Detects set revalidation intentionally patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Choose revalidate per route or fetch. Use short windows for dynamic content; use 'force-cache' for stable assets; use 'no-store' for secrets.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -434,8 +524,8 @@
     },
     {
       "id": "font-optimization",
-      "title": "Use next/font for Font Optimization",
-      "intent": "performance rule: Use next/font to automatically optimize and self-host fonts, eliminating external network requests.",
+      "title": "Optimize Fonts with next/font",
+      "intent": "performance rule: Use next/font for local/self-hosted fonts, control subsets/weights, and avoid layout shifts with style injection.",
       "scope": "project",
       "severity": "medium",
       "enabled": true,
@@ -445,17 +535,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Use next/font to automatically optimize and self-host fonts, eliminating external network requests.",
+      "recommendation": "Use next/font for local/self-hosted fonts, control subsets/weights, and avoid layout shifts with style injection.",
       "codeExample": {
         "bad": "<link href='https://fonts.googleapis.com/...' />",
-        "good": "import { Inter } from 'next/font/google'; const inter = Inter({ subsets: ['latin'] });"
+        "good": "import { Inter } from 'next/font/google'; const inter = Inter({ subsets: ['latin'], display: 'swap' });"
       },
       "confidence": "medium",
       "falsePositives": "medium",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects use next/font for font optimization patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Use next/font to automatically optimize and self-host fonts, eliminating external network requests.",
+      "detectionExplanation": "Detects optimize fonts with next/font patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Use next/font for local/self-hosted fonts, control subsets/weights, and avoid layout shifts with style injection.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -464,8 +554,8 @@
     },
     {
       "id": "not-found-page",
-      "title": "Create Custom Not Found Pages",
-      "intent": "best-practices rule: Create not-found.tsx files to show custom 404 pages for route segments.",
+      "title": "Custom Not Found per Segment",
+      "intent": "best-practices rule: Add not-found.tsx where 404 UX matters (e.g., dashboard areas) to keep navigation consistent.",
       "scope": "project",
       "severity": "low",
       "enabled": true,
@@ -475,17 +565,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Create not-found.tsx files to show custom 404 pages for route segments.",
+      "recommendation": "Add not-found.tsx where 404 UX matters (e.g., dashboard areas) to keep navigation consistent.",
       "codeExample": {
-        "bad": "// Using default 404",
-        "good": "// app/not-found.tsx: export default function NotFound() { return <Custom404 />; }"
+        "bad": "// Rely on global 404",
+        "good": "// app/(marketing)/not-found.tsx -> export default function NotFound() { return <Marketing404 />; }"
       },
       "confidence": "medium",
       "falsePositives": "high",
       "performanceImpact": "low",
       "easeOfRemediation": "high",
-      "detectionExplanation": "Detects create custom not found pages patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Create not-found.tsx files to show custom 404 pages for route segments.",
+      "detectionExplanation": "Detects custom not found per segment patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Add not-found.tsx where 404 UX matters (e.g., dashboard areas) to keep navigation consistent.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -494,8 +584,8 @@
     },
     {
       "id": "middleware-performance",
-      "title": "Keep Middleware Lightweight",
-      "intent": "performance rule: Keep middleware.ts fast and lightweight. It runs on every request. Avoid heavy computations.",
+      "title": "Keep Middleware Lean",
+      "intent": "performance rule: Do only lightweight checks (auth, redirects, locale) in middleware. Avoid DB calls or heavy CPU. Fail closed for unauthorized requests.",
       "scope": "project",
       "severity": "medium",
       "enabled": true,
@@ -505,17 +595,47 @@
           "package.json"
         ]
       },
-      "recommendation": "Keep middleware.ts fast and lightweight. It runs on every request. Avoid heavy computations.",
+      "recommendation": "Do only lightweight checks (auth, redirects, locale) in middleware. Avoid DB calls or heavy CPU. Fail closed for unauthorized requests.",
       "codeExample": {
-        "bad": "// Heavy database queries in middleware",
-        "good": "// Quick checks only: authentication token validation"
+        "bad": "// Heavy queries in middleware",
+        "good": "// Validate token, redirect unauthenticated users"
       },
       "confidence": "medium",
       "falsePositives": "medium",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects keep middleware lightweight patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Keep middleware.ts fast and lightweight. It runs on every request. Avoid heavy computations.",
+      "detectionExplanation": "Detects keep middleware lean patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Do only lightweight checks (auth, redirects, locale) in middleware. Avoid DB calls or heavy CPU. Fail closed for unauthorized requests.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "edge-runtime-selective",
+      "title": "Use Edge Runtime Selectively",
+      "intent": "performance rule: Opt into edge runtime only when latency-sensitive and compatible (no Node-only APIs). Keep edge bundles small and side-effect free.",
+      "scope": "project",
+      "severity": "medium",
+      "enabled": true,
+      "category": "performance",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "Opt into edge runtime only when latency-sensitive and compatible (no Node-only APIs). Keep edge bundles small and side-effect free.",
+      "codeExample": {
+        "bad": "export const runtime = 'edge'; // but uses fs and sharp",
+        "good": "export const runtime = 'edge'; // only fetch/cache/crypto"
+      },
+      "confidence": "medium",
+      "falsePositives": "medium",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects use edge runtime selectively patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Opt into edge runtime only when latency-sensitive and compatible (no Node-only APIs). Keep edge bundles small and side-effect free.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -524,8 +644,8 @@
     },
     {
       "id": "static-exports",
-      "title": "Use Static Exports When Possible",
-      "intent": "performance rule: For static sites, use output: 'export' in next.config.js to generate static HTML.",
+      "title": "Use Static Export When Viable",
+      "intent": "performance rule: For purely static sites, set output: 'export'. Ensure no server-only APIs are required.",
       "scope": "project",
       "severity": "low",
       "enabled": true,
@@ -535,17 +655,17 @@
           "package.json"
         ]
       },
-      "recommendation": "For static sites, use output: 'export' in next.config.js to generate static HTML.",
+      "recommendation": "For purely static sites, set output: 'export'. Ensure no server-only APIs are required.",
       "codeExample": {
-        "bad": "// Dynamic server required for static content",
-        "good": "// next.config.js: { output: 'export' }"
+        "bad": "// Dynamic server needed for static marketing site",
+        "good": "// next.config.js: module.exports = { output: 'export' }"
       },
       "confidence": "medium",
       "falsePositives": "high",
       "performanceImpact": "low",
       "easeOfRemediation": "high",
-      "detectionExplanation": "Detects use static exports when possible patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: For static sites, use output: 'export' in next.config.js to generate static HTML.",
+      "detectionExplanation": "Detects use static export when viable patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: For purely static sites, set output: 'export'. Ensure no server-only APIs are required.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -554,8 +674,8 @@
     },
     {
       "id": "typescript-strict",
-      "title": "Enable TypeScript Strict Mode",
-      "intent": "best-practices rule: Enable strict mode in tsconfig.json for better type safety and fewer runtime errors.",
+      "title": "Enable TS Strict",
+      "intent": "best-practices rule: Keep tsconfig strict=true, noImplicitAny=true, strictNullChecks=true to catch issues at build time.",
       "scope": "project",
       "severity": "medium",
       "enabled": true,
@@ -565,17 +685,17 @@
           "package.json"
         ]
       },
-      "recommendation": "Enable strict mode in tsconfig.json for better type safety and fewer runtime errors.",
+      "recommendation": "Keep tsconfig strict=true, noImplicitAny=true, strictNullChecks=true to catch issues at build time.",
       "codeExample": {
-        "bad": "// tsconfig.json: { \"strict\": false }",
-        "good": "// tsconfig.json: { \"strict\": true }"
+        "bad": "// tsconfig: strict disabled",
+        "good": "// tsconfig: { \"strict\": true, \"noImplicitAny\": true }"
       },
       "confidence": "medium",
       "falsePositives": "medium",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects enable typescript strict mode patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Enable strict mode in tsconfig.json for better type safety and fewer runtime errors.",
+      "detectionExplanation": "Detects enable ts strict patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Keep tsconfig strict=true, noImplicitAny=true, strictNullChecks=true to catch issues at build time.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -583,9 +703,9 @@
       "examplesOfExploits": []
     },
     {
-      "id": "meaningful-variable-names",
-      "title": "Use Meaningful Variable Names",
-      "intent": "best-practices rule: Use descriptive names for variables, functions, and components.",
+      "id": "use-custom-hooks-instead-of-inline-functions",
+      "title": "Use Custom Hooks Instead of Inline Functions",
+      "intent": "best-practices rule: Define custom hooks for reusable logic instead of defining functions inline within components. This improves readability and reusability.",
       "scope": "project",
       "severity": "low",
       "enabled": true,
@@ -595,17 +715,77 @@
           "package.json"
         ]
       },
-      "recommendation": "Use descriptive names for variables, functions, and components.",
+      "recommendation": "Define custom hooks for reusable logic instead of defining functions inline within components. This improves readability and reusability.",
       "codeExample": {
-        "bad": "const x = getData(); const a = x.filter(u => u.age > 18);",
-        "good": "const users = getData(); const adults = users.filter(user => user.age > 18);"
+        "bad": "function MyComponent() { const [count, setCount] = useState(0); const increment = () => setCount(count + 1); return <button onClick={increment}>{count}</button>; }",
+        "good": "function useCounter() { const [count, setCount] = useState(0); const increment = () => setCount(count + 1); return { count, increment }; } function MyComponent() { const { count, increment } = useCounter(); return <button onClick={increment}>{count}</button>; } "
       },
       "confidence": "medium",
       "falsePositives": "high",
       "performanceImpact": "low",
       "easeOfRemediation": "high",
-      "detectionExplanation": "Detects use meaningful variable names patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Use descriptive names for variables, functions, and components.",
+      "detectionExplanation": "Detects use custom hooks instead of inline functions patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Define custom hooks for reusable logic instead of defining functions inline within components. This improves readability and reusability.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "avoid-excessive-nesting-in-components",
+      "title": "Avoid Excessive Nesting in Components",
+      "intent": "best-practices rule: Keep component nesting levels shallow to enhance readability and maintainability. Break down deeply nested components into smaller subcomponents.",
+      "scope": "project",
+      "severity": "low",
+      "enabled": true,
+      "category": "best-practices",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "Keep component nesting levels shallow to enhance readability and maintainability. Break down deeply nested components into smaller subcomponents.",
+      "codeExample": {
+        "bad": "function ComplexComponent() { return <div><header><nav><ul><li><a href='#'>Link</a></li></ul></nav></header><main><section><article><p>Content</p></article></section></main></div>; }",
+        "good": "function Header() { return <header><nav><ul><li><a href='#'>Link</a></li></ul></nav></header>; } function MainContent() { return <main><section><article><p>Content</p></article></section></    main>; } function ComplexComponent() { return <div><Header /><MainContent /></div>; } "
+      },
+      "confidence": "medium",
+      "falsePositives": "high",
+      "performanceImpact": "low",
+      "easeOfRemediation": "high",
+      "detectionExplanation": "Detects avoid excessive nesting in components patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Keep component nesting levels shallow to enhance readability and maintainability. Break down deeply nested components into smaller subcomponents.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "use-environment-variables-for-configuration",
+      "title": "Use Environment Variables for Configuration",
+      "intent": "best-practices rule: Store configuration values such as API endpoints, feature flags, and environment-specific settings in environment variables instead of hardcoding them in the codebase.",
+      "scope": "project",
+      "severity": "medium",
+      "enabled": true,
+      "category": "best-practices",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "Store configuration values such as API endpoints, feature flags, and environment-specific settings in environment variables instead of hardcoding them in the codebase.",
+      "codeExample": {
+        "bad": "const apiUrl = 'https://api.example.com/v1/';",
+        "good": "const apiUrl = process.env.NEXT_PUBLIC_API_URL;"
+      },
+      "confidence": "medium",
+      "falsePositives": "medium",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects use environment variables for configuration patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Store configuration values such as API endpoints, feature flags, and environment-specific settings in environment variables instead of hardcoding them in the codebase.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",

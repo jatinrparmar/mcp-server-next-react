@@ -9,11 +9,11 @@
   "rules": [
     {
       "id": "use-app-router",
-      "title": "Prefer App Router over Pages Router",
+      "title": "Prefer App Router",
       "enabled": true,
       "severity": "medium",
       "category": "best-practices",
-      "recommendation": "Use the new App Router (app/) for new projects. It supports React Server Components and improved data fetching.",
+      "recommendation": "Use the App Router (app/) for all new work. Reserve Pages Router only for legacy pages you haven't migrated yet.",
       "codeExample": {
         "bad": "// pages/index.tsx with getServerSideProps",
         "good": "// app/page.tsx with Server Components"
@@ -21,59 +21,95 @@
     },
     {
       "id": "server-components-default",
-      "title": "Use Server Components by Default",
+      "title": "Default to Server Components",
       "enabled": true,
       "severity": "high",
       "category": "best-practices",
-      "recommendation": "Make components Server Components by default. Only add 'use client' when you need interactivity, hooks, or browser APIs.",
+      "recommendation": "Make components Server Components by default. Add 'use client' only when you need interactivity, browser APIs, or client-only hooks.",
       "codeExample": {
         "bad": "'use client'; export default function Page() { return <div>Static content</div>; }",
         "good": "export default function Page() { return <div>Static content</div>; } // Server Component"
       }
     },
     {
+      "id": "minimal-client-components",
+      "title": "Keep Client Components Minimal",
+      "enabled": true,
+      "severity": "high",
+      "category": "performance",
+      "recommendation": "Limit 'use client' files to interactive islands. Push data fetching, heavy logic, and markup to Server Components to shrink client bundles.",
+      "codeExample": {
+        "bad": "'use client'; // large page mixing fetch + UI",
+        "good": "// Server component fetches data; small client child handles just the interaction"
+      }
+    },
+    {
       "id": "use-server-actions",
-      "title": "Use Server Actions for Mutations",
+      "title": "Prefer Server Actions for Mutations",
       "enabled": true,
       "severity": "high",
       "category": "best-practices",
-      "recommendation": "Use Server Actions instead of API routes for form submissions and mutations. They're more efficient and type-safe.",
+      "recommendation": "Use Server Actions for form submissions and mutations to keep logic on the server, reduce client JS, and simplify data consistency.",
       "codeExample": {
-        "bad": "// POST to /api/submit with fetch",
-        "good": "'use server'; export async function submitForm(formData) { /* Server Action */ }"
+        "bad": "'use client'; const submit = async (data) => fetch('/api/submit', { method: 'POST', body: data });",
+        "good": "'use server'; export async function submit(data) { /* mutate on server */ } // <form action={submit}>...</form>"
+      }
+    },
+    {
+      "id": "use-revalidate-tags",
+      "title": "Use Revalidation Tags and Paths",
+      "enabled": true,
+      "severity": "medium",
+      "category": "performance",
+      "recommendation": "Tag cached fetches and invalidate with revalidateTag/revalidatePath after mutations. Avoid stale data by wiring mutations to revalidation.",
+      "codeExample": {
+        "bad": "await fetch(api, { cache: 'force-cache' }); // no invalidation",
+        "good": "await fetch(api, { next: { tags: ['users'] } }); await revalidateTag('users');"
       }
     },
     {
       "id": "avoid-use-effect-data-fetching",
-      "title": "Avoid useEffect for Data Fetching",
+      "title": "Don't Fetch in useEffect",
       "enabled": true,
       "severity": "high",
       "category": "best-practices",
-      "recommendation": "Fetch data in Server Components instead of useEffect. Use Suspense for loading states.",
+      "recommendation": "Fetch data in Server Components. For client needs, use Suspense with fetch caches or libraries like SWR/React Query instead of ad-hoc useEffect fetches.",
       "codeExample": {
-        "bad": "'use client'; useEffect(() => { fetchData(); }, []);",
-        "good": "// Server Component: const data = await fetchData();"
+        "bad": "'use client'; useEffect(() => { fetch('/api/data').then(setData); }, []);",
+        "good": "// Server Component: const data = await fetch(api, { cache: 'no-store' });"
+      }
+    },
+    {
+      "id": "cache-and-fetch-options",
+      "title": "Set Fetch Cache Intentionally",
+      "enabled": true,
+      "severity": "medium",
+      "category": "performance",
+      "recommendation": "Explicitly set cache/no-store/force-cache and next: { revalidate, tags } on fetch. Avoid implicit caching that causes stale data.",
+      "codeExample": {
+        "bad": "await fetch(api); // default cache depends on method",
+        "good": "await fetch(api, { cache: 'no-store' }); // or { next: { revalidate: 300, tags: ['posts'] } }"
       }
     },
     {
       "id": "use-next-image",
-      "title": "Use Next.js Image Component",
+      "title": "Use next/image",
       "enabled": true,
       "severity": "high",
       "category": "performance",
-      "recommendation": "Always use next/image instead of <img> for automatic optimization, lazy loading, and responsive images.",
+      "recommendation": "Use next/image for built-in optimization, responsive sizing, and lazy loading. Provide width/height to avoid CLS.",
       "codeExample": {
         "bad": "<img src='/photo.jpg' />",
-        "good": "import Image from 'next/image'; <Image src='/photo.jpg' width={500} height={300} alt='...' />"
+        "good": "import Image from 'next/image'; <Image src='/photo.jpg' width={800} height={600} alt='Team' />"
       }
     },
     {
       "id": "use-next-link",
-      "title": "Use Next.js Link Component",
+      "title": "Use next/link for Nav",
       "enabled": true,
       "severity": "medium",
       "category": "performance",
-      "recommendation": "Use next/link for client-side navigation. It prefetches pages in the background for faster navigation.",
+      "recommendation": "Use next/link for client navigation with prefetch. Avoid plain anchors for internal links.",
       "codeExample": {
         "bad": "<a href='/about'>About</a>",
         "good": "import Link from 'next/link'; <Link href='/about'>About</Link>"
@@ -81,23 +117,23 @@
     },
     {
       "id": "dynamic-imports",
-      "title": "Use Dynamic Imports for Code Splitting",
+      "title": "Code Split Non-Critical UI",
       "enabled": true,
       "severity": "medium",
       "category": "performance",
-      "recommendation": "Use dynamic imports with next/dynamic for components that aren't needed on initial render.",
+      "recommendation": "Use next/dynamic for heavy widgets not needed on first paint (charts, editors, maps). Provide a lightweight loading fallback.",
       "codeExample": {
-        "bad": "import HeavyComponent from './HeavyComponent';",
-        "good": "const HeavyComponent = dynamic(() => import('./HeavyComponent'));"
+        "bad": "import Heavy from './Heavy';",
+        "good": "const Heavy = dynamic(() => import('./Heavy'), { ssr: false, loading: () => <Spinner /> });"
       }
     },
     {
       "id": "metadata-api",
-      "title": "Use Metadata API for SEO",
+      "title": "Use Metadata API",
       "enabled": true,
       "severity": "high",
       "category": "seo",
-      "recommendation": "Use the Metadata API (export metadata or generateMetadata) in App Router for SEO instead of Head component.",
+      "recommendation": "Use export const metadata or generateMetadata for titles, descriptions, Open Graph, and structured data per route segment.",
       "codeExample": {
         "bad": "<Head><title>My Page</title></Head>",
         "good": "export const metadata = { title: 'My Page', description: '...' };"
@@ -109,19 +145,19 @@
       "enabled": true,
       "severity": "medium",
       "category": "best-practices",
-      "recommendation": "Create loading.tsx files for route segments to show loading states during navigation.",
+      "recommendation": "Add loading.tsx per segment for skeletons/spinners. Pair with Suspense boundaries for streaming.",
       "codeExample": {
         "bad": "// No loading state",
-        "good": "// app/dashboard/loading.tsx: export default function Loading() { return <Spinner />; }"
+        "good": "// app/dashboard/loading.tsx -> export default function Loading() { return <Spinner />; }"
       }
     },
     {
       "id": "error-boundaries",
-      "title": "Use Error Boundaries",
+      "title": "Segment Error Boundaries",
       "enabled": true,
       "severity": "high",
       "category": "best-practices",
-      "recommendation": "Create error.tsx files to handle errors gracefully and provide recovery options.",
+      "recommendation": "Add error.tsx per route segment to capture and recover from errors without taking down the entire app tree.",
       "codeExample": {
         "bad": "// No error handling",
         "good": "// app/dashboard/error.tsx: 'use client'; export default function Error({ error, reset }) { /* ... */ }"
@@ -129,14 +165,14 @@
     },
     {
       "id": "route-handlers",
-      "title": "Use Route Handlers for APIs",
+      "title": "Use Route Handlers",
       "enabled": true,
       "severity": "medium",
       "category": "best-practices",
-      "recommendation": "Use Route Handlers (route.ts) in App Router instead of API routes in pages/api.",
+      "recommendation": "Prefer app/api/* route handlers over pages/api. Co-locate API logic with the segment and leverage Server Actions where possible.",
       "codeExample": {
         "bad": "// pages/api/users.ts",
-        "good": "// app/api/users/route.ts: export async function GET(request) { /* ... */ }"
+        "good": "// app/api/users/route.ts: export async function GET() { ... }"
       }
     },
     {
@@ -145,19 +181,19 @@
       "enabled": true,
       "severity": "medium",
       "category": "performance",
-      "recommendation": "Wrap slow components in Suspense to stream content and show loading states.",
+      "recommendation": "Stream slow sections behind Suspense to improve TTFB and interactivity. Provide meaningful fallbacks.",
       "codeExample": {
-        "bad": "const data = await slowFetch(); return <SlowComponent data={data} />;",
-        "good": "<Suspense fallback={<Loading />}><SlowComponent /></Suspense>"
+        "bad": "const data = await slowFetch(); return <Slow data={data} />;",
+        "good": "<Suspense fallback={<Loading />}><SlowSection /></Suspense>"
       }
     },
     {
       "id": "parallel-data-fetching",
-      "title": "Fetch Data in Parallel",
+      "title": "Fetch in Parallel",
       "enabled": true,
       "severity": "medium",
       "category": "performance",
-      "recommendation": "Use Promise.all() to fetch data in parallel instead of sequential awaits.",
+      "recommendation": "Use Promise.all or parallel awaits in Server Components to reduce latency. Avoid serial fetch waterfalls.",
       "codeExample": {
         "bad": "const users = await getUsers(); const posts = await getPosts();",
         "good": "const [users, posts] = await Promise.all([getUsers(), getPosts()]);"
@@ -165,87 +201,270 @@
     },
     {
       "id": "revalidate-data",
-      "title": "Configure Revalidation",
+      "title": "Set Revalidation Intentionally",
       "enabled": true,
       "severity": "medium",
       "category": "performance",
-      "recommendation": "Set revalidate time for cached data or use on-demand revalidation with revalidatePath/revalidateTag.",
+      "recommendation": "Choose revalidate per route or fetch. Use short windows for dynamic content; use 'force-cache' for stable assets; use 'no-store' for secrets.",
       "codeExample": {
         "bad": "// No revalidation configured",
-        "good": "export const revalidate = 3600; // Revalidate every hour"
+        "good": "export const revalidate = 600; // 10 minutes\nawait fetch(api, { cache: 'no-store' }); // for sensitive data"
       }
     },
     {
       "id": "font-optimization",
-      "title": "Use next/font for Font Optimization",
+      "title": "Optimize Fonts with next/font",
       "enabled": true,
       "severity": "medium",
       "category": "performance",
-      "recommendation": "Use next/font to automatically optimize and self-host fonts, eliminating external network requests.",
+      "recommendation": "Use next/font for local/self-hosted fonts, control subsets/weights, and avoid layout shifts with style injection.",
       "codeExample": {
         "bad": "<link href='https://fonts.googleapis.com/...' />",
-        "good": "import { Inter } from 'next/font/google'; const inter = Inter({ subsets: ['latin'] });"
+        "good": "import { Inter } from 'next/font/google'; const inter = Inter({ subsets: ['latin'], display: 'swap' });"
       }
     },
     {
       "id": "not-found-page",
-      "title": "Create Custom Not Found Pages",
+      "title": "Custom Not Found per Segment",
       "enabled": true,
       "severity": "low",
       "category": "best-practices",
-      "recommendation": "Create not-found.tsx files to show custom 404 pages for route segments.",
+      "recommendation": "Add not-found.tsx where 404 UX matters (e.g., dashboard areas) to keep navigation consistent.",
       "codeExample": {
-        "bad": "// Using default 404",
-        "good": "// app/not-found.tsx: export default function NotFound() { return <Custom404 />; }"
+        "bad": "// Rely on global 404",
+        "good": "// app/(marketing)/not-found.tsx -> export default function NotFound() { return <Marketing404 />; }"
       }
     },
     {
       "id": "middleware-performance",
-      "title": "Keep Middleware Lightweight",
+      "title": "Keep Middleware Lean",
       "enabled": true,
       "severity": "medium",
       "category": "performance",
-      "recommendation": "Keep middleware.ts fast and lightweight. It runs on every request. Avoid heavy computations.",
+      "recommendation": "Do only lightweight checks (auth, redirects, locale) in middleware. Avoid DB calls or heavy CPU. Fail closed for unauthorized requests.",
       "codeExample": {
-        "bad": "// Heavy database queries in middleware",
-        "good": "// Quick checks only: authentication token validation"
+        "bad": "// Heavy queries in middleware",
+        "good": "// Validate token, redirect unauthenticated users"
+      }
+    },
+    {
+      "id": "edge-runtime-selective",
+      "title": "Use Edge Runtime Selectively",
+      "enabled": true,
+      "severity": "medium",
+      "category": "performance",
+      "recommendation": "Opt into edge runtime only when latency-sensitive and compatible (no Node-only APIs). Keep edge bundles small and side-effect free.",
+      "codeExample": {
+        "bad": "export const runtime = 'edge'; // but uses fs and sharp",
+        "good": "export const runtime = 'edge'; // only fetch/cache/crypto"
       }
     },
     {
       "id": "static-exports",
-      "title": "Use Static Exports When Possible",
+      "title": "Use Static Export When Viable",
       "enabled": true,
       "severity": "low",
       "category": "performance",
-      "recommendation": "For static sites, use output: 'export' in next.config.js to generate static HTML.",
+      "recommendation": "For purely static sites, set output: 'export'. Ensure no server-only APIs are required.",
       "codeExample": {
-        "bad": "// Dynamic server required for static content",
-        "good": "// next.config.js: { output: 'export' }"
+        "bad": "// Dynamic server needed for static marketing site",
+        "good": "// next.config.js: module.exports = { output: 'export' }"
       }
     },
     {
       "id": "typescript-strict",
-      "title": "Enable TypeScript Strict Mode",
+      "title": "Enable TS Strict",
       "enabled": true,
       "severity": "medium",
       "category": "best-practices",
-      "recommendation": "Enable strict mode in tsconfig.json for better type safety and fewer runtime errors.",
+      "recommendation": "Keep tsconfig strict=true, noImplicitAny=true, strictNullChecks=true to catch issues at build time.",
       "codeExample": {
-        "bad": "// tsconfig.json: { \"strict\": false }",
-        "good": "// tsconfig.json: { \"strict\": true }"
+        "bad": "// tsconfig: strict disabled",
+        "good": "// tsconfig: { \"strict\": true, \"noImplicitAny\": true }"
       }
     },
     {
-      "id": "meaningful-variable-names",
-      "title": "Use Meaningful Variable Names",
+      "id": "secure-storage",
+      "title": "Do Not Store Secrets in localStorage",
+      "enabled": true,
+      "severity": "critical",
+      "category": "security",
+      "recommendation": "Never store tokens, passwords, or PII in localStorage/sessionStorage. Use httpOnly, secure, sameSite cookies set by the server and read in Server Components or Route Handlers.",
+      "codeExample": {
+        "bad": "localStorage.setItem('token', token);",
+        "good": "// Set httpOnly, secure, sameSite cookie from the server; read via cookies() in Server Components"
+      }
+    },
+    {
+      "id": "encrypt-sensitive-data",
+      "title": "Protect Sensitive Data",
+      "enabled": true,
+      "severity": "critical",
+      "category": "security",
+      "recommendation": "Never store or log plaintext secrets/PII. Encrypt at rest on the server, use TLS in transit, and mask values in UI/logs.",
+      "codeExample": {
+        "bad": "console.log('card', cardNumber);\nlocalStorage.setItem('ssn', ssn);",
+        "good": "// Mask in UI/logs; keep secrets server-side only; store encrypted blobs with KMS"
+      }
+    },
+    {
+      "id": "password-strength",
+      "title": "Enforce Strong Password Fields",
+      "enabled": true,
+      "severity": "high",
+      "category": "security",
+      "recommendation": "Password inputs must use type='password', enforce length/pattern (upper/lower/number/symbol), disable autocomplete when appropriate, and never prefill.",
+      "codeExample": {
+        "bad": "<input name='password' type='text' />",
+        "good": "<input name='password' type='password' pattern='(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).{12,}' required autocomplete='new-password' />"
+      }
+    },
+    {
+      "id": "avoid-logging-secrets",
+      "title": "Never Log Secrets or PII",
+      "enabled": true,
+      "severity": "high",
+      "category": "security",
+      "recommendation": "Strip/redact tokens, passwords, and personal data from logs. Use structured logging without sensitive fields and keep prod logs minimal.",
+      "codeExample": {
+        "bad": "console.log('token', token);",
+        "good": "logger.info('auth event', { userId, status: 'success' }); // no secrets"
+      }
+    },
+    {
+      "id": "input-validate-sanitize",
+      "title": "Validate and Sanitize Inputs",
+      "enabled": true,
+      "severity": "high",
+      "category": "security",
+      "recommendation": "Validate request bodies/query/params in Route Handlers or Server Actions. Sanitize any HTML before rendering to avoid XSS.",
+      "codeExample": {
+        "bad": "export async function POST(req) { const body = await req.json(); db.save(body); }",
+        "good": "const schema = z.object({ bio: z.string().max(280) }); export async function POST(req) { const body = schema.parse(await req.json()); await db.save(body); }"
+      }
+    },
+    {
+      "id": "use-custom-hooks-instead-of-inline-functions",
+      "title": "Use Custom Hooks Instead of Inline Functions",
       "enabled": true,
       "severity": "low",
       "category": "best-practices",
-      "recommendation": "Use descriptive names for variables, functions, and components.",
+      "recommendation": "Define custom hooks for reusable logic instead of defining functions inline within components. This improves readability and reusability.",
       "codeExample": {
-        "bad": "const x = getData(); const a = x.filter(u => u.age > 18);",
-        "good": "const users = getData(); const adults = users.filter(user => user.age > 18);"
+        "bad": "function MyComponent() { const [count, setCount] = useState(0); const increment = () => setCount(count + 1); return <button onClick={increment}>{count}</button>; }",
+        "good": "function useCounter() { const [count, setCount] = useState(0); const increment = () => setCount(count + 1); return { count, increment }; } function MyComponent() { const { count, increment } = useCounter(); return <button onClick={increment}>{count}</button>; } "
       }
+    },
+    {
+      "id": "avoid-excessive-nesting-in-components",
+      "title": "Avoid Excessive Nesting in Components",
+      "enabled": true,
+      "severity": "low",
+      "category": "best-practices",
+      "recommendation": "Keep component nesting levels shallow to enhance readability and maintainability. Break down deeply nested components into smaller subcomponents.",
+      "codeExample": {
+        "bad": "function ComplexComponent() { return <div><header><nav><ul><li><a href='#'>Link</a></li></ul></nav></header><main><section><article><p>Content</p></article></section></main></div>; }",
+        "good": "function Header() { return <header><nav><ul><li><a href='#'>Link</a></li></ul></nav></header>; } function MainContent() { return <main><section><article><p>Content</p></article></section></    main>; } function ComplexComponent() { return <div><Header /><MainContent /></div>; } "
+      }
+    },
+    {
+      "id": "use-environment-variables-for-configuration",
+      "title": "Use Environment Variables for Configuration",
+      "enabled": true,
+      "severity": "medium",
+      "category": "best-practices",
+      "recommendation": "Store configuration values such as API endpoints, feature flags, and environment-specific settings in environment variables instead of hardcoding them in the codebase.",
+      "codeExample": {
+        "bad": "const apiUrl = 'https://api.example.com/v1/';",
+        "good": "const apiUrl = process.env.NEXT_PUBLIC_API_URL;"
+      }
+    },
+    {
+      "id": "differentiate-server-and-client-environment-variables",
+      "title": "Differentiate Server and Client Environment Variables",
+      "enabled": true,
+      "severity": "high",
+      "category": "security",
+      "recommendation": "Use NEXT_PUBLIC_ prefix for environment variables that need to be exposed to the client-side. Keep sensitive server-side variables without this prefix to prevent accidental exposure.",
+      "codeExample": {
+        "bad": "const apiKey = process.env.API_KEY; // Exposed to client!",
+        "good": "const apiKey = process.env.API_KEY; // Server-side\nconst publicKey = process.env.NEXT_PUBLIC_API_KEY; // Client-side"
+      }
+    },
+    {
+      "id": "avoid-inline-sensitive-data",
+      "title": "Avoid Inline Sensitive Data",
+      "enabled": true,
+      "severity": "critical",
+      "category": "security",
+      "patterns": [
+        "apiKey\\s*=\\s*['\\\"]sk-.*['\\\"]",
+        "password\\s*=\\s*['\\\"](?!\\$2[ayb]\\$) .+['\\\"]",
+        "secret\\s*=\\s*['\\\"](?!\\$2[ayb]\\$).+['\\\"]",
+        "token\\s*=\\s*['\\\"](eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+)['\\\"]",
+        "access[_-]?token\\s*=\\s*['\\\"](eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+)['\\\"]",
+        "private[_-]?key\\s*=\\s*['\\\"]-----BEGIN (RSA |EC )?PRIVATE KEY-----[\\s\\S]+-----END (RSA |EC )?PRIVATE KEY-----['\\\"]",
+        "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAr"
+      ],
+      "recommendation": "Store all secrets in environment variables. Use NEXT_PUBLIC_ prefix for client-side vars. Never commit secrets.",
+      "codeExample": {
+        "bad": "const apiKey = 'sk-1234567890abcdef';",
+        "good": "const apiKey = process.env.API_KEY; // Server-side\nconst publicKey = process.env.NEXT_PUBLIC_API_KEY; // Client-side"
+      }
+    },
+    {
+        "id": "server-only-secrets",
+        "title": "Keep Secrets Server-Side Only",
+        "enabled": true,
+        "severity": "critical",
+        "category": "security",
+        "recommendation": "Never expose server-side secrets to client. Use Server Components or API routes for sensitive operations.",
+        "codeExample": {
+          "bad": "'use client'; const secret = process.env.SECRET_KEY; // Exposed to client!",
+          "good": "// In Server Component: const secret = process.env.SECRET_KEY; // Safe"
+        }
+    },
+    {
+        "id": "no-eval",
+        "title": "Avoid eval() and Dynamic Code Execution",
+        "enabled": true,
+        "severity": "critical",
+        "category": "security",
+        "patterns": [
+          "\\beval\\s*\\(",
+          "\\bFunction\\s*\\(",
+          "setTimeout\\s*\\(['\\\"]",
+          "setInterval\\s*\\(['\\\"]"
+        ],
+        "recommendation": "Never use eval() or Function() constructor. Use JSON.parse or data-driven approaches instead.",
+        "codeExample": {
+          "bad": "const result = eval(userInput);",
+          "good": "const result = JSON.parse(userInput);"
+        }
+    },
+    {
+        "id": "secure-api-calls",
+        "title": "Secure API Communication",
+        "enabled": true,
+        "severity": "high",
+        "category": "security",
+        "recommendation": "Always use HTTPS for API calls. Validate SSL certificates and avoid mixed content warnings by ensuring all resources are loaded over secure connections.",
+        "codeExample": {
+            "bad": "fetch('http://api.example.com/data');",
+            "good": "fetch('https://api.example.com/data');"
+        }
+    },
+    {
+        "id": "sanitize-user-generated-content",
+        "title": "Sanitize User-Generated Content",
+        "enabled": true,
+        "severity": "high",
+        "category": "security",
+        "recommendation": "Always sanitize and validate user-generated content before rendering it in the UI to prevent XSS attacks. Use libraries like DOMPurify for HTML content.",
+        "codeExample": {
+            "bad": "return <div dangerouslySetInnerHTML={{ __html: userContent }} />;",
+            "good": "import DOMPurify from 'dompurify'; const cleanContent = DOMPurify.sanitize(userContent); return <div dangerouslySetInnerHTML={{ __html: cleanContent }} />;"
+        }
     }
   ]
 }
