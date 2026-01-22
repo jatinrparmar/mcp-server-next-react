@@ -3,159 +3,308 @@
     "framework": "React",
     "version": "2025.1",
     "type": "simplified-security-config",
-    "description": "SIMPLIFIED SECURITY RULES - Modify this file only. Rules are auto-generated to rules/ directory.",
+    "description": "FRONTEND-CENTRIC SECURITY RULES FOR REACT",
     "instructions": "Edit rules below, then run: npm run generate:rules"
   },
   "rules": [
     {
       "id": "xss-prevention",
-      "title": "Prevent XSS Vulnerabilities",
+      "title": "Prevent XSS in React Rendering",
       "enabled": true,
       "severity": "critical",
       "category": "security",
       "patterns": [
         "dangerouslySetInnerHTML",
         "innerHTML",
-        "eval\\s*\\(",
-        "Function\\s*\\("
-      ],
-      "recommendation": "Avoid using dangerouslySetInnerHTML. React escapes content by default. Use DOMPurify for user-generated HTML.",
-      "codeExample": {
-        "bad": "return <div dangerouslySetInnerHTML={{ __html: userInput }} />;",
-        "good": "return <div>{userInput}</div>; // React auto-escapes"
-      }
-    },
-    {
-      "id": "no-hardcoded-secrets",
-      "title": "No Hardcoded Secrets",
-      "enabled": true,
-      "severity": "critical",
-      "category": "security",
-      "patterns": [
-        "password\\s*[=:]\\s*['\\\"]",
-        "api[_-]?key\\s*[=:]\\s*['\\\"]",
-        "secret\\s*[=:]\\s*['\\\"]",
-        "token\\s*[=:]\\s*['\\\"]"
-      ],
-      "excludePatterns": [
-        "*.test.*",
-        "*.spec.*",
-        "mock*"
-      ],
-      "recommendation": "Store all secrets in environment variables. Never commit secrets to version control.",
-      "codeExample": {
-        "bad": "const apiKey = 'sk-1234567890abcdef';",
-        "good": "const apiKey = process.env.REACT_APP_API_KEY;"
-      }
-    },
-    {
-      "id": "no-eval",
-      "title": "Avoid eval() and Dynamic Code Execution",
-      "enabled": true,
-      "severity": "critical",
-      "category": "security",
-      "patterns": [
+        "document\\.write",
         "\\beval\\s*\\(",
-        "\\bFunction\\s*\\(",
-        "setTimeout\\s*\\(['\\\"]",
-        "setInterval\\s*\\(['\\\"]"
+        "\\bFunction\\s*\\("
       ],
-      "recommendation": "Never use eval() or Function() constructor. Use JSON.parse or data-driven approaches instead.",
+      "recommendation": "Avoid raw HTML rendering. React escapes content by default. Sanitize user HTML with DOMPurify only when absolutely required.",
       "codeExample": {
-        "bad": "const result = eval(userInput);",
-        "good": "const result = JSON.parse(userInput);"
+        "bad": "<div dangerouslySetInnerHTML={{ __html: userInput }} />",
+        "good": "<div>{userInput}</div>"
       }
     },
     {
-      "id": "secure-api-calls",
-      "title": "Secure API Communication",
+      "id": "unsafe-browser-apis",
+      "title": "Avoid Unsafe Browser APIs",
       "enabled": true,
       "severity": "high",
       "category": "security",
       "patterns": [
-        "fetch\\s*\\(\\s*['\\\"]http://",
-        "axios\\s*\\(\\s*['\\\"]http://"
+        "window\\.open\\(",
+        "document\\.cookie\\s*=",
+        "localStorage\\.setItem\\(",
+        "sessionStorage\\.setItem\\("
       ],
-      "recommendation": "Always use HTTPS for API calls. Include proper authentication headers.",
+      "recommendation": "Avoid exposing sensitive data via browser APIs. Never store tokens in localStorage or sessionStorage.",
       "codeExample": {
-        "bad": "fetch('http://api.example.com/data');",
-        "good": "fetch('https://api.example.com/data', {\n  headers: { 'Authorization': `Bearer ${token}` }\n});"
+        "bad": "localStorage.setItem('token', jwt);",
+        "good": "// Use httpOnly cookies instead"
       }
     },
     {
-      "id": "csrf-protection",
-      "title": "CSRF Token Validation",
-      "enabled": true,
-      "severity": "high",
-      "category": "security",
-      "recommendation": "Implement CSRF tokens for state-changing operations. Validate tokens on the server.",
-      "codeExample": {
-        "bad": "// Form without CSRF protection",
-        "good": "// Include CSRF token in forms: <input name='csrf' value={csrfToken} />"
-      }
-    },
-    {
-      "id": "input-validation",
-      "title": "Input Validation",
-      "enabled": true,
-      "severity": "high",
-      "category": "security",
-      "recommendation": "Validate and sanitize all user inputs on both client and server side.",
-      "codeExample": {
-        "bad": "const userEmail = request.body.email;",
-        "good": "const userEmail = sanitize(request.body.email); // Validate format"
-      }
-    },
-    {
-      "id": "dependency-vulnerabilities",
-      "title": "Check for Vulnerable Dependencies",
-      "enabled": true,
-      "severity": "high",
-      "category": "security",
-      "recommendation": "Regularly run npm audit and update vulnerable packages. Use dependabot for automated updates.",
-      "codeExample": {
-        "bad": "// Outdated vulnerable package version",
-        "good": "// Run: npm update && npm audit fix"
-      }
-    },
-    {
-      "id": "secure-headers",
-      "title": "HTTP Security Headers",
-      "enabled": true,
-      "severity": "high",
-      "category": "security",
-      "recommendation": "Implement security headers: CSP, X-Frame-Options, X-Content-Type-Options, Strict-Transport-Security.",
-      "codeExample": {
-        "bad": "// No security headers",
-        "good": "// Add to next.config.js: headers with CSP and other security headers"
-      }
-    },
-    {
-      "id": "sql-injection",
-      "title": "SQL Injection Prevention",
+      "id": "no-sensitive-data-in-state",
+      "title": "Do Not Store Sensitive Data in React State",
       "enabled": true,
       "severity": "critical",
+      "category": "security",
+      "recommendation": "Never store passwords, tokens, secrets, or PII in React state, props, or context.",
+      "codeExample": {
+        "bad": "const [token, setToken] = useState(jwt);",
+        "good": "// Authentication handled via secure cookies"
+      }
+    },
+    {
+      "id": "secure-routing",
+      "title": "Secure Client-Side Routing",
+      "enabled": true,
+      "severity": "high",
+      "category": "security",
+      "patterns": ["navigate\\(.*location\\.search", "router\\.push\\(.*query"],
+      "recommendation": "Never trust URL parameters for authorization or redirects. Validate and allowlist routes.",
+      "codeExample": {
+        "bad": "navigate(nextUrl);",
+        "good": "if (ALLOWED_ROUTES.includes(nextUrl)) navigate(nextUrl);"
+      }
+    },
+
+    {
+      "id": "auth-ui-gating",
+      "title": "Do Not Rely on UI-Only Authorization",
+      "enabled": true,
+      "severity": "high",
+      "category": "security",
+      "recommendation": "Hiding UI elements does not equal security. Client-side checks must never be the only authorization layer.",
+      "codeExample": {
+        "bad": "{isAdmin && <DeleteUser />}",
+        "good": "// Always enforce permissions server-side"
+      }
+    },
+
+    {
+      "id": "third-party-scripts",
+      "title": "Restrict Third-Party Scripts",
+      "enabled": true,
+      "severity": "high",
+      "category": "security",
+      "patterns": ["<script", "dangerouslySetInnerHTML"],
+      "recommendation": "Avoid injecting third-party scripts directly. Load scripts explicitly and review their security impact.",
+      "codeExample": {
+        "bad": "<script src='https://random-cdn.com/script.js'></script>",
+        "good": "// Load vetted scripts via build tooling"
+      }
+    },
+
+    {
+      "id": "file-input-validation",
+      "title": "Validate File Inputs on the Client",
+      "enabled": true,
+      "severity": "medium",
+      "category": "security",
+      "recommendation": "Restrict file size and type in file inputs. Never trust MIME types alone.",
+      "codeExample": {
+        "bad": "<input type='file' />",
+        "good": "<input type='file' accept='.png,.jpg' />"
+      }
+    },
+
+    {
+      "id": "secure-forms",
+      "title": "Secure Form Handling",
+      "enabled": true,
+      "severity": "high",
+      "category": "security",
+      "recommendation": "Avoid manually handling sensitive form state. Prefer browser-native forms or React 19 actions.",
+      "codeExample": {
+        "bad": "const [password, setPassword] = useState('');",
+        "good": "<form action={loginAction}>"
+      }
+    },
+
+    {
+      "id": "no-debug-leaks",
+      "title": "Prevent Debug Data Leaks",
+      "enabled": true,
+      "severity": "medium",
+      "category": "security",
+      "patterns": ["console\\.log", "console\\.debug"],
+      "recommendation": "Remove console logs that may expose user or application data.",
+      "codeExample": {
+        "bad": "console.log(user);",
+        "good": "// No logging of sensitive objects"
+      }
+    },
+
+    {
+      "id": "safe-error-messages",
+      "title": "Safe Error Messages",
+      "enabled": true,
+      "severity": "medium",
+      "category": "security",
+      "recommendation": "Do not expose stack traces, internal IDs, or system details in UI error messages.",
+      "codeExample": {
+        "bad": "Error: DB_CONN_FAILED at users.ts:42",
+        "good": "Something went wrong. Please try again."
+      }
+    },
+
+    {
+      "id": "dependency-risk-awareness",
+      "title": "Minimize Frontend Dependency Risk",
+      "enabled": true,
+      "severity": "medium",
+      "category": "security",
+      "recommendation": "Avoid unnecessary dependencies. Each dependency increases attack surface.",
+      "codeExample": {
+        "bad": "// 100+ unused dependencies",
+        "good": "// Only essential, actively maintained libraries"
+      }
+    },
+    {
+      "id": "server-client-boundary",
+      "title": "Respect Server vs Client Component Boundaries",
+      "enabled": true,
+      "severity": "critical",
+      "category": "security",
+      "recommendation": "Never import server-only code, secrets, or database logic into Client Components. Use Server Components or Server Actions.",
+      "codeExample": {
+        "bad": "'use client'; import { getSecret } from '@/server/secrets';",
+        "good": "// Server Component: import { getSecret } from '@/server/secrets';"
+      }
+    },
+
+    {
+      "id": "fetch-cache-security",
+      "title": "Secure fetch() Caching and Revalidation",
+      "enabled": true,
+      "severity": "high",
+      "category": "security",
+      "recommendation": "Avoid caching authenticated or user-specific data. Explicitly set cache and revalidate options on fetch.",
+      "codeExample": {
+        "bad": "fetch('/api/user');",
+        "good": "fetch('/api/user', { cache: 'no-store' });"
+      }
+    },
+
+    {
+      "id": "static-generation-data-leak",
+      "title": "Avoid Leaking Sensitive Data via Static Generation",
+      "enabled": true,
+      "severity": "critical",
+      "category": "security",
+      "recommendation": "Never statically generate pages that depend on authenticated or user-specific data.",
+      "codeExample": {
+        "bad": "export const revalidate = 3600; // User-specific page",
+        "good": "export const dynamic = 'force-dynamic';"
+      }
+    },
+
+    {
+      "id": "secure-redirects",
+      "title": "Prevent Open Redirects in Next.js Navigation",
+      "enabled": true,
+      "severity": "high",
       "category": "security",
       "patterns": [
-        "query\\s*\\(\\s*['\\\"].*\\+.*['\\\"]",
-        "execute\\s*\\(\\s*['\\\"].*\\+.*['\\\"]"
+        "redirect\\(.*searchParams",
+        "router\\.push\\(.*searchParams"
       ],
-      "recommendation": "Use parameterized queries or ORM libraries. Never concatenate user input into SQL strings.",
+      "recommendation": "Never redirect using unvalidated user input. Always allowlist destinations.",
       "codeExample": {
-        "bad": "db.query(`SELECT * FROM users WHERE id = ${userId}`);",
-        "good": "db.query('SELECT * FROM users WHERE id = ?', [userId]);"
+        "bad": "redirect(searchParams.next);",
+        "good": "if (ALLOWED_PATHS.includes(next)) redirect(next);"
+      }
+    },
+
+    {
+      "id": "route-handler-validation",
+      "title": "Validate Input in Route Handlers",
+      "enabled": true,
+      "severity": "high",
+      "category": "security",
+      "recommendation": "All Route Handlers (app/api/*) must validate input and method types.",
+      "codeExample": {
+        "bad": "export async function POST(req) { const body = await req.json(); }",
+        "good": "export async function POST(req) { const body = schema.parse(await req.json()); }"
+      }
+    },
+
+    {
+      "id": "next-script-safety",
+      "title": "Secure Usage of next/script",
+      "enabled": true,
+      "severity": "high",
+      "category": "security",
+      "patterns": ["<Script.*dangerouslySetInnerHTML"],
+      "recommendation": "Avoid inline scripts. Use next/script with trusted sources and proper loading strategies.",
+      "codeExample": {
+        "bad": "<Script dangerouslySetInnerHTML={{ __html: script }} />",
+        "good": "<Script src='https://trusted.cdn/script.js' strategy='afterInteractive' />"
+      }
+    },
+
+    {
+      "id": "next-image-remote-patterns",
+      "title": "Restrict next/image Remote Sources",
+      "enabled": true,
+      "severity": "medium",
+      "category": "security",
+      "recommendation": "Restrict allowed image domains in next.config.js to prevent data exfiltration.",
+      "codeExample": {
+        "bad": "images: { domains: ['*'] }",
+        "good": "images: { domains: ['images.example.com'] }"
+      }
+    },
+
+    {
+      "id": "error-boundary-leaks",
+      "title": "Avoid Sensitive Data in Error Boundaries",
+      "enabled": true,
+      "severity": "medium",
+      "category": "security",
+      "recommendation": "Error and notFound boundaries must not expose stack traces or internal data.",
+      "codeExample": {
+        "bad": "return <pre>{error.stack}</pre>;",
+        "good": "return <p>Something went wrong.</p>;"
+      }
+    },
+
+    {
+      "id": "source-map-exposure",
+      "title": "Disable Source Maps in Production",
+      "enabled": true,
+      "severity": "medium",
+      "category": "security",
+      "recommendation": "Disable browser source maps in production builds to reduce attack surface.",
+      "codeExample": {
+        "bad": "productionBrowserSourceMaps: true",
+        "good": "productionBrowserSourceMaps: false"
       }
     },
     {
-      "id": "authentication-checks",
-      "title": "Authentication & Authorization",
+      "id": "preview-mode-protection",
+      "title": "Secure Draft / Preview Mode",
       "enabled": true,
-      "severity": "critical",
+      "severity": "high",
       "category": "security",
-      "recommendation": "Verify authentication before accessing protected resources. Check user permissions for authorization.",
+      "recommendation": "Protect draft/preview mode with authentication and secret tokens.",
       "codeExample": {
-        "bad": "if (user) { /* allow access */ }",
-        "good": "if (user && user.role === 'admin') { /* allow access */ }"
+        "bad": "res.setPreviewData({});",
+        "good": "if (token !== process.env.PREVIEW_SECRET) return res.status(401);"
+      }
+    },
+    {
+      "id": "edge-runtime-restrictions",
+      "title": "Respect Edge Runtime Security Constraints",
+      "enabled": true,
+      "severity": "medium",
+      "category": "security",
+      "recommendation": "Do not rely on Node.js-only APIs in Edge runtime. Avoid insecure polyfills.",
+      "codeExample": {
+        "bad": "import fs from 'fs';",
+        "good": "// Use Web APIs compatible with Edge"
       }
     }
   ]

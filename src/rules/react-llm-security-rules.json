@@ -14,8 +14,8 @@
   "securityRules": [
     {
       "id": "xss-prevention",
-      "title": "Prevent XSS Vulnerabilities",
-      "intent": "security rule: Avoid using dangerouslySetInnerHTML. React escapes content by default. Use DOMPurify for user-generated HTML.",
+      "title": "Prevent XSS in React Rendering",
+      "intent": "security rule: Avoid raw HTML rendering. React escapes content by default. Sanitize user HTML with DOMPurify only when absolutely required.",
       "scope": "code",
       "severity": "critical",
       "enabled": true,
@@ -24,92 +24,22 @@
         "patterns": [
           "dangerouslySetInnerHTML",
           "innerHTML",
-          "eval\\s*\\(",
-          "Function\\s*\\("
-        ]
-      },
-      "recommendation": "Avoid using dangerouslySetInnerHTML. React escapes content by default. Use DOMPurify for user-generated HTML.",
-      "codeExample": {
-        "bad": "return <div dangerouslySetInnerHTML={{ __html: userInput }} />;",
-        "good": "return <div>{userInput}</div>; // React auto-escapes"
-      },
-      "confidence": "high",
-      "falsePositives": "low",
-      "performanceImpact": "low",
-      "easeOfRemediation": "high",
-      "detectionExplanation": "Detects prevent xss vulnerabilities patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Avoid using dangerouslySetInnerHTML. React escapes content by default. Use DOMPurify for user-generated HTML.",
-      "references": [],
-      "relatedVulnerabilities": [],
-      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
-      "additionalNotes": "Keep dependencies updated and follow security best practices.",
-      "examplesOfExploits": []
-    },
-    {
-      "id": "no-hardcoded-secrets",
-      "title": "No Hardcoded Secrets",
-      "intent": "security rule: Store all secrets in environment variables. Never commit secrets to version control.",
-      "scope": "code",
-      "severity": "critical",
-      "enabled": true,
-      "category": "security",
-      "detection": {
-        "patterns": [
-          "password\\s*[=:]\\s*['\\\"]",
-          "api[_-]?key\\s*[=:]\\s*['\\\"]",
-          "secret\\s*[=:]\\s*['\\\"]",
-          "token\\s*[=:]\\s*['\\\"]"
-        ],
-        "excludePatterns": [
-          "*.test.*",
-          "*.spec.*",
-          "mock*"
-        ]
-      },
-      "recommendation": "Store all secrets in environment variables. Never commit secrets to version control.",
-      "codeExample": {
-        "bad": "const apiKey = 'sk-1234567890abcdef';",
-        "good": "const apiKey = process.env.REACT_APP_API_KEY;"
-      },
-      "confidence": "high",
-      "falsePositives": "low",
-      "performanceImpact": "low",
-      "easeOfRemediation": "high",
-      "detectionExplanation": "Detects no hardcoded secrets patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Store all secrets in environment variables. Never commit secrets to version control.",
-      "references": [],
-      "relatedVulnerabilities": [],
-      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
-      "additionalNotes": "Keep dependencies updated and follow security best practices.",
-      "examplesOfExploits": []
-    },
-    {
-      "id": "no-eval",
-      "title": "Avoid eval() and Dynamic Code Execution",
-      "intent": "security rule: Never use eval() or Function() constructor. Use JSON.parse or data-driven approaches instead.",
-      "scope": "code",
-      "severity": "critical",
-      "enabled": true,
-      "category": "security",
-      "detection": {
-        "patterns": [
+          "document\\.write",
           "\\beval\\s*\\(",
-          "\\bFunction\\s*\\(",
-          "setTimeout\\s*\\(['\\\"]",
-          "setInterval\\s*\\(['\\\"]"
+          "\\bFunction\\s*\\("
         ]
       },
-      "recommendation": "Never use eval() or Function() constructor. Use JSON.parse or data-driven approaches instead.",
+      "recommendation": "Avoid raw HTML rendering. React escapes content by default. Sanitize user HTML with DOMPurify only when absolutely required.",
       "codeExample": {
-        "bad": "const result = eval(userInput);",
-        "good": "const result = JSON.parse(userInput);"
+        "bad": "<div dangerouslySetInnerHTML={{ __html: userInput }} />",
+        "good": "<div>{userInput}</div>"
       },
       "confidence": "high",
       "falsePositives": "low",
       "performanceImpact": "low",
       "easeOfRemediation": "high",
-      "detectionExplanation": "Detects avoid eval() and dynamic code execution patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Never use eval() or Function() constructor. Use JSON.parse or data-driven approaches instead.",
+      "detectionExplanation": "Detects prevent xss in react rendering patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Avoid raw HTML rendering. React escapes content by default. Sanitize user HTML with DOMPurify only when absolutely required.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -117,30 +47,32 @@
       "examplesOfExploits": []
     },
     {
-      "id": "secure-api-calls",
-      "title": "Secure API Communication",
-      "intent": "security rule: Always use HTTPS for API calls. Include proper authentication headers.",
+      "id": "unsafe-browser-apis",
+      "title": "Avoid Unsafe Browser APIs",
+      "intent": "security rule: Avoid exposing sensitive data via browser APIs. Never store tokens in localStorage or sessionStorage.",
       "scope": "code",
       "severity": "high",
       "enabled": true,
       "category": "security",
       "detection": {
         "patterns": [
-          "fetch\\s*\\(\\s*['\\\"]http://",
-          "axios\\s*\\(\\s*['\\\"]http://"
+          "window\\.open\\(",
+          "document\\.cookie\\s*=",
+          "localStorage\\.setItem\\(",
+          "sessionStorage\\.setItem\\("
         ]
       },
-      "recommendation": "Always use HTTPS for API calls. Include proper authentication headers.",
+      "recommendation": "Avoid exposing sensitive data via browser APIs. Never store tokens in localStorage or sessionStorage.",
       "codeExample": {
-        "bad": "fetch('http://api.example.com/data');",
-        "good": "fetch('https://api.example.com/data', {\n  headers: { 'Authorization': `Bearer ${token}` }\n});"
+        "bad": "localStorage.setItem('token', jwt);",
+        "good": "// Use httpOnly cookies instead"
       },
       "confidence": "high",
       "falsePositives": "low",
       "performanceImpact": "low",
       "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects secure api communication patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Always use HTTPS for API calls. Include proper authentication headers.",
+      "detectionExplanation": "Detects avoid unsafe browser apis patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Avoid exposing sensitive data via browser APIs. Never store tokens in localStorage or sessionStorage.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
@@ -148,160 +80,9 @@
       "examplesOfExploits": []
     },
     {
-      "id": "csrf-protection",
-      "title": "CSRF Token Validation",
-      "intent": "security rule: Implement CSRF tokens for state-changing operations. Validate tokens on the server.",
-      "scope": "project",
-      "severity": "high",
-      "enabled": true,
-      "category": "security",
-      "detection": {
-        "fileGlobs": [
-          "package.json"
-        ]
-      },
-      "recommendation": "Implement CSRF tokens for state-changing operations. Validate tokens on the server.",
-      "codeExample": {
-        "bad": "// Form without CSRF protection",
-        "good": "// Include CSRF token in forms: <input name='csrf' value={csrfToken} />"
-      },
-      "confidence": "high",
-      "falsePositives": "low",
-      "performanceImpact": "low",
-      "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects csrf token validation patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Implement CSRF tokens for state-changing operations. Validate tokens on the server.",
-      "references": [],
-      "relatedVulnerabilities": [],
-      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
-      "additionalNotes": "Keep dependencies updated and follow security best practices.",
-      "examplesOfExploits": []
-    },
-    {
-      "id": "input-validation",
-      "title": "Input Validation",
-      "intent": "security rule: Validate and sanitize all user inputs on both client and server side.",
-      "scope": "project",
-      "severity": "high",
-      "enabled": true,
-      "category": "security",
-      "detection": {
-        "fileGlobs": [
-          "package.json"
-        ]
-      },
-      "recommendation": "Validate and sanitize all user inputs on both client and server side.",
-      "codeExample": {
-        "bad": "const userEmail = request.body.email;",
-        "good": "const userEmail = sanitize(request.body.email); // Validate format"
-      },
-      "confidence": "high",
-      "falsePositives": "low",
-      "performanceImpact": "low",
-      "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects input validation patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Validate and sanitize all user inputs on both client and server side.",
-      "references": [],
-      "relatedVulnerabilities": [],
-      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
-      "additionalNotes": "Keep dependencies updated and follow security best practices.",
-      "examplesOfExploits": []
-    },
-    {
-      "id": "dependency-vulnerabilities",
-      "title": "Check for Vulnerable Dependencies",
-      "intent": "security rule: Regularly run npm audit and update vulnerable packages. Use dependabot for automated updates.",
-      "scope": "project",
-      "severity": "high",
-      "enabled": true,
-      "category": "security",
-      "detection": {
-        "fileGlobs": [
-          "package.json"
-        ]
-      },
-      "recommendation": "Regularly run npm audit and update vulnerable packages. Use dependabot for automated updates.",
-      "codeExample": {
-        "bad": "// Outdated vulnerable package version",
-        "good": "// Run: npm update && npm audit fix"
-      },
-      "confidence": "high",
-      "falsePositives": "low",
-      "performanceImpact": "low",
-      "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects check for vulnerable dependencies patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Regularly run npm audit and update vulnerable packages. Use dependabot for automated updates.",
-      "references": [],
-      "relatedVulnerabilities": [],
-      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
-      "additionalNotes": "Keep dependencies updated and follow security best practices.",
-      "examplesOfExploits": []
-    },
-    {
-      "id": "secure-headers",
-      "title": "HTTP Security Headers",
-      "intent": "security rule: Implement security headers: CSP, X-Frame-Options, X-Content-Type-Options, Strict-Transport-Security.",
-      "scope": "project",
-      "severity": "high",
-      "enabled": true,
-      "category": "security",
-      "detection": {
-        "fileGlobs": [
-          "package.json"
-        ]
-      },
-      "recommendation": "Implement security headers: CSP, X-Frame-Options, X-Content-Type-Options, Strict-Transport-Security.",
-      "codeExample": {
-        "bad": "// No security headers",
-        "good": "// Add to next.config.js: headers with CSP and other security headers"
-      },
-      "confidence": "high",
-      "falsePositives": "low",
-      "performanceImpact": "low",
-      "easeOfRemediation": "medium",
-      "detectionExplanation": "Detects http security headers patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Implement security headers: CSP, X-Frame-Options, X-Content-Type-Options, Strict-Transport-Security.",
-      "references": [],
-      "relatedVulnerabilities": [],
-      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
-      "additionalNotes": "Keep dependencies updated and follow security best practices.",
-      "examplesOfExploits": []
-    },
-    {
-      "id": "sql-injection",
-      "title": "SQL Injection Prevention",
-      "intent": "security rule: Use parameterized queries or ORM libraries. Never concatenate user input into SQL strings.",
-      "scope": "code",
-      "severity": "critical",
-      "enabled": true,
-      "category": "security",
-      "detection": {
-        "patterns": [
-          "query\\s*\\(\\s*['\\\"].*\\+.*['\\\"]",
-          "execute\\s*\\(\\s*['\\\"].*\\+.*['\\\"]"
-        ]
-      },
-      "recommendation": "Use parameterized queries or ORM libraries. Never concatenate user input into SQL strings.",
-      "codeExample": {
-        "bad": "db.query(`SELECT * FROM users WHERE id = ${userId}`);",
-        "good": "db.query('SELECT * FROM users WHERE id = ?', [userId]);"
-      },
-      "confidence": "high",
-      "falsePositives": "low",
-      "performanceImpact": "low",
-      "easeOfRemediation": "high",
-      "detectionExplanation": "Detects sql injection prevention patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Use parameterized queries or ORM libraries. Never concatenate user input into SQL strings.",
-      "references": [],
-      "relatedVulnerabilities": [],
-      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
-      "additionalNotes": "Keep dependencies updated and follow security best practices.",
-      "examplesOfExploits": []
-    },
-    {
-      "id": "authentication-checks",
-      "title": "Authentication & Authorization",
-      "intent": "security rule: Verify authentication before accessing protected resources. Check user permissions for authorization.",
+      "id": "no-sensitive-data-in-state",
+      "title": "Do Not Store Sensitive Data in React State",
+      "intent": "security rule: Never store passwords, tokens, secrets, or PII in React state, props, or context.",
       "scope": "project",
       "severity": "critical",
       "enabled": true,
@@ -311,17 +92,591 @@
           "package.json"
         ]
       },
-      "recommendation": "Verify authentication before accessing protected resources. Check user permissions for authorization.",
+      "recommendation": "Never store passwords, tokens, secrets, or PII in React state, props, or context.",
       "codeExample": {
-        "bad": "if (user) { /* allow access */ }",
-        "good": "if (user && user.role === 'admin') { /* allow access */ }"
+        "bad": "const [token, setToken] = useState(jwt);",
+        "good": "// Authentication handled via secure cookies"
       },
       "confidence": "high",
       "falsePositives": "low",
       "performanceImpact": "low",
       "easeOfRemediation": "high",
-      "detectionExplanation": "Detects authentication & authorization patterns in code to ensure compliance.",
-      "remediationExplanation": "Fix this by: Verify authentication before accessing protected resources. Check user permissions for authorization.",
+      "detectionExplanation": "Detects do not store sensitive data in react state patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Never store passwords, tokens, secrets, or PII in React state, props, or context.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "secure-routing",
+      "title": "Secure Client-Side Routing",
+      "intent": "security rule: Never trust URL parameters for authorization or redirects. Validate and allowlist routes.",
+      "scope": "code",
+      "severity": "high",
+      "enabled": true,
+      "category": "security",
+      "detection": {
+        "patterns": [
+          "navigate\\(.*location\\.search",
+          "router\\.push\\(.*query"
+        ]
+      },
+      "recommendation": "Never trust URL parameters for authorization or redirects. Validate and allowlist routes.",
+      "codeExample": {
+        "bad": "navigate(nextUrl);",
+        "good": "if (ALLOWED_ROUTES.includes(nextUrl)) navigate(nextUrl);"
+      },
+      "confidence": "high",
+      "falsePositives": "low",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects secure client-side routing patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Never trust URL parameters for authorization or redirects. Validate and allowlist routes.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "auth-ui-gating",
+      "title": "Do Not Rely on UI-Only Authorization",
+      "intent": "security rule: Hiding UI elements does not equal security. Client-side checks must never be the only authorization layer.",
+      "scope": "project",
+      "severity": "high",
+      "enabled": true,
+      "category": "security",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "Hiding UI elements does not equal security. Client-side checks must never be the only authorization layer.",
+      "codeExample": {
+        "bad": "{isAdmin && <DeleteUser />}",
+        "good": "// Always enforce permissions server-side"
+      },
+      "confidence": "high",
+      "falsePositives": "low",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects do not rely on ui-only authorization patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Hiding UI elements does not equal security. Client-side checks must never be the only authorization layer.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "third-party-scripts",
+      "title": "Restrict Third-Party Scripts",
+      "intent": "security rule: Avoid injecting third-party scripts directly. Load scripts explicitly and review their security impact.",
+      "scope": "code",
+      "severity": "high",
+      "enabled": true,
+      "category": "security",
+      "detection": {
+        "patterns": [
+          "<script",
+          "dangerouslySetInnerHTML"
+        ]
+      },
+      "recommendation": "Avoid injecting third-party scripts directly. Load scripts explicitly and review their security impact.",
+      "codeExample": {
+        "bad": "<script src='https://random-cdn.com/script.js'></script>",
+        "good": "// Load vetted scripts via build tooling"
+      },
+      "confidence": "high",
+      "falsePositives": "low",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects restrict third-party scripts patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Avoid injecting third-party scripts directly. Load scripts explicitly and review their security impact.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "file-input-validation",
+      "title": "Validate File Inputs on the Client",
+      "intent": "security rule: Restrict file size and type in file inputs. Never trust MIME types alone.",
+      "scope": "project",
+      "severity": "medium",
+      "enabled": true,
+      "category": "security",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "Restrict file size and type in file inputs. Never trust MIME types alone.",
+      "codeExample": {
+        "bad": "<input type='file' />",
+        "good": "<input type='file' accept='.png,.jpg' />"
+      },
+      "confidence": "medium",
+      "falsePositives": "medium",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects validate file inputs on the client patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Restrict file size and type in file inputs. Never trust MIME types alone.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "secure-forms",
+      "title": "Secure Form Handling",
+      "intent": "security rule: Avoid manually handling sensitive form state. Prefer browser-native forms or React 19 actions.",
+      "scope": "project",
+      "severity": "high",
+      "enabled": true,
+      "category": "security",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "Avoid manually handling sensitive form state. Prefer browser-native forms or React 19 actions.",
+      "codeExample": {
+        "bad": "const [password, setPassword] = useState('');",
+        "good": "<form action={loginAction}>"
+      },
+      "confidence": "high",
+      "falsePositives": "low",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects secure form handling patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Avoid manually handling sensitive form state. Prefer browser-native forms or React 19 actions.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "no-debug-leaks",
+      "title": "Prevent Debug Data Leaks",
+      "intent": "security rule: Remove console logs that may expose user or application data.",
+      "scope": "code",
+      "severity": "medium",
+      "enabled": true,
+      "category": "security",
+      "detection": {
+        "patterns": [
+          "console\\.log",
+          "console\\.debug"
+        ]
+      },
+      "recommendation": "Remove console logs that may expose user or application data.",
+      "codeExample": {
+        "bad": "console.log(user);",
+        "good": "// No logging of sensitive objects"
+      },
+      "confidence": "medium",
+      "falsePositives": "medium",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects prevent debug data leaks patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Remove console logs that may expose user or application data.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "safe-error-messages",
+      "title": "Safe Error Messages",
+      "intent": "security rule: Do not expose stack traces, internal IDs, or system details in UI error messages.",
+      "scope": "project",
+      "severity": "medium",
+      "enabled": true,
+      "category": "security",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "Do not expose stack traces, internal IDs, or system details in UI error messages.",
+      "codeExample": {
+        "bad": "Error: DB_CONN_FAILED at users.ts:42",
+        "good": "Something went wrong. Please try again."
+      },
+      "confidence": "medium",
+      "falsePositives": "medium",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects safe error messages patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Do not expose stack traces, internal IDs, or system details in UI error messages.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "dependency-risk-awareness",
+      "title": "Minimize Frontend Dependency Risk",
+      "intent": "security rule: Avoid unnecessary dependencies. Each dependency increases attack surface.",
+      "scope": "project",
+      "severity": "medium",
+      "enabled": true,
+      "category": "security",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "Avoid unnecessary dependencies. Each dependency increases attack surface.",
+      "codeExample": {
+        "bad": "// 100+ unused dependencies",
+        "good": "// Only essential, actively maintained libraries"
+      },
+      "confidence": "medium",
+      "falsePositives": "medium",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects minimize frontend dependency risk patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Avoid unnecessary dependencies. Each dependency increases attack surface.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "server-client-boundary",
+      "title": "Respect Server vs Client Component Boundaries",
+      "intent": "security rule: Never import server-only code, secrets, or database logic into Client Components. Use Server Components or Server Actions.",
+      "scope": "project",
+      "severity": "critical",
+      "enabled": true,
+      "category": "security",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "Never import server-only code, secrets, or database logic into Client Components. Use Server Components or Server Actions.",
+      "codeExample": {
+        "bad": "'use client'; import { getSecret } from '@/server/secrets';",
+        "good": "// Server Component: import { getSecret } from '@/server/secrets';"
+      },
+      "confidence": "high",
+      "falsePositives": "low",
+      "performanceImpact": "low",
+      "easeOfRemediation": "high",
+      "detectionExplanation": "Detects respect server vs client component boundaries patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Never import server-only code, secrets, or database logic into Client Components. Use Server Components or Server Actions.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "fetch-cache-security",
+      "title": "Secure fetch() Caching and Revalidation",
+      "intent": "security rule: Avoid caching authenticated or user-specific data. Explicitly set cache and revalidate options on fetch.",
+      "scope": "project",
+      "severity": "high",
+      "enabled": true,
+      "category": "security",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "Avoid caching authenticated or user-specific data. Explicitly set cache and revalidate options on fetch.",
+      "codeExample": {
+        "bad": "fetch('/api/user');",
+        "good": "fetch('/api/user', { cache: 'no-store' });"
+      },
+      "confidence": "high",
+      "falsePositives": "low",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects secure fetch() caching and revalidation patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Avoid caching authenticated or user-specific data. Explicitly set cache and revalidate options on fetch.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "static-generation-data-leak",
+      "title": "Avoid Leaking Sensitive Data via Static Generation",
+      "intent": "security rule: Never statically generate pages that depend on authenticated or user-specific data.",
+      "scope": "project",
+      "severity": "critical",
+      "enabled": true,
+      "category": "security",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "Never statically generate pages that depend on authenticated or user-specific data.",
+      "codeExample": {
+        "bad": "export const revalidate = 3600; // User-specific page",
+        "good": "export const dynamic = 'force-dynamic';"
+      },
+      "confidence": "high",
+      "falsePositives": "low",
+      "performanceImpact": "low",
+      "easeOfRemediation": "high",
+      "detectionExplanation": "Detects avoid leaking sensitive data via static generation patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Never statically generate pages that depend on authenticated or user-specific data.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "secure-redirects",
+      "title": "Prevent Open Redirects in Next.js Navigation",
+      "intent": "security rule: Never redirect using unvalidated user input. Always allowlist destinations.",
+      "scope": "code",
+      "severity": "high",
+      "enabled": true,
+      "category": "security",
+      "detection": {
+        "patterns": [
+          "redirect\\(.*searchParams",
+          "router\\.push\\(.*searchParams"
+        ]
+      },
+      "recommendation": "Never redirect using unvalidated user input. Always allowlist destinations.",
+      "codeExample": {
+        "bad": "redirect(searchParams.next);",
+        "good": "if (ALLOWED_PATHS.includes(next)) redirect(next);"
+      },
+      "confidence": "high",
+      "falsePositives": "low",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects prevent open redirects in next.js navigation patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Never redirect using unvalidated user input. Always allowlist destinations.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "route-handler-validation",
+      "title": "Validate Input in Route Handlers",
+      "intent": "security rule: All Route Handlers (app/api/*) must validate input and method types.",
+      "scope": "project",
+      "severity": "high",
+      "enabled": true,
+      "category": "security",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "All Route Handlers (app/api/*) must validate input and method types.",
+      "codeExample": {
+        "bad": "export async function POST(req) { const body = await req.json(); }",
+        "good": "export async function POST(req) { const body = schema.parse(await req.json()); }"
+      },
+      "confidence": "high",
+      "falsePositives": "low",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects validate input in route handlers patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: All Route Handlers (app/api/*) must validate input and method types.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "next-script-safety",
+      "title": "Secure Usage of next/script",
+      "intent": "security rule: Avoid inline scripts. Use next/script with trusted sources and proper loading strategies.",
+      "scope": "code",
+      "severity": "high",
+      "enabled": true,
+      "category": "security",
+      "detection": {
+        "patterns": [
+          "<Script.*dangerouslySetInnerHTML"
+        ]
+      },
+      "recommendation": "Avoid inline scripts. Use next/script with trusted sources and proper loading strategies.",
+      "codeExample": {
+        "bad": "<Script dangerouslySetInnerHTML={{ __html: script }} />",
+        "good": "<Script src='https://trusted.cdn/script.js' strategy='afterInteractive' />"
+      },
+      "confidence": "high",
+      "falsePositives": "low",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects secure usage of next/script patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Avoid inline scripts. Use next/script with trusted sources and proper loading strategies.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "next-image-remote-patterns",
+      "title": "Restrict next/image Remote Sources",
+      "intent": "security rule: Restrict allowed image domains in next.config.js to prevent data exfiltration.",
+      "scope": "project",
+      "severity": "medium",
+      "enabled": true,
+      "category": "security",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "Restrict allowed image domains in next.config.js to prevent data exfiltration.",
+      "codeExample": {
+        "bad": "images: { domains: ['*'] }",
+        "good": "images: { domains: ['images.example.com'] }"
+      },
+      "confidence": "medium",
+      "falsePositives": "medium",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects restrict next/image remote sources patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Restrict allowed image domains in next.config.js to prevent data exfiltration.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "error-boundary-leaks",
+      "title": "Avoid Sensitive Data in Error Boundaries",
+      "intent": "security rule: Error and notFound boundaries must not expose stack traces or internal data.",
+      "scope": "project",
+      "severity": "medium",
+      "enabled": true,
+      "category": "security",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "Error and notFound boundaries must not expose stack traces or internal data.",
+      "codeExample": {
+        "bad": "return <pre>{error.stack}</pre>;",
+        "good": "return <p>Something went wrong.</p>;"
+      },
+      "confidence": "medium",
+      "falsePositives": "medium",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects avoid sensitive data in error boundaries patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Error and notFound boundaries must not expose stack traces or internal data.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "source-map-exposure",
+      "title": "Disable Source Maps in Production",
+      "intent": "security rule: Disable browser source maps in production builds to reduce attack surface.",
+      "scope": "project",
+      "severity": "medium",
+      "enabled": true,
+      "category": "security",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "Disable browser source maps in production builds to reduce attack surface.",
+      "codeExample": {
+        "bad": "productionBrowserSourceMaps: true",
+        "good": "productionBrowserSourceMaps: false"
+      },
+      "confidence": "medium",
+      "falsePositives": "medium",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects disable source maps in production patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Disable browser source maps in production builds to reduce attack surface.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "preview-mode-protection",
+      "title": "Secure Draft / Preview Mode",
+      "intent": "security rule: Protect draft/preview mode with authentication and secret tokens.",
+      "scope": "project",
+      "severity": "high",
+      "enabled": true,
+      "category": "security",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "Protect draft/preview mode with authentication and secret tokens.",
+      "codeExample": {
+        "bad": "res.setPreviewData({});",
+        "good": "if (token !== process.env.PREVIEW_SECRET) return res.status(401);"
+      },
+      "confidence": "high",
+      "falsePositives": "low",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects secure draft / preview mode patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Protect draft/preview mode with authentication and secret tokens.",
+      "references": [],
+      "relatedVulnerabilities": [],
+      "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
+      "additionalNotes": "Keep dependencies updated and follow security best practices.",
+      "examplesOfExploits": []
+    },
+    {
+      "id": "edge-runtime-restrictions",
+      "title": "Respect Edge Runtime Security Constraints",
+      "intent": "security rule: Do not rely on Node.js-only APIs in Edge runtime. Avoid insecure polyfills.",
+      "scope": "project",
+      "severity": "medium",
+      "enabled": true,
+      "category": "security",
+      "detection": {
+        "fileGlobs": [
+          "package.json"
+        ]
+      },
+      "recommendation": "Do not rely on Node.js-only APIs in Edge runtime. Avoid insecure polyfills.",
+      "codeExample": {
+        "bad": "import fs from 'fs';",
+        "good": "// Use Web APIs compatible with Edge"
+      },
+      "confidence": "medium",
+      "falsePositives": "medium",
+      "performanceImpact": "low",
+      "easeOfRemediation": "medium",
+      "detectionExplanation": "Detects respect edge runtime security constraints patterns in code to ensure compliance.",
+      "remediationExplanation": "Fix this by: Do not rely on Node.js-only APIs in Edge runtime. Avoid insecure polyfills.",
       "references": [],
       "relatedVulnerabilities": [],
       "detectionLimitations": "May not catch all instances in complex or obfuscated code.",
