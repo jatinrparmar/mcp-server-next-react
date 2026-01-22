@@ -8,21 +8,12 @@ import { CodeReviewer } from '../core/reviewer.js';
 import { CodeOptimizer } from '../core/optimizer.js';
 import { analyzeProject, analyzeDirectory, checkMigrationReadiness, checkProjectMigrationReadiness, checkDirectoryMigrationReadiness, findRepeatedCode, findRepeatedCodeInProject, findRepeatedCodeInDirectory, generateComponent, optimizeProject, optimizeDirectory, refactorCode, reviewProject, reviewDirectory, checkAccessibilityInDirectory, checkSecurityInDirectory } from '../common/helper.js';
 import { projectDetector } from '../common/project-detector.js';
+import { executeToolSafely } from '../common/mcp-response.js';
+import { configManager } from '../common/config-manager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// helper function to estimate usage
-const estimateUsage = (prompt: string) => {
-  const promptTokens = Math.ceil(prompt.length / 4)
-  const premiumHits = Math.max(1, Math.floor(promptTokens / 500))
-
-  return {
-    prompt_tokens: promptTokens,
-    premium_hits_used: premiumHits,
-    cost_tier: premiumHits > 2 ? "high" : "standard",
-  }
-}
 
 export function registerTools(server: McpServer): void {
   const analyzer = new CodeAnalyzer();
@@ -49,48 +40,23 @@ export function registerTools(server: McpServer): void {
       _meta: { category: 'code-analysis', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ filePath, includeTests = false }: { filePath?: string; includeTests?: boolean }) => {
-      try {
-        if (!filePath) {
-          // Scan entire project
-          const projectResult = await analyzeProject(analyzer, includeTests);
-          return {
-            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }],
-            usage: estimateUsage(JSON.stringify(projectResult))
-          };
-        }
-        // Detect if path is a directory
-        const stat = fs.statSync(filePath);
-        if (stat.isDirectory()) {
-          const dirResult = await analyzeDirectory(analyzer, filePath, includeTests);
-          return {
-            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }],
-            usage: estimateUsage(JSON.stringify(dirResult))
-          };
-        }
-        const code = fs.readFileSync(filePath, 'utf-8');
-        const result = await analyzer.analyzeCode(code, filePath);
+      return executeToolSafely(
+        { filePath, includeTests },
+        async () => {
+          if (!filePath) {
+            return await analyzeProject(analyzer, includeTests);
+          }
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(result, null, 2)
-            }
-          ],
-          usage: estimateUsage(JSON.stringify(result))
-        };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error analyzing code: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
-          ],
-          isError: true,
-          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
-        };
-      }
+          const stat = fs.statSync(filePath);
+          if (stat.isDirectory()) {
+            return await analyzeDirectory(analyzer, filePath, includeTests);
+          }
+
+          const code = fs.readFileSync(filePath, 'utf-8');
+          return await analyzer.analyzeCode(code, filePath);
+        },
+        'code-analysis'
+      );
     }
   );
 
@@ -113,47 +79,23 @@ export function registerTools(server: McpServer): void {
       _meta: { category: 'code-review', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ filePath }: { filePath?: string }) => {
-      try {
-        if (!filePath) {
-          // Review entire project
-          const projectResult = await reviewProject(reviewer);
-          return {
-            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }],
-            usage: estimateUsage(JSON.stringify(projectResult))
-          };
-        }
-        const stat = fs.statSync(filePath);
-        if (stat.isDirectory()) {
-          const dirResult = await reviewDirectory(reviewer, filePath);
-          return {
-            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }],
-            usage: estimateUsage(JSON.stringify(dirResult))
-          };
-        }
-        const code = fs.readFileSync(filePath, 'utf-8');
-        const result = await reviewer.reviewCode(code, filePath);
+      return executeToolSafely(
+        { filePath },
+        async () => {
+          if (!filePath) {
+            return await reviewProject(reviewer);
+          }
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(result, null, 2)
-            }
-          ],
-          usage: estimateUsage(JSON.stringify(result))
-        };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error reviewing code: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
-          ],
-          isError: true,
-          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
-        };
-      }
+          const stat = fs.statSync(filePath);
+          if (stat.isDirectory()) {
+            return await reviewDirectory(reviewer, filePath);
+          }
+
+          const code = fs.readFileSync(filePath, 'utf-8');
+          return await reviewer.reviewCode(code, filePath);
+        },
+        'code-review'
+      );
     }
   );
 
@@ -176,47 +118,23 @@ export function registerTools(server: McpServer): void {
       _meta: { category: 'code-optimization', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ filePath }: { filePath?: string }) => {
-      try {
-        if (!filePath) {
-          // Optimize entire project
-          const projectResult = await optimizeProject(optimizer);
-          return {
-            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }],
-            usage: estimateUsage(JSON.stringify(projectResult))
-          };
-        }
-        const stat = fs.statSync(filePath);
-        if (stat.isDirectory()) {
-          const dirResult = await optimizeDirectory(optimizer, filePath);
-          return {
-            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }],
-            usage: estimateUsage(JSON.stringify(dirResult))
-          };
-        }
-        const code = fs.readFileSync(filePath, 'utf-8');
-        const result = await optimizer.optimizeCode(code, filePath);
+      return executeToolSafely(
+        { filePath },
+        async () => {
+          if (!filePath) {
+            return await optimizeProject(optimizer);
+          }
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(result, null, 2)
-            }
-          ],
-          usage: estimateUsage(JSON.stringify(result))
-        };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error optimizing code: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
-          ],
-          isError: true,
-          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
-        };
-      }
+          const stat = fs.statSync(filePath);
+          if (stat.isDirectory()) {
+            return await optimizeDirectory(optimizer, filePath);
+          }
+
+          const code = fs.readFileSync(filePath, 'utf-8');
+          return await optimizer.optimizeCode(code, filePath);
+        },
+        'code-optimization'
+      );
     }
   );
 
@@ -242,29 +160,11 @@ export function registerTools(server: McpServer): void {
       _meta: { category: 'code-generation', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ name, type, features = [], styling = 'tailwind' }: { name: string; type: string; features?: string[]; styling?: string }) => {
-      try {
-        const component = generateComponent(name, type, features, styling);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: component
-            }
-          ]
-        };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error generating component: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
-          ],
-          isError: true,
-          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
-        };
-      }
+      return executeToolSafely(
+        { name, type, features, styling },
+        async () => generateComponent(name, type, features, styling),
+        'code-generation'
+      );
     }
   );
 
@@ -288,31 +188,14 @@ export function registerTools(server: McpServer): void {
       _meta: { category: 'code-refactoring', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ filePath, pattern }: { filePath: string; pattern: string }) => {
-      try {
-        const code = fs.readFileSync(filePath, 'utf-8');
-        const refactored = refactorCode(code, pattern, filePath);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: refactored
-            }
-          ],
-          usage: estimateUsage(refactored)
-        };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error refactoring code: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
-          ],
-          isError: true,
-          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
-        };
-      }
+      return executeToolSafely(
+        { filePath, pattern },
+        async () => {
+          const code = fs.readFileSync(filePath, 'utf-8');
+          return refactorCode(code, pattern, filePath);
+        },
+        'code-refactoring'
+      );
     }
   );
 
@@ -335,62 +218,37 @@ export function registerTools(server: McpServer): void {
       _meta: { category: 'best-practices', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ topic }: { topic?: string }) => {
-      try {
-        // Detect project framework
-        const projectInfo = projectDetector.detectFramework();
-        const isReact = projectInfo.framework === 'react';
-        const framework = isReact ? 'React' : 'Next.js';
+      return executeToolSafely(
+        { topic },
+        async () => {
+          const projectInfo = projectDetector.detectFramework();
+          const isReact = projectInfo.framework === 'react';
+          const framework = isReact ? 'React' : 'Next.js';
 
-        // Load appropriate rules
-        const rulesFileName = isReact ? 'react-llm-best-practices.json' : 'nextjs-llm-best-practices.json';
-        const rulesPath = path.join(__dirname, '../config', rulesFileName);
+          const configName = isReact ? 'react-llm-best-practices' : 'nextjs-llm-best-practices';
+          const rules = configManager.loadConfig(configName);
 
-        if (!fs.existsSync(rulesPath)) {
-          throw new Error(`Rules file not found: ${rulesPath}`);
-        }
+          let response = `# ${framework} Best Practices\n\n`;
 
-        const rulesContent = fs.readFileSync(rulesPath, 'utf-8');
-        const rules = JSON.parse(rulesContent);
+          if (topic) {
+            const topicKey = topic.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
 
-        let response = `# ${framework} Best Practices\n\n`;
-
-        if (topic) {
-          // Convert kebab-case to camelCase for key lookup
-          const topicKey = topic.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
-
-          if (rules[topicKey]) {
-            response += `## ${topic.charAt(0).toUpperCase() + topic.slice(1).replace(/-/g, ' ')}\n\n`;
-            response += JSON.stringify(rules[topicKey], null, 2);
+            if (rules[topicKey]) {
+              response += `## ${topic.charAt(0).toUpperCase() + topic.slice(1).replace(/-/g, ' ')}\n\n`;
+              response += JSON.stringify(rules[topicKey], null, 2);
+            } else {
+              response += `Topic "${topic}" not found in ${framework} rules.\n\n`;
+              response += `Available topics: ${Object.keys(rules).join(', ')}\n\n`;
+              response += `Full rules:\n${JSON.stringify(rules, null, 2)}`;
+            }
           } else {
-            response += `Topic "${topic}" not found in ${framework} rules.\n\n`;
-            response += `Available topics: ${Object.keys(rules).join(', ')}\n\n`;
-            response += `Full rules:\n${JSON.stringify(rules, null, 2)}`;
+            response += JSON.stringify(rules, null, 2);
           }
-        } else {
-          response += JSON.stringify(rules, null, 2);
-        }
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: response
-            }
-          ],
-          usage: estimateUsage(response)
-        };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting best practices: ${error instanceof Error ? error.message : 'Unknown error'}\nStack: ${error instanceof Error ? error.stack : ''}`
-            }
-          ],
-          isError: true,
-          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
-        };
-      }
+          return response;
+        },
+        'best-practices'
+      );
     }
   );
 
@@ -413,47 +271,23 @@ export function registerTools(server: McpServer): void {
       _meta: { category: 'code-migration', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ filePath }: { filePath?: string }) => {
-      try {
-        if (!filePath) {
-          // Check entire pages directory
-          const projectResult = await checkProjectMigrationReadiness();
-          return {
-            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }],
-            usage: estimateUsage(JSON.stringify(projectResult))
-          };
-        }
-        const stat = fs.statSync(filePath);
-        if (stat.isDirectory()) {
-          const dirResult = await checkDirectoryMigrationReadiness(filePath);
-          return {
-            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }],
-            usage: estimateUsage(JSON.stringify(dirResult))
-          };
-        }
-        const code = fs.readFileSync(filePath, 'utf-8');
-        const analysis = checkMigrationReadiness(code, filePath);
+      return executeToolSafely(
+        { filePath },
+        async () => {
+          if (!filePath) {
+            return await checkProjectMigrationReadiness();
+          }
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(analysis, null, 2)
-            }
-          ],
-          usage: estimateUsage(JSON.stringify(analysis))
-        };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error checking migration readiness: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
-          ],
-          isError: true,
-          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
-        };
-      }
+          const stat = fs.statSync(filePath);
+          if (stat.isDirectory()) {
+            return await checkDirectoryMigrationReadiness(filePath);
+          }
+
+          const code = fs.readFileSync(filePath, 'utf-8');
+          return checkMigrationReadiness(code, filePath);
+        },
+        'code-migration'
+      );
     }
   );
 
@@ -471,47 +305,23 @@ export function registerTools(server: McpServer): void {
       _meta: { category: 'code-analysis', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ filePath, minOccurrences = 2, includeSmallPatterns = false }: { filePath?: string; minOccurrences?: number; includeSmallPatterns?: boolean }) => {
-      try {
-        if (!filePath) {
-          // Find repeated code across entire project
-          const projectResult = await findRepeatedCodeInProject(minOccurrences, includeSmallPatterns);
-          return {
-            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }],
-            usage: estimateUsage(JSON.stringify(projectResult))
-          };
-        }
-        const stat = fs.statSync(filePath);
-        if (stat.isDirectory()) {
-          const dirResult = await findRepeatedCodeInDirectory(filePath, minOccurrences, includeSmallPatterns);
-          return {
-            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }],
-            usage: estimateUsage(JSON.stringify(dirResult))
-          };
-        }
-        const code = fs.readFileSync(filePath, 'utf-8');
-        const result = findRepeatedCode(code, filePath, minOccurrences, includeSmallPatterns);
+      return executeToolSafely(
+        { filePath, minOccurrences, includeSmallPatterns },
+        async () => {
+          if (!filePath) {
+            return await findRepeatedCodeInProject(minOccurrences, includeSmallPatterns);
+          }
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(result, null, 2)
-            }
-          ],
-          usage: estimateUsage(JSON.stringify(result))
-        };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error finding repeated code: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
-          ],
-          isError: true,
-          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
-        };
-      }
+          const stat = fs.statSync(filePath);
+          if (stat.isDirectory()) {
+            return await findRepeatedCodeInDirectory(filePath, minOccurrences, includeSmallPatterns);
+          }
+
+          const code = fs.readFileSync(filePath, 'utf-8');
+          return findRepeatedCode(code, filePath, minOccurrences, includeSmallPatterns);
+        },
+        'code-analysis'
+      );
     }
   );
 
@@ -534,47 +344,23 @@ export function registerTools(server: McpServer): void {
       _meta: { category: 'accessibility-check', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ filePath }: { filePath?: string }) => {
-      try {
-        if (!filePath) {
-          // Check entire project
-          const projectResult = await analyzer.checkAccessibilityInProject();
-          return {
-            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }],
-            usage: estimateUsage(JSON.stringify(projectResult))
-          };
-        }
-        const stat = fs.statSync(filePath);
-        if (stat.isDirectory()) {
-          const dirResult = await checkAccessibilityInDirectory(analyzer, filePath);
-          return {
-            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }],
-            usage: estimateUsage(JSON.stringify(dirResult))
-          };
-        }
-        const code = fs.readFileSync(filePath, 'utf-8');
-        const result = analyzer.checkAccessibility(code, filePath);
+      return executeToolSafely(
+        { filePath },
+        async () => {
+          if (!filePath) {
+            return await analyzer.checkAccessibilityInProject();
+          }
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(result, null, 2)
-            }
-          ],
-          usage: estimateUsage(JSON.stringify(result))
-        };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error checking accessibility: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
-          ],
-          isError: true,
-          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
-        };
-      }
+          const stat = fs.statSync(filePath);
+          if (stat.isDirectory()) {
+            return await checkAccessibilityInDirectory(analyzer, filePath);
+          }
+
+          const code = fs.readFileSync(filePath, 'utf-8');
+          return analyzer.checkAccessibility(code, filePath);
+        },
+        'accessibility-check'
+      );
     }
   );
 
@@ -597,47 +383,23 @@ export function registerTools(server: McpServer): void {
       _meta: { category: 'security-check', framework: 'react-nextjs', toolVersion: '2.0.0' }
     },
     async ({ filePath }: { filePath?: string }) => {
-      try {
-        if (!filePath) {
-          // Check entire project
-          const projectResult = await analyzer.checkSecurityInProject();
-          return {
-            content: [{ type: 'text', text: JSON.stringify(projectResult, null, 2) }],
-            usage: estimateUsage(JSON.stringify(projectResult))
-          };
-        }
-        const stat = fs.statSync(filePath);
-        if (stat.isDirectory()) {
-          const dirResult = await checkSecurityInDirectory(analyzer, filePath);
-          return {
-            content: [{ type: 'text', text: JSON.stringify(dirResult, null, 2) }],
-            usage: estimateUsage(JSON.stringify(dirResult))
-          };
-        }
-        const code = fs.readFileSync(filePath, 'utf-8');
-        const result = await analyzer.checkSecurity(code, filePath);
+      return executeToolSafely(
+        { filePath },
+        async () => {
+          if (!filePath) {
+            return await analyzer.checkSecurityInProject();
+          }
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(result, null, 2)
-            }
-          ],
-          usage: estimateUsage(JSON.stringify(result))
-        };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error checking security: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
-          ],
-          isError: true,
-          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
-        };
-      }
+          const stat = fs.statSync(filePath);
+          if (stat.isDirectory()) {
+            return await checkSecurityInDirectory(analyzer, filePath);
+          }
+
+          const code = fs.readFileSync(filePath, 'utf-8');
+          return await analyzer.checkSecurity(code, filePath);
+        },
+        'security-check'
+      );
     }
   );
 
@@ -661,28 +423,14 @@ export function registerTools(server: McpServer): void {
       _meta: { category: 'security-config', framework: 'react-nextjs', toolVersion: '1.0.0' }
     },
     async ({ action, ruleId }: { action: 'list' | 'get-config' | 'enable' | 'disable'; ruleId?: string }) => {
-      try {
-        const securityAnalyzer = new (await import('../core/securityAnalyzer.js')).SecurityAnalyzer();
+      return executeToolSafely(
+        { action, ruleId },
+        async () => {
+          const securityAnalyzer = new (await import('../core/securityAnalyzer.js')).SecurityAnalyzer();
 
-        if (action === 'list') {
-          const rules = securityAnalyzer.getEnabledRules();
-          return {
-            content: [
-              {
-                type: 'text',
-                text: JSON.stringify({
-                  totalRules: rules.length,
-                  rules: rules.map(r => ({
-                    id: r.id,
-                    title: r.title,
-                    severity: r.severity,
-                    enabled: r.enabled,
-                    intent: r.intent
-                  }))
-                }, null, 2)
-              }
-            ],
-            usage: estimateUsage(JSON.stringify({
+          if (action === 'list') {
+            const rules = securityAnalyzer.getEnabledRules();
+            return {
               totalRules: rules.length,
               rules: rules.map(r => ({
                 id: r.id,
@@ -691,78 +439,31 @@ export function registerTools(server: McpServer): void {
                 enabled: r.enabled,
                 intent: r.intent
               }))
-            }, null, 2))
-          };
-        } else if (action === 'get-config') {
-          const config = securityAnalyzer.getRulesConfig();
-          return {
-            content: [
-              {
-                type: 'text',
-                text: JSON.stringify(config, null, 2)
-              }
-            ],
-            usage: estimateUsage(JSON.stringify(config, null, 2))
-          };
-        } else if (action === 'enable' || action === 'disable') {
-          if (!ruleId) {
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: 'Error: ruleId is required for enable/disable actions'
-                }
-              ],
-              isError: true
             };
-          }
-
-          const enabled = action === 'enable';
-          const success = securityAnalyzer.updateRuleStatus(ruleId, enabled);
-
-          if (success) {
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: JSON.stringify({
-                    success: true,
-                    message: `Rule "${ruleId}" has been ${enabled ? 'enabled' : 'disabled'}`
-                  }, null, 2)
-                }
-              ],
-              usage: estimateUsage(JSON.stringify({
-                success: true,
-                message: `Rule "${ruleId}" has been ${enabled ? 'enabled' : 'disabled'}`
-              }, null, 2))
-            };
-          } else {
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: `Error: Rule "${ruleId}" not found`
-                }
-              ],
-              isError: true,
-              usage: estimateUsage(`Error: Rule "${ruleId}" not found`)
-            };
-          }
-        }
-
-        throw new Error('Invalid action');
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error managing security rules: ${error instanceof Error ? error.message : 'Unknown error'}`
+          } else if (action === 'get-config') {
+            return securityAnalyzer.getRulesConfig();
+          } else if (action === 'enable' || action === 'disable') {
+            if (!ruleId) {
+              throw new Error('ruleId is required for enable/disable actions');
             }
-          ],
-          isError: true,
-          usage: estimateUsage(error instanceof Error ? error.message : 'Unknown error')
-        };
-      }
+
+            const enabled = action === 'enable';
+            const success = securityAnalyzer.updateRuleStatus(ruleId, enabled);
+
+            if (!success) {
+              throw new Error(`Rule "${ruleId}" not found`);
+            }
+
+            return {
+              success: true,
+              message: `Rule "${ruleId}" has been ${enabled ? 'enabled' : 'disabled'}`
+            };
+          }
+
+          throw new Error('Invalid action');
+        },
+        'security-config'
+      );
     }
   );
 }
